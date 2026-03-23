@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/gharhakNew/static/css/main.9a1f285c.css",
+    "main.js": "/gharhakNew/static/js/main.6980e6d6.js",
+    "index.html": "/gharhakNew/index.html",
+    "main.9a1f285c.css.map": "/gharhakNew/static/css/main.9a1f285c.css.map",
+    "main.6980e6d6.js.map": "/gharhakNew/static/js/main.6980e6d6.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9a1f285c.css",
+    "static/js/main.6980e6d6.js"
+  ]
+}
