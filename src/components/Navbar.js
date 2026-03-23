@@ -6,6 +6,7 @@ export default function Navbar({ currentPage, navigate }) {
     { id: 'wizard', label: 'Complaint Wizard' },
     { id: 'chat', label: 'AI Advisor' },
     { id: 'docs', label: 'Draft Documents' },
+    { id: 'byelaw', label: 'Bye-Law Checker' },
   ];
 
   return (

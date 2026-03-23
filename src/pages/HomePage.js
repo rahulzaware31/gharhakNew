@@ -35,7 +35,7 @@ export default function HomePage({ navigate }) {
             <div className="hero-stat-label">Issue Categories</div>
           </div>
           <div className="hero-stat">
-            <div className="hero-stat-num">6+</div>
+            <div className="hero-stat-num">16+</div>
             <div className="hero-stat-label">Document Templates</div>
           </div>
           <div className="hero-stat">
@@ -53,7 +53,7 @@ export default function HomePage({ navigate }) {
       <section className="section section-dark">
         <div className="container">
           <div className="section-title" style={{ color: '#fff', marginBottom: 8 }}>
-            Three Ways to Get <span>Help</span>
+            Four Ways to Get <span>Help</span>
           </div>
           <p className="section-sub" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 40 }}>
             Pick what works best for your situation
@@ -84,10 +84,20 @@ export default function HomePage({ navigate }) {
               <div className="feature-icon">📄</div>
               <div className="feature-title">Document Generator</div>
               <div className="feature-desc">
-                Generate ready-to-use legal notices, RTI applications, RERA complaints, MC resolutions,
-                and more. Fill details once — download as formatted document.
+                Generate ready-to-use legal notices, RTI applications, RERA complaints, PMC/DDR complaints,
+                and more. Fill details once — get a formatted document.
               </div>
-              <span className="feature-tag">6 document templates →</span>
+              <span className="feature-tag">16 document templates →</span>
+            </div>
+            <div className="feature-card" onClick={() => navigate('byelaw')}>
+              <div className="feature-num">04</div>
+              <div className="feature-icon">📋</div>
+              <div className="feature-title">Bye-Law Violation Checker</div>
+              <div className="feature-desc">
+                Describe what your Managing Committee did — AI cross-checks it against Model Bye-Laws 2014
+                and flags which specific bye-law was violated and what remedy is available.
+              </div>
+              <span className="feature-tag">Instant bye-law analysis →</span>
             </div>
           </div>
         </div>
