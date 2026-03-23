@@ -6,39 +6,63 @@ const FIELD_LABELS = {
   builderName: 'Builder / Developer Name',
   address: 'Address of Property',
   issueDescription: 'Describe the Issue',
-  demand: 'What do you demand from the builder?',
+  demand: 'What do you demand?',
   complainantName: 'Your Full Name',
   projectName: 'Project / Building Name',
   reraRegNo: 'RERA Registration Number',
   reliefSought: 'Relief / Remedy Sought',
   applicantName: 'Your Full Name',
   informationSought: 'Information / Documents Sought',
+  authorityName: 'Authority Name (e.g. PMRDA, Pune Municipal Corporation)',
   authority: 'Authority Name (e.g. PMRDA, Pune Municipal Corporation)',
   regNo: 'Society Registration Number',
   resolutionSubject: 'Subject / Purpose of Resolution',
   resolutionText: 'Resolution Text',
   plotDetails: 'Plot / Survey / Gat Number',
+  surveyNo: 'Survey / Gat / Plot Number',
   dateOfPossession: 'Date of Possession',
   accusedName: 'Name of Accused (Builder / Developer)',
-  incidentDescription: 'Describe the Illegal Construction',
+  incidentDescription: 'Describe the Incident / Violation',
   witnesses: 'Names of Witnesses (if any)',
+  electionDate: 'Date of Election / AGM',
+  respondentName: 'Name of Respondent / Opposite Party',
+  documentNo: 'Document / Registration Number',
+  registrationDate: 'Date of Registration',
+  purchaseDate: 'Date of Purchase / Agreement',
+  amountPaid: 'Amount Paid (₹)',
 };
+
+const TEXTAREA_FIELDS = new Set([
+  'issueDescription', 'demand', 'informationSought', 'resolutionText',
+  'incidentDescription', 'reliefSought', 'witnesses',
+]);
 
 const DOC_ICONS = {
   legal_notice_builder: '⚖️',
-  rera_complaint: '🏛️',
-  rti_application: '📋',
-  mc_resolution: '🗳️',
+  pmc_illegal_construction: '🚧',
+  pmc_no_oc: '📋',
+  pmc_water_sewage: '🚰',
+  ddr_maintenance_audit: '🔍',
+  ddr_election_dispute: '🗳️',
+  ddr_committee_misconduct: '🚨',
   deemed_conveyance: '🏠',
+  rti_application: '📄',
+  dr_rti_property: '🗂️',
+  rera_complaint: '🏛️',
+  consumer_forum_builder: '⚖️',
+  consumer_forum_society: '🏢',
+  coop_court_petition: '👨‍⚖️',
+  mc_resolution: '📝',
   police_complaint: '👮',
 };
+
+const AUTHORITY_ORDER = ['All', 'PMC', 'DDR', 'RTI', 'MahaRERA', 'Consumer Forum', 'Co-op Court', 'Society', 'Legal Notice', 'Police'];
 
 function generateDocument(template, formData, aiContent) {
   const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 
   if (aiContent) return aiContent;
 
-  // Fallback template-based generation
   if (template.id === 'legal_notice_builder') {
     return `LEGAL NOTICE
 
@@ -81,8 +105,7 @@ Copy to: District Deputy Registrar, Sub-Registrar Office`;
   return `[Document: ${template.title}]
 Generated on: ${today}
 
-Society: ${formData.societyName || formData.complainantName || formData.applicantName || '—'}
-${Object.entries(formData).filter(([k, v]) => v).map(([k, v]) => `${FIELD_LABELS[k] || k}: ${v}`).join('\n')}
+${Object.entries(formData).filter(([, v]) => v).map(([k, v]) => `${FIELD_LABELS[k] || k}: ${v}`).join('\n')}
 
 [Full document content will be AI-generated when API key is configured]`;
 }
@@ -92,6 +115,15 @@ export default function DocGeneratorPage() {
   const [formData, setFormData] = useState({});
   const [generated, setGenerated] = useState('');
   const [loading, setLoading] = useState(false);
+  const [activeAuthority, setActiveAuthority] = useState('All');
+
+  const authorities = AUTHORITY_ORDER.filter(a =>
+    a === 'All' || DOCUMENT_TEMPLATES.some(t => t.authority === a)
+  );
+
+  const visibleTemplates = activeAuthority === 'All'
+    ? DOCUMENT_TEMPLATES
+    : DOCUMENT_TEMPLATES.filter(t => t.authority === activeAuthority);
 
   const selectTemplate = (tpl) => {
     setSelected(tpl);
@@ -110,12 +142,12 @@ export default function DocGeneratorPage() {
     const prompt = `Generate a professional legal document: ${selected.title}.
 Date: ${today}
 Details provided:
-${Object.entries(formData).filter(([k, v]) => v).map(([k, v]) => `- ${FIELD_LABELS[k] || k}: ${v}`).join('\n')}
+${Object.entries(formData).filter(([, v]) => v).map(([k, v]) => `- ${FIELD_LABELS[k] || k}: ${v}`).join('\n')}
 
 Requirements:
-- Maharashtra law context (MCS Act, MOFA, RERA, UDCPR as applicable)
-- Professional legal language
-- Include relevant section numbers
+- Maharashtra law context (MCS Act, MOFA, RERA, UDCPR, Consumer Protection Act as applicable)
+- Professional legal language addressed to the correct authority (${selected.authority})
+- Include relevant section numbers and acts
 - Include proper addressing and signing blocks
 - Ready to use after filling [Advocate Name] / [Signature]
 - Be specific and actionable`;
@@ -131,7 +163,7 @@ Requirements:
           model: 'llama-3.3-70b-versatile',
           max_tokens: 1000,
           messages: [
-            { role: 'system', content: 'You are a Maharashtra housing law expert. Generate professional legal documents citing exact section numbers and applicable laws. Output only the document text, no preamble.' },
+            { role: 'system', content: 'You are a Maharashtra housing law expert. Generate professional legal documents and complaints citing exact section numbers and applicable laws. Output only the document text, no preamble.' },
             { role: 'user', content: prompt },
           ],
         }),
@@ -158,23 +190,46 @@ Requirements:
   return (
     <div className="section">
       <div className="container">
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h1 className="section-title">Document <span>Generator</span></h1>
-          <p className="section-sub">AI-powered legal documents for Maharashtra flat owners</p>
+          <p className="section-sub">Ready-made complaint templates for PMC, DDR, MahaRERA, Consumer Forum & more</p>
         </div>
 
         {!selected ? (
           <>
-            <p style={{ fontSize: 15, color: 'var(--text-muted)', marginBottom: 24 }}>
-              Select a document type to get started. All documents are generated using Maharashtra-specific legal language.
-            </p>
+            {/* Authority filter tabs */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 28 }}>
+              {authorities.map(auth => (
+                <button
+                  key={auth}
+                  onClick={() => setActiveAuthority(auth)}
+                  style={{
+                    padding: '7px 18px',
+                    borderRadius: 20,
+                    border: '1.5px solid',
+                    borderColor: activeAuthority === auth ? 'var(--teal)' : 'var(--border)',
+                    background: activeAuthority === auth ? 'var(--teal)' : 'var(--white)',
+                    color: activeAuthority === auth ? '#fff' : 'var(--text-muted)',
+                    fontWeight: 600,
+                    fontSize: 13,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {auth}
+                </button>
+              ))}
+            </div>
+
             <div className="doc-grid">
-              {DOCUMENT_TEMPLATES.map(tpl => (
+              {visibleTemplates.map(tpl => (
                 <div key={tpl.id} className="doc-card" onClick={() => selectTemplate(tpl)}>
                   <div className="doc-card-icon">{DOC_ICONS[tpl.id] || '📄'}</div>
                   <div className="doc-card-title">{tpl.title}</div>
                   <div className="doc-card-mr mr">{tpl.titleMr}</div>
-                  <span className="doc-card-cat">{getCatLabel(tpl.category)}</span>
+                  <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
+                    <span className="doc-card-cat">{tpl.authority}</span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -194,25 +249,26 @@ Requirements:
                 <div>
                   <h2 style={{ fontSize: 22, fontWeight: 800, marginBottom: 4 }}>{selected.title}</h2>
                   <div className="mr" style={{ color: 'var(--text-muted)', fontSize: 14 }}>{selected.titleMr}</div>
+                  <span className="doc-card-cat" style={{ marginTop: 4, display: 'inline-block' }}>{selected.authority}</span>
                 </div>
               </div>
 
               {selected.fields.map(field => (
                 <div key={field} className="form-field">
                   <label className="form-label">{FIELD_LABELS[field] || field}</label>
-                  {['issueDescription', 'demand', 'informationSought', 'resolutionText', 'incidentDescription', 'reliefSought'].includes(field) ? (
+                  {TEXTAREA_FIELDS.has(field) ? (
                     <textarea
                       className="form-input form-textarea"
                       value={formData[field] || ''}
                       onChange={e => handleField(field, e.target.value)}
-                      placeholder={`Enter ${FIELD_LABELS[field]?.toLowerCase() || field}...`}
+                      placeholder={`Enter ${(FIELD_LABELS[field] || field).toLowerCase()}...`}
                     />
                   ) : (
                     <input
                       className="form-input"
                       value={formData[field] || ''}
                       onChange={e => handleField(field, e.target.value)}
-                      placeholder={`Enter ${FIELD_LABELS[field]?.toLowerCase() || field}...`}
+                      placeholder={`Enter ${(FIELD_LABELS[field] || field).toLowerCase()}...`}
                     />
                   )}
                 </div>
@@ -260,8 +316,7 @@ Requirements:
                   {generated}
                 </pre>
                 <div style={{ padding: '12px 24px', background: '#fffbf0', borderTop: '1px solid #fde68a', fontSize: 12, color: '#92400e' }}>
-                  ⚠️ Review this document carefully before use. Have it reviewed by a qualified advocate before serving on any party.
-                  Replace all [bracketed] placeholders with actual details.
+                  ⚠️ This platform provides general legal information only. It is not a substitute for professional legal advice. Have this document reviewed by a qualified advocate before serving on any party. Replace all [bracketed] placeholders with actual details.
                 </div>
               </div>
             )}

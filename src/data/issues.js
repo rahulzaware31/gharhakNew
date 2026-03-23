@@ -170,10 +170,37 @@ export const COMPLAINT_STEPS = {
 };
 
 export const DOCUMENT_TEMPLATES = [
-  { id: "legal_notice_builder", title: "Legal Notice to Builder", titleMr: "बिल्डरला कायदेशीर नोटीस", category: "conveyance", fields: ["societyName", "builderName", "address", "issueDescription", "demand"] },
-  { id: "rera_complaint", title: "RERA Complaint Draft", titleMr: "RERA तक्रार मसुदा", category: "rera", fields: ["complainantName", "projectName", "reraRegNo", "issueDescription", "reliefSought"] },
-  { id: "rti_application", title: "RTI Application (Municipal/PMRDA)", titleMr: "माहिती अधिकार अर्ज", category: "illegal_construction", fields: ["applicantName", "address", "informationSought", "authority"] },
-  { id: "mc_resolution", title: "Managing Committee Resolution", titleMr: "व्यवस्थापन समिती ठराव", category: "chs_condominium", fields: ["societyName", "regNo", "resolutionSubject", "resolutionText"] },
-  { id: "deemed_conveyance", title: "Deemed Conveyance Application", titleMr: "अभिहस्तांतरण अर्ज", category: "conveyance", fields: ["societyName", "regNo", "plotDetails", "builderName", "dateOfPossession"] },
-  { id: "police_complaint", title: "Police Complaint (Illegal Construction)", titleMr: "पोलीस तक्रार", category: "illegal_construction", fields: ["complainantName", "address", "accusedName", "incidentDescription", "witnesses"] },
+  // ── General / Legal Notice ──────────────────────────────────────────────
+  { id: "legal_notice_builder", title: "Legal Notice to Builder", titleMr: "बिल्डरला कायदेशीर नोटीस", category: "conveyance", authority: "Legal Notice", fields: ["societyName", "builderName", "address", "issueDescription", "demand"] },
+
+  // ── PMC / Municipal Corporation ─────────────────────────────────────────
+  { id: "pmc_illegal_construction", title: "PMC Complaint: Illegal Construction", titleMr: "PMC तक्रार: बेकायदेशीर बांधकाम", category: "illegal_construction", authority: "PMC", fields: ["complainantName", "address", "surveyNo", "builderName", "incidentDescription", "demand"] },
+  { id: "pmc_no_oc", title: "PMC Complaint: No Occupancy Certificate", titleMr: "PMC तक्रार: भोगवटा प्रमाणपत्र नाही", category: "oc", authority: "PMC", fields: ["complainantName", "address", "projectName", "builderName", "dateOfPossession", "demand"] },
+  { id: "pmc_water_sewage", title: "PMC Complaint: Water / Sewage Issue", titleMr: "PMC तक्रार: पाणी / सांडपाणी समस्या", category: "chs_condominium", authority: "PMC", fields: ["complainantName", "address", "societyName", "issueDescription", "demand"] },
+
+  // ── DDR — District Deputy Registrar (Co-op) ─────────────────────────────
+  { id: "ddr_maintenance_audit", title: "DDR Complaint: Maintenance & Audit", titleMr: "DDR तक्रार: देखभाल व लेखापरीक्षण", category: "maintenance", authority: "DDR", fields: ["complainantName", "societyName", "regNo", "address", "issueDescription", "demand"] },
+  { id: "ddr_election_dispute", title: "DDR Complaint: Election Dispute", titleMr: "DDR तक्रार: निवडणूक वाद", category: "elections", authority: "DDR", fields: ["complainantName", "societyName", "regNo", "electionDate", "issueDescription", "reliefSought"] },
+  { id: "ddr_committee_misconduct", title: "DDR Complaint: Committee Misconduct", titleMr: "DDR तक्रार: समिती गैरवर्तन", category: "chs_condominium", authority: "DDR", fields: ["complainantName", "societyName", "regNo", "respondentName", "issueDescription", "reliefSought"] },
+  { id: "deemed_conveyance", title: "Deemed Conveyance Application (DDR)", titleMr: "अभिहस्तांतरण अर्ज (DDR)", category: "conveyance", authority: "DDR", fields: ["societyName", "regNo", "plotDetails", "builderName", "dateOfPossession"] },
+
+  // ── DR / Sub-Registrar ──────────────────────────────────────────────────
+  { id: "rti_application", title: "RTI Application (Municipal / PMRDA)", titleMr: "माहिती अधिकार अर्ज", category: "illegal_construction", authority: "RTI", fields: ["applicantName", "address", "informationSought", "authorityName"] },
+  { id: "dr_rti_property", title: "RTI to Sub-Registrar: Property Records", titleMr: "उप-निबंधक: मालमत्ता नोंदी RTI अर्ज", category: "conveyance", authority: "RTI", fields: ["applicantName", "address", "surveyNo", "documentNo", "registrationDate", "informationSought"] },
+
+  // ── MahaRERA ────────────────────────────────────────────────────────────
+  { id: "rera_complaint", title: "MahaRERA Complaint Draft", titleMr: "MahaRERA तक्रार मसुदा", category: "rera", authority: "MahaRERA", fields: ["complainantName", "projectName", "reraRegNo", "issueDescription", "reliefSought"] },
+
+  // ── Consumer Forum ──────────────────────────────────────────────────────
+  { id: "consumer_forum_builder", title: "Consumer Forum Complaint: Builder", titleMr: "ग्राहक न्यायालय तक्रार: बिल्डर", category: "defects", authority: "Consumer Forum", fields: ["complainantName", "address", "builderName", "projectName", "purchaseDate", "amountPaid", "issueDescription", "reliefSought"] },
+  { id: "consumer_forum_society", title: "Consumer Forum Complaint: Society", titleMr: "ग्राहक न्यायालय तक्रार: सोसायटी", category: "maintenance", authority: "Consumer Forum", fields: ["complainantName", "address", "societyName", "regNo", "issueDescription", "amountPaid", "reliefSought"] },
+
+  // ── Co-operative Court ──────────────────────────────────────────────────
+  { id: "coop_court_petition", title: "Co-operative Court Petition", titleMr: "सहकारी न्यायालय याचिका", category: "chs_condominium", authority: "Co-op Court", fields: ["complainantName", "address", "societyName", "regNo", "respondentName", "issueDescription", "reliefSought"] },
+
+  // ── Society Internal ────────────────────────────────────────────────────
+  { id: "mc_resolution", title: "Managing Committee Resolution", titleMr: "व्यवस्थापन समिती ठराव", category: "chs_condominium", authority: "Society", fields: ["societyName", "regNo", "resolutionSubject", "resolutionText"] },
+
+  // ── Police ──────────────────────────────────────────────────────────────
+  { id: "police_complaint", title: "Police Complaint (Illegal Construction)", titleMr: "पोलीस तक्रार", category: "illegal_construction", authority: "Police", fields: ["complainantName", "address", "accusedName", "incidentDescription", "witnesses"] },
 ];
