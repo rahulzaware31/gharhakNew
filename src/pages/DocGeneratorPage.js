@@ -121,21 +121,23 @@ Requirements:
 - Be specific and actionable`;
 
     try {
-      const res = await fetch('https://api.anthropic.com/v1/messages', {
+      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true',
+          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'llama-3.3-70b-versatile',
           max_tokens: 1000,
-          messages: [{ role: 'user', content: prompt }],
-          system: 'You are a Maharashtra housing law expert. Generate professional legal documents citing exact section numbers and applicable laws. Output only the document text, no preamble.',
+          messages: [
+            { role: 'system', content: 'You are a Maharashtra housing law expert. Generate professional legal documents citing exact section numbers and applicable laws. Output only the document text, no preamble.' },
+            { role: 'user', content: prompt },
+          ],
         }),
       });
       const data = await res.json();
-      setGenerated(data.content?.[0]?.text || generateDocument(selected, formData, null));
+      setGenerated(data.choices?.[0]?.message?.content || generateDocument(selected, formData, null));
     } catch {
       setGenerated(generateDocument(selected, formData, null));
     } finally {

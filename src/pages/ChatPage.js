@@ -81,21 +81,23 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const apiMessages = newMessages.map(m => ({
-        role: m.role === 'ai' ? 'assistant' : 'user',
-        content: m.content,
-      }));
+      const apiMessages = [
+        { role: 'system', content: SYSTEM_PROMPT },
+        ...newMessages.map(m => ({
+          role: m.role === 'ai' ? 'assistant' : 'user',
+          content: m.content,
+        })),
+      ];
 
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'anthropic-dangerous-direct-browser-access': 'true',
+          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
+          model: 'llama-3.3-70b-versatile',
           max_tokens: 1000,
-          system: SYSTEM_PROMPT,
           messages: apiMessages,
         }),
       });
@@ -106,7 +108,7 @@ export default function ChatPage() {
       }
 
       const data = await response.json();
-      const aiText = data.content?.[0]?.text || 'Sorry, I could not generate a response. Please try again.';
+      const aiText = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response. Please try again.';
 
       setMessages(prev => [...prev, { role: 'ai', content: aiText, time: formatTime() }]);
     } catch (err) {
@@ -132,7 +134,7 @@ export default function ChatPage() {
       <div className="container">
         <div style={{ marginBottom: 32, textAlign: 'center' }}>
           <h1 className="section-title">AI Legal <span>Advisor</span></h1>
-          <p className="section-sub">Powered by Claude AI · Trained on Maharashtra housing law</p>
+          <p className="section-sub">Powered by Groq · Llama 3 · Trained on Maharashtra housing law</p>
         </div>
 
         <div className="chat-container">
