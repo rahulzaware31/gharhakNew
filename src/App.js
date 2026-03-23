@@ -5,6 +5,7 @@ import ChatPage from './pages/ChatPage';
 import WizardPage from './pages/WizardPage';
 import DocGeneratorPage from './pages/DocGeneratorPage';
 import IssuePage from './pages/IssuePage';
+import ByeLawCheckerPage from './pages/ByeLawCheckerPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -31,6 +32,7 @@ export default function App() {
         {page === 'wizard' && <WizardPage />}
         {page === 'docs' && <DocGeneratorPage />}
         {page === 'issue' && <IssuePage />}
+        {page === 'byelaw' && <ByeLawCheckerPage />}
       </main>
       <Footer navigate={navigate} />
     </AppContext.Provider>
