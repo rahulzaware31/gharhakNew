@@ -1,503 +1,1144 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>GharHak — Conveyance Area & FSI Calculator</title>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet" />
-<style>
-:root{--teal:#00c896;--teal-dark:#00a87d;--teal-light:#e6faf5;--dark:#0f1923;--dark-2:#1a2636;--text:#1a2636;--muted:#6b7a8d;--bg:#f8fafb;--white:#fff;--border:#e2e8f0;--red:#e74c3c;--orange:#e67e22;--font:'Bricolage Grotesque',sans-serif;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;}
-.header{background:var(--dark);padding:16px 24px;}
-.logo{font-size:22px;font-weight:800;color:#fff;}.logo span{color:var(--teal);}
-.header-sub{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px;}
-.hero{background:linear-gradient(135deg,var(--dark),#0d2b1f);padding:40px 24px;text-align:center;}
-.hero h1{font-size:clamp(26px,5vw,48px);font-weight:800;color:#fff;letter-spacing:-1px;margin-bottom:6px;}
-.hero h1 span{color:var(--teal);}
-.hero-law{display:inline-flex;align-items:center;gap:8px;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.25);color:var(--teal);padding:6px 16px;border-radius:999px;font-size:12px;font-weight:600;margin-bottom:16px;}
-.hero-sub{font-size:15px;color:rgba(255,255,255,0.6);max-width:680px;margin:10px auto 0;}
-.container{max-width:1140px;margin:0 auto;padding:32px 20px;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
-@media(max-width:800px){.grid2{grid-template-columns:1fr;}}
-.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:20px;}
-.card-title{font-size:16px;font-weight:800;margin-bottom:4px;}
-.card-sub{font-size:12px;color:var(--muted);margin-bottom:20px;}
-.field{margin-bottom:14px;}
-.field label{font-size:12px;font-weight:600;display:block;margin-bottom:5px;}
-.field label em{color:var(--muted);font-weight:400;font-style:normal;font-size:11px;margin-left:4px;}
-.field input,.field select{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:9px;font-size:13px;font-family:var(--font);outline:none;transition:all .2s;background:#fff;}
-.field input:focus,.field select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,200,150,.1);}
-.field .hint{font-size:11px;color:var(--muted);margin-top:3px;}
-.soc-row{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:10px;}
-.soc-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
-.soc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
-.soc-num{font-size:11px;font-weight:700;color:var(--teal);text-transform:uppercase;letter-spacing:1px;}
-.btn-del{width:28px;height:28px;background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;color:var(--red);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-.btn-add{width:100%;padding:10px;background:var(--teal-light);color:var(--teal);border:1.5px dashed var(--teal);border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px;font-family:var(--font);}
-.btn-calc{width:100%;padding:15px;background:var(--teal);color:#fff;border:none;border-radius:11px;font-size:16px;font-weight:800;cursor:pointer;margin-top:20px;font-family:var(--font);}
-.btn-sec{width:100%;padding:11px;background:transparent;color:var(--muted);border:1.5px solid var(--border);border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;font-family:var(--font);}
-.btn-sec2{width:100%;padding:11px;background:transparent;color:var(--teal);border:1.5px solid var(--teal);border-radius:11px;font-size:13px;font-weight:600;cursor:pointer;margin-top:8px;font-family:var(--font);}
-.results{margin-top:28px;display:none;}.results.show{display:block;}
-.as-table{width:100%;border-collapse:collapse;font-size:13px;}
-.as-table th{background:var(--dark);color:rgba(255,255,255,.85);padding:10px 14px;text-align:left;font-size:11px;}
-.as-table th.r{text-align:right;}
-.as-table td{padding:9px 14px;border-bottom:1px solid var(--border);vertical-align:top;}
-.as-table td.r{text-align:right;font-family:'Courier New',monospace;font-weight:600;}
-.as-table td.sub{color:var(--muted);font-size:12px;padding-left:28px;}
-.as-table tr.sh td{background:#f1f5f9;font-weight:700;font-size:12px;color:var(--dark);}
-.as-table tr.sh td .sn{color:var(--teal);margin-right:8px;font-weight:800;}
-.as-table tr.tot td{background:var(--teal-light);font-weight:700;color:#065f46;}
-.as-table tr.fr td{background:#fef2f2;color:var(--red);font-weight:700;}
-.as-table tr.ok td{background:#f0fdf4;color:#065f46;font-weight:700;}
-.as-table .diff{font-size:11px;color:var(--red);}
-.as-table .okd{font-size:11px;color:#065f46;}
-.r-hero{background:linear-gradient(135deg,var(--dark),var(--dark-2));border-radius:18px;padding:32px;text-align:center;margin-bottom:20px;}
-.r-lbl{font-size:11px;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
-.r-num{font-size:clamp(36px,7vw,64px);font-weight:800;color:var(--teal);line-height:1;}
-.r-unit{font-size:14px;color:rgba(255,255,255,.4);margin-top:4px;margin-bottom:20px;}
-.r-badges{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
-.badge{padding:6px 16px;border-radius:999px;font-size:12px;font-weight:700;}
-.badge-g{background:rgba(0,200,150,.15);color:var(--teal);border:1px solid rgba(0,200,150,.3);}
-.badge-r{background:rgba(231,76,60,.15);color:var(--red);border:1px solid rgba(231,76,60,.3);}
-.badge-o{background:rgba(230,126,34,.15);color:var(--orange);border:1px solid rgba(230,126,34,.3);}
-.igrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px;}
-.ibox{padding:14px;border-radius:10px;border:1px solid var(--border);background:var(--white);}
-.inum{font-size:20px;font-weight:800;color:var(--teal);}
-.ilbl{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.4;}
-.alert{padding:14px 18px;border-radius:11px;margin-bottom:14px;font-size:13px;line-height:1.6;}
-.alert .at{font-weight:700;margin-bottom:5px;font-size:14px;}
-.ar{background:#fef2f2;border:1.5px solid #fca5a5;color:#991b1b;}
-.ao{background:#fff7ed;border:1.5px solid #fed7aa;color:#92400e;}
-.ag{background:var(--teal-light);border:1.5px solid rgba(0,200,150,.3);color:#065f46;}
-.ab{background:#eff6ff;border:1.5px solid #bfdbfe;color:#1e40af;}
-.tab-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px;}
-.tab{padding:8px 16px;border-radius:7px;border:1.5px solid var(--border);background:var(--white);font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;font-family:var(--font);}
-.tab.active{background:var(--teal);color:#fff;border-color:var(--teal);}
-.tp{display:none;}.tp.active{display:block;}
-.mbox{background:var(--dark);border-radius:12px;padding:22px;font-family:'Courier New',monospace;font-size:12px;color:rgba(255,255,255,.75);line-height:1.9;overflow-x:auto;}
-.mbox .eq{color:var(--teal);font-weight:700;}
-.mbox .val{color:#fff;font-weight:700;}
-.mbox .bad{color:#f87171;}
-.mbox .good{color:#6ee7b7;}
-.mbox .dim{color:rgba(255,255,255,.3);font-size:11px;}
-.mbox .rule{border-top:1px solid rgba(255,255,255,.1);margin:8px 0;padding-top:8px;}
-.mbox .res{color:var(--teal);font-size:13px;font-weight:800;border-top:2px solid rgba(0,200,150,.3);margin-top:10px;padding-top:10px;}
-.dout{background:#f8fafb;border:1px solid var(--border);border-radius:10px;padding:18px;font-size:12px;line-height:1.85;white-space:pre-wrap;max-height:450px;overflow-y:auto;font-family:'Courier New',monospace;}
-.bcopy{padding:9px 18px;background:var(--teal);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;font-family:var(--font);}
-.bprint{padding:9px 18px;background:var(--white);color:var(--text);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;margin-top:10px;margin-left:8px;font-family:var(--font);}
-.sl{display:flex;flex-direction:column;gap:12px;}
-.si{display:flex;gap:14px;padding:16px;background:var(--white);border:1px solid var(--border);border-radius:11px;}
-.sn2{width:30px;height:30px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#fff;flex-shrink:0;}
-.st{font-weight:700;margin-bottom:5px;}
-.sd{font-size:12px;color:var(--muted);line-height:1.6;}
-.disc{font-size:11px;color:var(--muted);background:#fffbf0;border:1px solid #fde68a;border-radius:9px;padding:12px 16px;margin-top:20px;line-height:1.6;}
-.guide-block{padding:10px 12px;background:rgba(255,255,255,.05);border-radius:8px;margin-bottom:8px;}
-</style>
-</head>
-<body>
-<div class="header"><div class="logo">Ghar<span>Hak</span></div><div class="header-sub">Maharashtra Housing Rights · FSI & Conveyance Calculator · UDCPR 2020</div></div>
-<div class="hero">
-  <div class="hero-law">📐 Follows Exact PMRDA Area Statement Row Format · UDCPR 2020</div>
-  <h1>Conveyance Area & <span>FSI Calculator</span></h1>
-  <p class="hero-sub">Mirrors official PMRDA Area Statement. Calculates Base FSI, Premium FSI (Row 10), TDR (Row 11c), Ancillary (Row 13e = Balance × 0.60) — and detects fraud by comparing builder's figures against correct figures after excluding conveyed society lands.</p>
-</div>
-<div class="container">
-<div class="grid2">
-<div>
-  <div class="card">
-    <div class="card-title">📋 Plot Details — Rows 01–03</div>
-    <div class="card-sub">From 7/12 extract, ownership document, sanctioned layout</div>
-    <div class="field"><label>Area as per Ownership Document / 7-12 <em>(Row 01a)</em></label><input type="number" id="plotOwn" placeholder="e.g. 97700" step="0.01"/></div>
-    <div class="field"><label>Area as per Sanctioned Layout Plan <em>(Row 01b)</em></label><input type="number" id="plotSanc" placeholder="e.g. 97700" step="0.01"/></div>
-    <div class="field"><label>Area under 15m+ Road — to surrender <em>(Row 02a)</em></label><input type="number" id="deductRd" value="0" step="0.01"/><div class="hint">Road widening deduction only. Internal roads NOT deducted here.</div></div>
-    <div class="field"><label>Planning Authority</label>
-      <select id="auth"><option value="pmrda">PMRDA</option><option value="pmc">PMC</option><option value="pcmc">PCMC</option><option value="other">Other</option></select></div>
-    <div class="field"><label>Road Width in front of plot <em>(determines Base FSI)</em></label>
-      <select id="rdw">
-        <option value="9">Up to 9m — Base FSI 1.10</option>
-        <option value="12" selected>9–15m (12m) — Base FSI 1.10</option>
-        <option value="18">15–24m — Base FSI 1.30</option>
-        <option value="24">24–30m — Base FSI 1.50</option>
-        <option value="30">30m+ — Base FSI 1.80</option>
-      </select><div class="hint">UDCPR 2020 Table 6-A, PMRDA Residential Zone</div></div>
-  </div>
-  <div class="card">
-    <div class="card-title">🌳 Amenity Space — Rows 04–08</div>
-    <div class="card-sub">Net Plot Area = Balance Area − Amenity Space</div>
-    <div class="field"><label>Amenity Space Proposed <em>(Row 04b)</em></label><input type="number" id="amenity" placeholder="auto: 15% of balance area" step="0.01"/><div class="hint">Leave blank to auto-calculate at 15%</div></div>
-    <div class="field"><label>Recreational Open Space <em>(Row 06b — NOT deducted)</em></label><input type="number" id="recSp" value="0" step="0.01"/></div>
-    <div class="field"><label>Internal Road Area <em>(Row 07 — NOT deducted)</em></label><input type="number" id="intRd" value="0" step="0.01"/></div>
-  </div>
-  <div class="card">
-    <div class="card-title">🏗️ Builder's Claimed Figures <em style="font-size:12px;font-weight:400;color:var(--muted)">(for fraud detection)</em></div>
-    <div class="card-sub">From builder's area statement, sanction letter, commencement certificate</div>
-    <div class="field"><label>Builder's Claimed Plot Area <em>(their Row 01c)</em></label><input type="number" id="bPlot" placeholder="e.g. 97700" step="0.01"/></div>
-    <div class="field"><label>Builder's Proposed Total BUA <em>(their Row 15e)</em></label><input type="number" id="bBUA" placeholder="e.g. 107564" step="0.01"/></div>
-    <div class="field"><label>Existing BUA on Plot <em>(Row 13b)</em></label><input type="number" id="exBUA" value="0" step="0.01"/></div>
-    <div class="field"><label>TDR Proposed by Builder <em>(Row 11c proposed)</em></label><input type="number" id="bTDR" value="0" step="0.01"/></div>
-    <div class="field"><label>Premium FSI Proposed by Builder <em>(Row 10b)</em></label><input type="number" id="bPrem" value="0" step="0.01"/></div>
-  </div>
-</div>
-<div>
-  <div class="card">
-    <div class="card-title">🏘️ Societies / Associations — Conveyed Land</div>
-    <div class="card-sub">Enter each society and area conveyed / to be conveyed to them</div>
-    <div id="socList"></div>
-    <button class="btn-add" onclick="addSoc()">+ Add Society / Association</button>
-  </div>
-  <div class="card" style="background:var(--dark);border-color:var(--dark-2);">
-    <div class="card-title" style="color:#fff;font-size:14px;">📖 UDCPR 2020 FSI Formula (PMRDA)</div>
-    <div style="font-size:12px;color:rgba(255,255,255,.55);line-height:1.8;margin-top:8px;">
-      <div class="guide-block" style="border-left:3px solid var(--teal)"><strong style="color:#fff">Row 09 — Base FSI BUA</strong><br/>Net Plot Area × Base FSI Rate<br/>(1.10 for &lt;15m | 1.30 for 15–24m | 1.50 for 24–30m | 1.80 for 30m+)</div>
-      <div class="guide-block" style="border-left:3px solid var(--orange)"><strong style="color:#fff">Row 10 — Premium FSI</strong><br/>Max = Net Plot Area × <strong style="color:var(--orange)">0.30</strong><br/>Pay premium to PMRDA to unlock</div>
-      <div class="guide-block" style="border-left:3px solid #2980b9"><strong style="color:#fff">Row 11c — TDR</strong><br/>Max = Net Plot Area × <strong style="color:#7fc8f8">0.70</strong><br/>↳ Slum TDR = NPA × 0.21<br/>↳ Reservation TDR = NPA × 0.49</div>
-      <div class="guide-block" style="border-left:3px solid #a855f7"><strong style="color:#fff">Row 13e — Ancillary Area</strong><br/>= Balance BUA × <strong style="color:#d8b4fe">0.60</strong><br/>(Staircase, lift, lobby — not counted in FSI)<br/><em style="color:rgba(255,255,255,.3);">Balance BUA = Total FSI (Row 13a) − Existing BUA (Row 13b)</em></div>
-      <div class="guide-block" style="background:rgba(0,200,150,.08);border:1px solid rgba(0,200,150,.2);"><strong style="color:var(--teal)">Max Total = NPA × (1.10 + 0.30 + 0.70) = NPA × 2.10</strong><br/><span style="color:rgba(255,255,255,.4);font-size:11px;">Plus Ancillary (60% of Balance BUA) on top · Open Space = 10% of Balance Area Row 03, NOT of NPA · No Row 13c deduction</span></div>
+import React, { useState } from 'react';
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+const SQ_FT_PER_SQ_M = 10.7639;
+
+const BASE_FSI = {
+  pmrda: { 9: 1.10, 12: 1.10, 18: 1.30, 24: 1.50, 30: 1.80 },
+  pmc:   { 9: 1.10, 12: 1.50, 18: 2.00, 24: 2.50, 30: 3.00 },
+  pcmc:  { 9: 1.10, 12: 1.50, 18: 2.00, 24: 2.50, 30: 3.00 },
+  other: { 9: 1.00, 12: 1.00, 18: 1.20, 24: 1.50, 30: 1.80 },
+};
+const PREM_RATE   = 0.30;  // Row 10a: Premium FSI = NPA × 0.30
+const TDR_RATE    = 0.70;  // Row 11c: TDR = NPA × 0.70
+const SLUM_PCT    = 0.30;  // Slum TDR = 30% of TDR allowance
+const RES_PCT     = 0.70;  // Reservation TDR = 70% of TDR allowance
+const ANCIL_RATE  = 0.60;  // Row 13e: Ancillary = Balance BUA × 0.60
+const AMENITY_PCT = 0.15;  // Row 04: Amenity Space = 15% of Balance Area
+
+let _flatId = 0;
+const newFlat = (label) => ({ id: ++_flatId, name: label, carpetArea: '' });
+
+const fmt  = (n, d = 2) => (n == null || isNaN(n)) ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmt0 = (n) => fmt(n, 0);
+
+// ─── Shared small components ──────────────────────────────────────────────────
+function Field({ label, hint, error, children }) {
+  return (
+    <div className="conv-field-group">
+      <label className="conv-label">
+        {label}
+        {hint && <span className="conv-hint">{hint}</span>}
+      </label>
+      {children}
+      {error && <div className="conv-error">{error}</div>}
     </div>
-  </div>
-</div>
-</div>
-<button class="btn-calc" onclick="calc()">⚡ Generate Area Statement & Detect FSI Fraud</button>
-<button class="btn-sec" onclick="reset()">↺ Reset All</button>
-<button class="btn-sec2" onclick="loadEx()">📋 Load Example: Gat 1185A Wagholi</button>
+  );
+}
 
-<div class="results" id="results">
-  <div class="r-hero"><div class="r-lbl">Total Land to be Conveyed to All Societies</div><div class="r-num" id="rConv">—</div><div class="r-unit">sq.m.</div><div class="r-badges" id="rBadges"></div></div>
-  <div class="card">
-    <div class="tab-row">
-      <button class="tab active" onclick="sw('as',this)">📊 Area Statement</button>
-      <button class="tab" onclick="sw('fraud',this)">🔍 FSI Fraud Check</button>
-      <button class="tab" onclick="sw('math',this)">🧮 Workings</button>
-      <button class="tab" onclick="sw('doc',this)">📄 Legal Statement</button>
-      <button class="tab" onclick="sw('steps',this)">🗺️ Next Steps</button>
+function NumInput({ id, value, onChange, placeholder, error }) {
+  return (
+    <input
+      className={`form-input ${error ? 'conv-input-error' : ''}`}
+      type="number"
+      min="0"
+      id={id}
+      placeholder={placeholder}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+    />
+  );
+}
+
+function SocietyRow({ soc, index, onUpdate, onRemove, showRemove }) {
+  return (
+    <div className="conv-soc-row">
+      <div className="conv-soc-header">
+        <span className="conv-soc-num">Society {index + 1}</span>
+        {showRemove && (
+          <button className="conv-remove-btn" onClick={onRemove}>×</button>
+        )}
+      </div>
+      <Field label="Society / Association Name">
+        <input
+          className="form-input"
+          placeholder="e.g. Solacia E1 & E2 CHS Ltd."
+          value={soc.name}
+          onChange={e => onUpdate('name', e.target.value)}
+        />
+      </Field>
+      <div className="conv-two-col">
+        <Field label="Type">
+          <select className="form-input" value={soc.type} onChange={e => onUpdate('type', e.target.value)}>
+            <option value="chs">CHS (MCS Act 1960)</option>
+            <option value="aoa">AOA (MAOA 1970)</option>
+            <option value="condo">Condominium</option>
+          </select>
+        </Field>
+        <Field label="No. of Flats">
+          <input className="form-input" type="number" min="0" placeholder="120"
+            value={soc.flats} onChange={e => onUpdate('flats', e.target.value)} />
+        </Field>
+        <Field label="Conveyed Area (sq.m.)">
+          <input className="form-input" type="number" min="0" step="0.01" placeholder="4600"
+            value={soc.area} onChange={e => onUpdate('area', e.target.value)} />
+        </Field>
+        <Field label="Status">
+          <select className="form-input" value={soc.status} onChange={e => onUpdate('status', e.target.value)}>
+            <option value="done">✅ Already Conveyed</option>
+            <option value="pending">❌ Pending</option>
+            <option value="partial">⚠️ Partial / Disputed</option>
+          </select>
+        </Field>
+      </div>
     </div>
-    <div class="tp active" id="tab-as"><div class="igrid" id="rGrid"></div><p style="font-size:11px;color:var(--muted);margin-bottom:10px">📌 <strong style="color:var(--red)">Red = Builder's figures</strong> (including society land) vs <strong style="color:#065f46">Green = Correct figures</strong> (after excluding conveyed lands)</p><table class="as-table"><thead><tr><th style="width:30px">#</th><th>Description</th><th class="r" style="color:#f87171">Builder's<br>Figures (sq.m.)</th><th class="r" style="color:#6ee7b7">Correct<br>Figures (sq.m.)</th></tr></thead><tbody id="rAST"></tbody></table><div id="rAlerts" style="margin-top:16px"></div></div>
-    <div class="tp" id="tab-fraud"><div id="rFraud"></div></div>
-    <div class="tp" id="tab-math"><div class="mbox" id="rMath"></div></div>
-    <div class="tp" id="tab-doc"><p style="font-size:13px;color:var(--muted);margin-bottom:14px">Ready for DDR, RERA complaint, court affidavit, PMRDA objection.</p><pre class="dout" id="rDoc"></pre><button class="bcopy" onclick="cpDoc()">📋 Copy</button><button class="bprint" onclick="window.print()">🖨️ Print</button></div>
-    <div class="tp" id="tab-steps"><div id="rSteps"></div></div>
-  </div>
-  <div class="disc">⚠️ This calculator is based on UDCPR 2020 and actual PMRDA area statement formats. Figures are indicative. Verify with certified 7/12 extracts, approved layout plans, and conveyance deeds. Not legal advice — consult a qualified town planner and advocate for filings.</div>
-</div>
-</div>
-<script>
-const BASE={pmrda:{9:1.10,12:1.10,18:1.30,24:1.50,30:1.80},pmc:{9:1.10,12:1.50,18:2.00,24:2.50,30:3.00},pcmc:{9:1.10,12:1.50,18:2.00,24:2.50,30:3.00},other:{9:1.00,12:1.00,18:1.20,24:1.50,30:1.80}};
-const PREM=0.30,TDR=0.70,SLUM=0.30,RES=0.70,ANCIL=0.60,AMEN=0.15;
-let socs=[];
-const f=(n,d=2)=>n==null||isNaN(n)?'—':Number(n).toLocaleString('en-IN',{minimumFractionDigits:d,maximumFractionDigits:d});
-const f0=n=>f(n,0);
-const g=id=>parseFloat(document.getElementById(id).value)||0;
-const gs=id=>document.getElementById(id).value;
-
-function addSoc(p={}){const id=Date.now()+Math.random();socs.push({id,name:p.name||'',type:p.type||'chs',flats:p.flats||'',area:p.area||'',status:p.status||'done'});rSocs();}
-function delSoc(id){socs=socs.filter(s=>s.id!==id);rSocs();}
-function upSoc(id,f,v){const s=socs.find(s=>s.id===id);if(s)s[f]=v;}
-function rSocs(){
-  const el=document.getElementById('socList');
-  if(!socs.length){el.innerHTML='<div style="text-align:center;padding:16px;color:var(--muted);font-size:12px">No societies added. Click + below.</div>';return;}
-  el.innerHTML=socs.map((s,i)=>`<div class="soc-row"><div class="soc-header"><span class="soc-num">Society ${i+1}</span><button class="btn-del" onclick="delSoc(${s.id})">×</button></div><div class="field" style="margin-bottom:8px"><input type="text" placeholder="Society name" value="${s.name}" oninput="upSoc(${s.id},'name',this.value)"/></div><div class="soc-grid"><div class="field" style="margin-bottom:0"><label>Type</label><select onchange="upSoc(${s.id},'type',this.value)"><option value="chs" ${s.type==='chs'?'selected':''}>CHS</option><option value="aoa" ${s.type==='aoa'?'selected':''}>AOA</option><option value="condo" ${s.type==='condo'?'selected':''}>Condo</option></select></div><div class="field" style="margin-bottom:0"><label>Flats</label><input type="number" placeholder="120" value="${s.flats}" oninput="upSoc(${s.id},'flats',this.value)"/></div><div class="field" style="margin-bottom:0"><label>Conveyed Area (sq.m.)</label><input type="number" placeholder="4600" step="0.01" value="${s.area}" oninput="upSoc(${s.id},'area',this.value)"/></div><div class="field" style="margin-bottom:0"><label>Status</label><select onchange="upSoc(${s.id},'status',this.value)"><option value="done" ${s.status==='done'?'selected':''}>✅ Conveyed</option><option value="pending" ${s.status==='pending'?'selected':''}>❌ Pending</option><option value="partial" ${s.status==='partial'?'selected':''}>⚠️ Partial</option></select></div></div></div>`).join('');
+  );
 }
-function sw(n,btn){
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
-  document.querySelectorAll('.tp').forEach(p=>p.classList.remove('active'));
-  document.getElementById('tab-'+n).classList.add('active');
-  if(btn)btn.classList.add('active');
+
+// ─── AS Row renderers (Area Statement table rows) ─────────────────────────────
+function ASRow({ num, desc, bVal, cVal, sub, fraud, correct }) {
+  const diff = (bVal != null && cVal != null && !isNaN(bVal) && !isNaN(cVal)) ? bVal - cVal : null;
+  const showDiff = diff !== null && Math.abs(diff) > 0.5;
+  return (
+    <tr style={fraud ? { background: '#fef2f2' } : correct ? { background: '#f0fdf4' } : {}}>
+      <td style={{ color: 'var(--text-muted)', fontSize: 11, width: 28, verticalAlign: 'top', paddingTop: 10 }}>{num || ''}</td>
+      <td style={sub ? { color: 'var(--text-muted)', fontSize: 12, paddingLeft: 24 } : {}}>{desc}</td>
+      <td style={{ textAlign: 'right', fontFamily: 'Courier New, monospace', fontWeight: 600,
+        color: fraud ? 'var(--red)' : correct ? '#065f46' : '#e74c3c', whiteSpace: 'nowrap' }}>
+        {bVal != null && !isNaN(bVal) ? fmt(bVal) : '—'}
+        {showDiff && diff > 0 && (
+          <div style={{ fontSize: 10, color: 'var(--red)' }}>▲ +{fmt0(Math.abs(diff))}</div>
+        )}
+      </td>
+      <td style={{ textAlign: 'right', fontFamily: 'Courier New, monospace', fontWeight: 600,
+        color: correct ? '#065f46' : '#065f46', whiteSpace: 'nowrap' }}>
+        {cVal != null && !isNaN(cVal) ? fmt(cVal) : '—'}
+      </td>
+    </tr>
+  );
 }
-function row(num,desc,bv,cv,cls='',sub=false){
-  const diff=bv!=null&&cv!=null&&!isNaN(bv)&&!isNaN(cv)?bv-cv:null;
-  const ds=diff!==null&&Math.abs(diff)>0.5?`<br/><span class="${diff>0?'diff':'okd'}">${diff>0?'▲+'+f0(Math.abs(diff)):'▼'+f0(Math.abs(diff))}</span>`:'';
-  return `<tr class="${cls}"><td style="color:var(--muted);font-size:11px">${num||''}</td><td class="${sub?'sub':''}">${desc}</td><td class="r" style="color:#e74c3c">${bv!=null&&!isNaN(bv)?f(bv)+ds:'-'}</td><td class="r" style="color:#065f46">${cv!=null&&!isNaN(cv)?f(cv):'-'}</td></tr>`;
+
+function ASSection({ num, title }) {
+  return (
+    <tr>
+      <td colSpan={4} style={{ background: '#f1f5f9', fontWeight: 700, fontSize: 12,
+        color: 'var(--dark)', padding: '8px 14px' }}>
+        <span style={{ color: 'var(--teal)', marginRight: 8, fontWeight: 800 }}>{num}</span>
+        {title}
+      </td>
+    </tr>
+  );
 }
-function secH(num,title){return `<tr class="sh"><td colspan="4"><span class="sn">${num}</span>${title}</td></tr>`;}
-function totR(desc,bv,cv){return `<tr class="tot"><td></td><td><strong>${desc}</strong></td><td class="r"><strong>${bv!=null&&!isNaN(bv)?f(bv):'-'}</strong></td><td class="r"><strong>${cv!=null&&!isNaN(cv)?f(cv):'-'}</strong></td></tr>`;}
 
-function calc(){
-  const plotOwn=g('plotOwn'),plotSanc=g('plotSanc')||plotOwn,deductRd=g('deductRd');
-  const auth=gs('auth'),rdw=parseInt(gs('rdw'));
-  const amenInp=document.getElementById('amenity').value?parseFloat(document.getElementById('amenity').value):null;
-  const recSp=g('recSp'),intRd=g('intRd');
-  const bPlot=g('bPlot')||plotOwn,bBUA=g('bBUA'),exBUA=g('exBUA'),bTDR=g('bTDR'),bPrem=g('bPrem');
-  if(!plotOwn||!socs.length){alert('Please enter Plot Area and at least one society.');return;}
-  const baseFSI=BASE[auth]?.[rdw]||1.10;
-  const totalConv=socs.reduce((s,x)=>s+(parseFloat(x.area)||0),0);
-  const pend=socs.filter(s=>s.status!=='done');
-  const instrL={chs:'Conveyance Deed',aoa:'Deed of Declaration (DOD)',condo:'DOD / MAOA 1970'};
-  const typeL={chs:'CHS',aoa:'AOA',condo:'Condo'};
+function ASTotalRow({ desc, bVal, cVal }) {
+  return (
+    <tr style={{ background: 'var(--teal-light)' }}>
+      <td />
+      <td style={{ fontWeight: 700 }}>{desc}</td>
+      <td style={{ textAlign: 'right', fontFamily: 'Courier New, monospace', fontWeight: 800,
+        color: '#e74c3c' }}>{bVal != null && !isNaN(bVal) ? fmt(bVal) : '—'}</td>
+      <td style={{ textAlign: 'right', fontFamily: 'Courier New, monospace', fontWeight: 800,
+        color: '#065f46' }}>{cVal != null && !isNaN(cVal) ? fmt(cVal) : '—'}</td>
+    </tr>
+  );
+}
 
-  // BUILDER'S (fraudulent) numbers
-  const b_bal=bPlot-deductRd;                          // Row 03: Balance Area
-  const b_recSp=recSp||b_bal*0.10;                     // Row 06: Open Space = 10% of Row 03 (Balance Area)
-  const b_amen=amenInp!==null?amenInp:b_bal*AMEN;      // Row 04: Amenity = 15% of Balance Area
-  const b_npa=b_bal-b_amen;                             // Row 05: NPA = Row 03 - Row 04
-  const b_base=b_npa*baseFSI;                           // Row 09: Base BUA = NPA × baseFSI
-  const b_maxP=b_npa*PREM;                              // Row 10a: Max Premium = NPA × 0.30
-  const b_maxT=b_npa*TDR;                               // Row 11c: Max TDR = NPA × 0.70
-  const b_slum=b_maxT*SLUM,b_res=b_maxT*RES;
-  const b_totalFSI=b_base+bPrem+bTDR;                  // Row 13a: Total FSI = Base + Premium + TDR
-  const b_balBUA=Math.max(0,b_totalFSI-exBUA);         // Row 13d: Balance = 13a - 13b (no Row 13c)
-  const b_ancil=b_balBUA*ANCIL;                         // Row 13e: Ancillary = Balance × 0.60
-  const b_totEnt=b_balBUA+b_ancil;                      // Row 13f: Total = 13d + 13e
-  const b_maxAll=b_npa*(baseFSI+PREM+TDR);
-  const b_ancMax=Math.max(0,b_maxAll-exBUA)*ANCIL;
-  const b_totMax=b_maxAll+b_ancMax;
+// ─── SIMPLE TAB ───────────────────────────────────────────────────────────────
+function SimpleTab() {
+  const [mode, setMode]                   = useState('single');
+  const [unit, setUnit]                   = useState('sqft');
+  const [plotArea, setPlotArea]           = useState('');
+  const [societyBUA, setSocietyBUA]       = useState('');
+  const [totalBUA, setTotalBUA]           = useState('');
+  const [showUDS, setShowUDS]             = useState(false);
+  const [flatMode, setFlatMode]           = useState('uniform');
+  const [numFlats, setNumFlats]           = useState('');
+  const [uniformCarpet, setUniformCarpet] = useState('');
+  const [flats, setFlats]                 = useState(() => [newFlat('A-101'), newFlat('A-102'), newFlat('A-103')]);
+  const [result, setResult]               = useState(null);
+  const [errors, setErrors]               = useState({});
 
-  // CORRECT numbers (after deducting conveyed society land)
-  const c_plot=Math.max(0,plotOwn-totalConv);           // Correct plot = total - conveyed
-  const c_bal=c_plot-deductRd;                          // Row 03: Correct Balance Area
-  const c_recSp=c_bal*0.10;                             // Row 06: Open Space = 10% of correct Row 03
-  const c_amen=c_bal*AMEN;                              // Row 04: Amenity = 15% of correct Balance
-  const c_npa=Math.max(0,c_bal-c_amen);                 // Row 05: Correct NPA
-  const c_base=c_npa*baseFSI;                           // Row 09: Correct Base BUA
-  const c_maxP=c_npa*PREM;                              // Row 10a: Correct Max Premium
-  const c_maxT=c_npa*TDR;                               // Row 11c: Correct Max TDR
-  const c_slum=c_maxT*SLUM,c_res=c_maxT*RES;
-  const c_totalFSI=c_base+Math.min(bPrem,c_maxP)+Math.min(bTDR,c_maxT); // Row 13a
-  const c_balBUA=Math.max(0,c_totalFSI-exBUA);          // Row 13d: no Row 13c
-  const c_ancil=c_balBUA*ANCIL;                          // Row 13e: Ancillary = Balance × 0.60
-  const c_totEnt=c_balBUA+c_ancil;                       // Row 13f
-  const c_maxAll=c_npa*(baseFSI+PREM+TDR);
-  const c_ancMax=Math.max(0,c_maxAll-exBUA)*ANCIL;
-  const c_totMax=c_maxAll+c_ancMax;
+  const unitLabel = unit === 'sqft' ? 'sq ft' : 'sq m';
 
-  const landFraud=Math.max(0,bPlot-c_plot-totalConv)||Math.max(0,b_npa-c_npa);
-  const buaFraud=bBUA>0?Math.max(0,bBUA-c_totMax):0;
+  const addFlat    = () => setFlats(f => [...f, newFlat(`Flat ${f.length + 1}`)]);
+  const removeFlat = (id) => setFlats(f => f.filter(fl => fl.id !== id));
+  const updateFlat = (id, field, val) =>
+    setFlats(f => f.map(fl => fl.id === id ? { ...fl, [field]: val } : fl));
 
-  // Hero
-  document.getElementById('rConv').textContent=f(totalConv);
-  const badges=[];
-  if(pend.length>0)badges.push(`<span class="badge badge-r">⚠️ ${pend.length} Conveyance Pending</span>`);
-  if(socs.filter(s=>s.status==='done').length>0)badges.push(`<span class="badge badge-g">✅ ${socs.filter(s=>s.status==='done').length} Conveyed</span>`);
-  if(landFraud>100)badges.push(`<span class="badge badge-r">🚨 ${f0(landFraud)} sq.m. Society Land Misused</span>`);
-  if(buaFraud>100)badges.push(`<span class="badge badge-r">🚨 BUA Overloading</span>`);
-  document.getElementById('rBadges').innerHTML=badges.join('');
+  const calculate = () => {
+    const errs = {};
+    const plot = parseFloat(plotArea);
+    if (!plotArea || isNaN(plot) || plot <= 0) errs.plotArea = 'Enter a valid plot area';
+    let sBUA, tBUA;
+    if (mode === 'multi') {
+      sBUA = parseFloat(societyBUA);
+      tBUA = parseFloat(totalBUA);
+      if (!societyBUA || isNaN(sBUA) || sBUA <= 0) errs.societyBUA = "Enter your society's built-up area";
+      if (!totalBUA   || isNaN(tBUA) || tBUA <= 0) errs.totalBUA   = 'Enter total built-up area of all buildings';
+      if (!errs.societyBUA && !errs.totalBUA && sBUA > tBUA)
+        errs.societyBUA = 'Society BUA cannot exceed total plot BUA';
+    }
+    let flatDetails = null;
+    if (showUDS) {
+      if (flatMode === 'uniform') {
+        const n = parseInt(numFlats), ca = parseFloat(uniformCarpet);
+        if (!numFlats || isNaN(n) || n <= 0) errs.numFlats = 'Enter number of flats';
+        if (!uniformCarpet || isNaN(ca) || ca <= 0) errs.uniformCarpet = 'Enter carpet area per flat';
+        if (!errs.numFlats && !errs.uniformCarpet)
+          flatDetails = Array.from({ length: n }, (_, i) => ({ name: `Flat ${i + 1}`, carpetArea: ca }));
+      } else {
+        const valid = flats.filter(f => f.carpetArea !== '');
+        if (valid.length === 0) errs.flats = 'Add at least one flat with a carpet area';
+        else if (valid.some(f => isNaN(parseFloat(f.carpetArea)) || parseFloat(f.carpetArea) <= 0))
+          errs.flats = 'All carpet areas must be positive numbers';
+        else flatDetails = valid.map(f => ({ name: f.name, carpetArea: parseFloat(f.carpetArea) }));
+      }
+    }
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    setErrors({});
+    const conveyedArea = mode === 'single' ? plot : (sBUA / tBUA) * plot;
+    const sharePercent = mode === 'single' ? 100 : (sBUA / tBUA) * 100;
+    let uds = null;
+    if (flatDetails) {
+      const totalCarpet = flatDetails.reduce((s, f) => s + f.carpetArea, 0);
+      uds = flatDetails.map(f => ({
+        name: f.name, carpetArea: f.carpetArea,
+        sharePct: (f.carpetArea / totalCarpet) * 100,
+        udsArea: (f.carpetArea / totalCarpet) * conveyedArea,
+      }));
+    }
+    setResult({ conveyedArea, sharePercent, uds, plot, unit, mode, sBUA, tBUA });
+  };
 
-  // Info grid
-  document.getElementById('rGrid').innerHTML=[
-    {n:f(totalConv),l:'Total Conveyed (sq.m.)'},{n:f(c_plot),l:"Builder's Legit Land (sq.m.)"},{n:f(c_npa),l:'Correct NPA (sq.m.)'},
-    {n:f(c_base),l:'Correct Base BUA'},{n:f(c_maxP),l:'Max Premium FSI'},{n:f(c_maxT),l:'Max TDR'},
-    {n:f(c_ancil),l:'Ancillary (Bal×0.60)'},{n:f(c_totMax),l:'Max Total BUA (all FSI)'},
-  ].map(x=>`<div class="ibox"><div class="inum">${x.n}</div><div class="ilbl">${x.l}</div></div>`).join('');
+  return (
+    <div>
+      {/* Mode + Unit toggles */}
+      <div className="conv-toggle-row">
+        <div className="conv-toggle-group">
+          <div className="conv-toggle-label">Building Type</div>
+          <div className="conv-toggle-bar">
+            {[{ id: 'single', label: '🏢 Single Building' }, { id: 'multi', label: '🏘️ Multi-Building' }].map(o => (
+              <button key={o.id} className={`conv-toggle-btn ${mode === o.id ? 'active' : ''}`}
+                onClick={() => { setMode(o.id); setResult(null); }}>{o.label}</button>
+            ))}
+          </div>
+        </div>
+        <div className="conv-toggle-group">
+          <div className="conv-toggle-label">Unit</div>
+          <div className="conv-toggle-bar">
+            {[{ id: 'sqft', label: 'sq ft' }, { id: 'sqm', label: 'sq m' }].map(o => (
+              <button key={o.id} className={`conv-toggle-btn ${unit === o.id ? 'active' : ''}`}
+                onClick={() => { setUnit(o.id); setResult(null); }}>{o.label}</button>
+            ))}
+          </div>
+        </div>
+      </div>
 
-  // Area Statement Table
-  let ast='';
-  ast+=secH('01','AREA OF PLOT');
-  ast+=row('a','As per Ownership Document',bPlot,plotOwn,'',true);
-  ast+=row('','Less: Land Conveyed to Societies','—',totalConv,'',true);
-  ast+=row('c','Minimum Consider Plot Area (correct)',bPlot,c_plot,'',true);
-  ast+=secH('02','DEDUCTIONS FOR');
-  ast+=row('a','Area under 15m+ Wide Road (surrender)',deductRd||0,deductRd||0,'',true);
-  ast+=secH('03','BALANCE AREA OF PLOT (01 – 02a)');
-  ast+=totR('Balance Area',b_bal,c_bal);
-  ast+=secH('04','AMENITY SPACE @ 15% (Group Housing)');
-  ast+=row('a','Required @ 15%',b_bal*AMEN,c_bal*AMEN,'',true);
-  ast+=row('b','Proposed',b_amen,c_amen,'',true);
-  ast+=secH('05','NET PLOT AREA — NPA (03 – 04b)');
-  ast+=totR('Net Plot Area (NPA)',b_npa,c_npa);
-  ast+=secH('06','RECREATIONAL OPEN SPACE — Row 06 (= 10% of Balance Area Row 03 — NOT deducted from NPA)');
-  ast+=row('a','Required 10% of Balance Area Row 03',b_bal*0.10,c_bal*0.10,'',true);
-  ast+=row('b','Proposed',b_recSp,c_recSp,'',true);
-  ast+=secH('07','INTERNAL ROAD AREA (for reference — NOT deducted)');
-  ast+=row('','Internal Road Area',intRd||0,intRd||0,'',true);
-  ast+=secH('09','FSI PERMISSIBLE — BASE BUA (Row 09)');
-  ast+=row('','Base FSI Rate',baseFSI+'x',baseFSI+'x','',true);
-  ast+=row('','Base BUA (NPA × '+baseFSI+')',b_base,c_base,'',true);
-  ast+=secH('10','PREMIUM FSI ON PAYMENT — Row 10 (Purchasable)');
-  ast+=row('a','Max Permissible Premium FSI (NPA × 0.30)',b_maxP,c_maxP,'',true);
-  ast+=row('b','Proposed Premium FSI by Builder',bPrem||0,Math.min(bPrem,c_maxP)||0,'',true);
-  ast+=secH('11','IN-SITU FSI / TDR LOADING — Row 11c');
-  ast+=row('c','TDR Permissible (NPA × 0.70)',b_maxT,c_maxT,'',true);
-  ast+=row('','  ↳ Slum TDR (NPA × 0.70 × 0.30 = NPA × 0.21)',b_slum,c_slum,'',true);
-  ast+=row('','  ↳ Reservation TDR (NPA × 0.70 × 0.70 = NPA × 0.49)',b_res,c_res,'',true);
-  ast+=row('d','TDR Proposed by Builder',bTDR||0,Math.min(bTDR,c_maxT)||0,'',true);
-  ast+=secH('13','TOTAL ENTITLEMENT OF FSI — Row 13');
-  ast+=row('a','Total FSI [09 + 10(b) + 11(d)]',b_totalFSI,c_totalFSI,'',true);
-  ast+=row('b','Less: Existing Built-Up Area (Row 13b)',exBUA||0,exBUA||0,'',true);
-  ast+=row('d','Balance Built-Up Area (13a − 13b)',b_balBUA,c_balBUA,'',true);
-  ast+=row('e','Ancillary Area (Balance × 0.60)',b_ancil,c_ancil,'',true);
-  ast+=row('f','TOTAL (13d + 13e)',b_totEnt,c_totEnt,'',true);
-  ast+=secH('14','MAXIMUM PERMISSIBLE F.S.I. (if all Base + Premium + TDR + Ancillary used)');
-  ast+=totR('Max Total BUA (incl. Ancillary)',b_totMax,c_totMax);
-  if(bBUA>0){
-    const isFr=bBUA>c_totMax+50;
-    ast+=secH('15','BUILDER\'S PROPOSED BUA vs CORRECT MAXIMUM');
-    ast+=`<tr class="${isFr?'fr':'ok'}"><td></td><td><strong>Builder's Proposed BUA ${isFr?'🚨 EXCEEDS CORRECT MAXIMUM':''}</strong></td><td class="r"><strong>${f(bBUA)}</strong></td><td class="r"><strong>${isFr?'Max: '+f(c_totMax):'✅ Within limit'}</strong></td></tr>`;
-  }
-  document.getElementById('rAST').innerHTML=ast;
+      <div className="conv-card">
+        <Field label={`Total Plot / Land Area (${unitLabel})`} hint="From 7/12 extract or Property Card" error={errors.plotArea}>
+          <NumInput value={plotArea} onChange={v => { setPlotArea(v); setResult(null); }}
+            placeholder={unit === 'sqft' ? 'e.g. 10000' : 'e.g. 930'} error={errors.plotArea} />
+        </Field>
 
-  // Alerts
-  let al='';
-  if(b_npa-c_npa>50){
-    al+=`<div class="alert ar"><div class="at">🚨 Net Plot Area Inflated by ${f0(b_npa-c_npa)} sq.m. of Society Land</div>
-    Builder's NPA: <strong>${f(b_npa)} sq.m.</strong> | Correct NPA: <strong>${f(c_npa)} sq.m.</strong><br/>
-    This inflates every downstream figure: Base BUA, Premium cap, TDR cap, and Ancillary — all calculated as multiples of NPA.
-    <br/><strong>UDCPR 2020 Reg. 2.2.3:</strong> FSI must be computed only on land owned by and in possession of the applicant.</div>`;
-  }
-  if(bBUA>0&&bBUA>c_totMax+50){
-    al+=`<div class="alert ar"><div class="at">🚨 Proposed BUA ${f(bBUA)} sq.m. Exceeds Correct Maximum of ${f(c_totMax)} sq.m.</div>
-    Excess: <strong>${f0(bBUA-c_totMax)} sq.m.</strong> — achievable only by including society land in FSI base.</div>`;
-  }
-  if(pend.length>0){
-    al+=`<div class="alert ao"><div class="at">⚠️ Conveyance Pending for ${pend.length} Society</div>
-    ${pend.map(s=>`• <strong>${s.name||'[Unnamed]'}</strong>: ${s.area||'?'} sq.m. — file Deemed Conveyance with DDR`).join('<br/>')}</div>`;
-  }
-  if(!al){al=`<div class="alert ag"><div class="at">✅ Calculations Complete</div>Enter builder's claimed BUA in inputs above to enable automatic fraud detection.</div>`;}
-  document.getElementById('rAlerts').innerHTML=al;
+        {mode === 'multi' && (
+          <>
+            <div className="conv-info-box">
+              <strong>Multi-Building Rule (GR 22 June 2018):</strong> Society's entitlement =
+              (Society BUA ÷ Total BUA) × Plot Area
+            </div>
+            <div className="conv-two-col">
+              <Field label={`Your Society's Built-Up Area (${unitLabel})`} hint="Plinth / ground footprint of your building" error={errors.societyBUA}>
+                <NumInput value={societyBUA} onChange={v => { setSocietyBUA(v); setResult(null); }} placeholder="e.g. 3200" error={errors.societyBUA} />
+              </Field>
+              <Field label={`Total Built-Up Area — All Buildings (${unitLabel})`} hint="Sum of all buildings on plot" error={errors.totalBUA}>
+                <NumInput value={totalBUA} onChange={v => { setTotalBUA(v); setResult(null); }} placeholder="e.g. 9600" error={errors.totalBUA} />
+              </Field>
+            </div>
+          </>
+        )}
 
-  // Fraud tab
-  document.getElementById('rFraud').innerHTML=`
-  <div class="alert ab" style="margin-bottom:16px"><div class="at">ℹ️ How Ancillary Area Works (Row 13e)</div>
-  Ancillary Area = <strong>Balance BUA × 0.60</strong> (NOT a separate FSI rate applied to NPA).<br/>
-  Balance BUA = Total FSI entitlement (Row 13a) − Existing BUA (Row 13b)<br/>
-  When builder inflates NPA by including society land, the Balance BUA inflates, and Ancillary inflates too — a cascading fraud effect.</div>
-  <table class="as-table">
-    <thead><tr><th>FSI Component</th><th class="r" style="color:#f87171">Builder (${f0(bPlot)} sq.m.)</th><th class="r" style="color:#6ee7b7">Correct (${f0(c_plot)} sq.m.)</th><th class="r">Excess</th></tr></thead>
-    <tbody>
-    ${[
-      ['Net Plot Area (NPA)',b_npa,c_npa],
-      ['Base FSI BUA (×'+baseFSI+')',b_base,c_base],
-      ['Max Premium FSI (×0.30)',b_maxP,c_maxP],
-      ['Max TDR (×0.70)',b_maxT,c_maxT],
-      ['Max Total FSI BUA (×'+(baseFSI+PREM+TDR).toFixed(2)+')',b_maxAll,c_maxAll],
-      ['Less: Existing BUA (Row 13b)',exBUA,exBUA],
-      ['Balance BUA (Row 13d)',b_balBUA,c_balBUA],
-      ['Ancillary Area — Row 13e (Balance×0.60)',b_ancil,c_ancil],
-      ['TOTAL MAX PERMISSIBLE (13d+13e)',b_totMax,c_totMax],
-    ].map(([l,bv,cv])=>{
-      const ex=bv-cv;
-      return `<tr ${Math.abs(ex)>0.5?'style="background:#fef2f2"':''}><td>${l}</td><td class="r" style="color:var(--red)">${f(bv)}</td><td class="r" style="color:#065f46">${f(cv)}</td><td class="r" style="${ex>0.5?'color:var(--red);font-weight:700':''}">${Math.abs(ex)>0.5?(ex>0?'+':'')+f0(ex):'—'}</td></tr>`;
-    }).join('')}
-    ${bBUA>0?`<tr class="${bBUA>c_totMax+50?'fr':'ok'}"><td><strong>Builder's ACTUAL Proposed BUA</strong></td><td class="r"><strong>${f(bBUA)}</strong></td><td class="r"><strong>${f(c_totMax)}</strong></td><td class="r"><strong>${bBUA>c_totMax+50?'🚨 +'+f0(bBUA-c_totMax):'✅ OK'}</strong></td></tr>`:''}
-    </tbody>
-  </table>
-  ${bBUA>0&&bBUA>c_totMax+50?`<div class="alert ar" style="margin-top:14px"><div class="at">🚨 Mathematical Conclusion</div>
-  On legitimate land of <strong>${f(c_plot)} sq.m.</strong>, max BUA (base + full premium + full TDR + full ancillary) = <strong>${f(c_totMax)} sq.m.</strong><br/>
-  Builder proposes <strong>${f(bBUA)} sq.m.</strong> — excess of <strong>${f0(bBUA-c_totMax)} sq.m.</strong><br/>
-  This is achievable ONLY by loading FSI on the <strong>${f0(totalConv)} sq.m.</strong> of society land included in the area statement.<br/>
-  <strong>Cite:</strong> UDCPR 2020 Reg. 2.2.3, MRTP Act S.45/51</div>`:''}`;
+        <button className="conv-uds-toggle-btn" onClick={() => setShowUDS(s => !s)}>
+          {showUDS ? '▲ Hide' : '▼ Also calculate'} Undivided Share (UDS) per flat
+          <span style={{ fontSize: 12, fontWeight: 400, color: 'var(--text-muted)', marginLeft: 6 }}>optional</span>
+        </button>
 
-  // Workings
-  document.getElementById('rMath').innerHTML=`<div>
-<span class="eq dim">═══ BUILDER'S CALCULATION (Including Society Land — ALLEGED) ═══</span>
-<span class="eq">01.</span> Plot claimed                              = <span class="bad">${f(bPlot)}</span>
-<span class="eq">03.</span> Balance (01 - Road deduct ${f(deductRd)})           = <span class="bad">${f(b_bal)}</span>
-<span class="eq">04.</span> Amenity 15%                                = ${f(b_amen)}
-<span class="eq">05.</span> Net Plot Area (NPA)                        = <span class="bad">${f(b_npa)}</span>
-<span class="eq">06.</span> Rec. Open Space (10% of Row 03 bal)     = ${f(b_bal*0.10)} <span class="dim">(NOT deducted from NPA)</span>
-<span class="eq">09.</span> Base BUA (${f(b_npa)} × ${baseFSI})                  = <span class="bad">${f(b_base)}</span>
-<span class="eq">10a.</span> Max Premium (NPA × 0.30)                  = <span class="bad">${f(b_maxP)}</span>
-<span class="eq">11c.</span> Max TDR (NPA × 0.70)                      = <span class="bad">${f(b_maxT)}</span>
-<span class="dim">      Slum TDR (×0.21): ${f(b_slum)}  |  Res TDR (×0.49): ${f(b_res)}</span>
-<span class="eq">13a.</span> Total FSI (Base+Prem+TDR)                 = <span class="bad">${f(b_totalFSI)}</span>
-<span class="eq">13b.</span> Less Existing BUA                          = ${f(exBUA)}
-<span class="eq">13d.</span> Balance BUA (13a − 13b)                   = <span class="bad">${f(b_balBUA)}</span>
-<span class="eq">13e.</span> Ancillary (${f(b_balBUA)} × 0.60)               = <span class="bad">${f(b_ancil)}</span>
-<span class="eq">13f.</span> Total Entitlement (13d+13e)                = <span class="bad">${f(b_totEnt)}</span>
-      Max possible (all FSI+ancil)               = <span class="bad">${f(b_totMax)}</span>
+        {showUDS && (
+          <div className="conv-uds-section">
+            <div style={{ display: 'flex', gap: 10, marginBottom: 18, flexWrap: 'wrap' }}>
+              {[{ id: 'uniform', label: '📐 All flats same size' }, { id: 'individual', label: '📋 Enter each flat separately' }].map(o => (
+                <button key={o.id} className={`conv-toggle-btn ${flatMode === o.id ? 'active' : ''}`}
+                  style={{ fontSize: 13 }} onClick={() => setFlatMode(o.id)}>{o.label}</button>
+              ))}
+            </div>
+            {flatMode === 'uniform' ? (
+              <div className="conv-two-col">
+                <Field label="Number of flats" error={errors.numFlats}>
+                  <NumInput value={numFlats} onChange={setNumFlats} placeholder="e.g. 24" error={errors.numFlats} />
+                </Field>
+                <Field label={`Carpet area per flat (${unitLabel})`} error={errors.uniformCarpet}>
+                  <NumInput value={uniformCarpet} onChange={setUniformCarpet} placeholder="e.g. 650" error={errors.uniformCarpet} />
+                </Field>
+              </div>
+            ) : (
+              <div>
+                {flats.map(fl => (
+                  <div key={fl.id} className="conv-flat-row">
+                    <input className="form-input" style={{ flex: 2 }} placeholder="Flat name (e.g. A-101)"
+                      value={fl.name} onChange={e => updateFlat(fl.id, 'name', e.target.value)} />
+                    <input className="form-input" style={{ flex: 1 }} type="number" min="0"
+                      placeholder={`Carpet (${unitLabel})`} value={fl.carpetArea}
+                      onChange={e => updateFlat(fl.id, 'carpetArea', e.target.value)} />
+                    {flats.length > 1 && (
+                      <button className="conv-remove-btn" onClick={() => removeFlat(fl.id)}>✕</button>
+                    )}
+                  </div>
+                ))}
+                {errors.flats && <div className="conv-error">{errors.flats}</div>}
+                <button className="conv-add-flat-btn" onClick={addFlat}>+ Add flat</button>
+              </div>
+            )}
+          </div>
+        )}
 
-<div class="rule"></div>
-<span class="eq dim">═══ CORRECT CALCULATION (Excluding ${f(totalConv)} sq.m. Conveyed) ═══</span>
-<span class="eq">01.</span> Plot (${f(plotOwn)} - conveyed ${f(totalConv)})      = <span class="good">${f(c_plot)}</span>
-<span class="eq">03.</span> Balance (01 - Road deduct)                  = <span class="good">${f(c_bal)}</span>
-<span class="eq">04.</span> Amenity 15%                                = ${f(c_amen)}
-<span class="eq">05.</span> Net Plot Area (NPA)                        = <span class="good">${f(c_npa)}</span>
-<span class="eq">06.</span> Rec. Open Space (10% of Row 03 bal)     = ${f(c_bal*0.10)} <span class="dim">(NOT deducted from NPA)</span>
-<span class="eq">09.</span> Base BUA (${f(c_npa)} × ${baseFSI})                  = <span class="good">${f(c_base)}</span>
-<span class="eq">10a.</span> Max Premium (NPA × 0.30)                  = <span class="good">${f(c_maxP)}</span>
-<span class="eq">11c.</span> Max TDR (NPA × 0.70)                      = <span class="good">${f(c_maxT)}</span>
-<span class="dim">      Slum TDR (×0.21): ${f(c_slum)}  |  Res TDR (×0.49): ${f(c_res)}</span>
-<span class="eq">13a.</span> Total FSI (Base+Prem+TDR)                 = <span class="good">${f(c_totalFSI)}</span>
-<span class="eq">13b.</span> Less Existing BUA                          = ${f(exBUA)}
-<span class="eq">13d.</span> Balance BUA (13a − 13b)                   = <span class="good">${f(c_balBUA)}</span>
-<span class="eq">13e.</span> Ancillary (${f(c_balBUA)} × 0.60)               = <span class="good">${f(c_ancil)}</span>
-<span class="eq">13f.</span> Total Entitlement (13d+13e)                = <span class="good">${f(c_totEnt)}</span>
-      Max possible (all FSI+ancil)               = <span class="good">${f(c_totMax)}</span>
+        <button className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 12 }} onClick={calculate}>
+          Calculate Conveyance Area →
+        </button>
+      </div>
 
-<div class="rule res">LAND FRAUDULENTLY INCLUDED:  ${f0(totalConv-(plotOwn-bPlot)>0?bPlot-c_plot:b_npa-c_npa)} sq.m. of society land
-EXCESS BUA VIA FRAUD:        ${bBUA>0?f0(bBUA-c_totMax)+' sq.m.':'(enter builder BUA to calculate)'}
-CORRECT MAX PERMISSIBLE BUA: ${f(c_totMax)} sq.m.</div></div>`;
+      {result && (
+        <div className="conv-result-section">
+          {/* Hero */}
+          <div className="conv-result-card">
+            <div className="conv-result-label">Area to be Conveyed to Your Society</div>
+            <div className="conv-result-value">
+              {fmt(result.conveyedArea)}
+              <span style={{ fontSize: 22, fontWeight: 400, marginLeft: 8 }}>{unitLabel}</span>
+            </div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', marginTop: 6 }}>
+              {result.unit === 'sqft'
+                ? `= ${fmt(result.conveyedArea / SQ_FT_PER_SQ_M)} sq m`
+                : `= ${fmt(result.conveyedArea * SQ_FT_PER_SQ_M)} sq ft`}
+            </div>
+            {result.mode === 'multi' && (
+              <div className="conv-share-badge">Society's share: {fmt(result.sharePercent)}% of total plot</div>
+            )}
+          </div>
 
-  // Legal doc
-  const today=new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'long',year:'numeric'});
-  document.getElementById('rDoc').textContent=`AREA STATEMENT — CONVEYED LAND & FSI ENTITLEMENT
+          {/* Breakdown */}
+          <div className="conv-breakdown-card">
+            <div className="conv-breakdown-title">Calculation Breakdown</div>
+            {result.mode === 'single' ? (
+              <>
+                <div className="conv-breakdown-eq">Conveyed Area = Total Plot Area = <strong>{fmt(result.plot)} {unitLabel}</strong></div>
+                <div className="conv-breakdown-note">Single building on plot — entire plot must be conveyed to the society under MOFA Section 11.</div>
+              </>
+            ) : (
+              <>
+                <div className="conv-breakdown-eq">Share = {fmt(result.sBUA)} ÷ {fmt(result.tBUA)} = {fmt(result.sharePercent)}%</div>
+                <div className="conv-breakdown-eq" style={{ marginTop: 8 }}>
+                  Conveyed Area = {fmt(result.sharePercent)}% × {fmt(result.plot)} = <strong>{fmt(result.conveyedArea)} {unitLabel}</strong>
+                </div>
+                <div className="conv-breakdown-note">Per GR dated 22 June 2018: proportionate share = Society BUA ÷ Total BUA.</div>
+              </>
+            )}
+          </div>
+
+          {/* UDS table */}
+          {result.uds && (
+            <div className="conv-uds-result">
+              <div className="conv-breakdown-title">Undivided Share (UDS) per Flat</div>
+              <div className="conv-uds-note">Formula: (Flat carpet area ÷ Total carpet area) × Conveyed area</div>
+              <div className="conv-uds-table-wrap">
+                <table className="conv-uds-table">
+                  <thead>
+                    <tr><th>Flat</th><th>Carpet ({unitLabel})</th><th>Share %</th><th>UDS ({unitLabel})</th></tr>
+                  </thead>
+                  <tbody>
+                    {result.uds.slice(0, 50).map((row, i) => (
+                      <tr key={i}>
+                        <td>{row.name}</td><td>{fmt(row.carpetArea)}</td>
+                        <td>{row.sharePct.toFixed(3)}%</td>
+                        <td><strong>{fmt(row.udsArea)}</strong></td>
+                      </tr>
+                    ))}
+                    {result.uds.length > 50 && (
+                      <tr><td colSpan={4} style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, padding: 10 }}>
+                        … and {result.uds.length - 50} more flats
+                      </td></tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* Legal basis */}
+          <div className="conv-legal-box">
+            <div style={{ fontWeight: 700, marginBottom: 12, fontSize: 15, color: '#fff' }}>📜 Legal Basis</div>
+            <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 2 }}>
+              <li><strong>MOFA Section 11:</strong> Builder must execute conveyance within 4 months of society registration.</li>
+              <li><strong>RERA Section 17:</strong> Promoter must convey common areas within 3 months of Occupancy Certificate.</li>
+              {result.mode === 'multi' && <li><strong>GR dated 22 June 2018:</strong> Proportionate share based on plinth / built-up area ratio.</li>}
+              <li><strong>Deemed Conveyance (MOFA Amendment 2008):</strong> Apply to DDR via{' '}
+                <a href="https://mahasahakar.maharashtra.gov.in" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--teal)' }}>PRATYAY portal</a>. DDR must pass order within 6 months.</li>
+            </ul>
+          </div>
+
+          {/* Next steps */}
+          <div className="conv-next-steps">
+            <div style={{ fontWeight: 800, fontSize: 16, marginBottom: 16 }}>What to Do Next</div>
+            <div className="conv-steps-grid">
+              {[
+                { n: '01', title: 'Verify plot area officially', desc: 'Get 7/12 extract or Property Card from bhulekh.mahabhumi.gov.in or taluka office.' },
+                { n: '02', title: 'Check if conveyance is done', desc: "Ask secretary for the Conveyance Deed or Index II in society's name at Sub-Registrar." },
+                { n: '03', title: 'Apply for Deemed Conveyance', desc: 'File on PRATYAY portal. DDR must pass the order within 6 months.' },
+                { n: '04', title: 'Engage a conveyance advocate', desc: 'Essential for preparing and registering the conveyance deed.' },
+              ].map(s => (
+                <div key={s.n} className="conv-step-item">
+                  <div className="conv-step-num">{s.n}</div>
+                  <div>
+                    <div style={{ fontWeight: 700, marginBottom: 4, fontSize: 14 }}>{s.title}</div>
+                    <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>{s.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── DETAILED TAB (Full PMRDA Area Statement) ─────────────────────────────────
+function DetailedTab() {
+  // Plot inputs
+  const [plotOwn,   setPlotOwn]   = useState('');
+  const [deductRd,  setDeductRd]  = useState('0');
+  const [authority, setAuthority] = useState('pmrda');
+  const [roadWidth, setRoadWidth] = useState('12');
+  const [amenityInp,setAmenityInp]= useState('');
+  const [recSp,     setRecSp]     = useState('0');
+  const [intRd,     setIntRd]     = useState('0');
+  // Builder's figures
+  const [bPlot,  setBPlot]  = useState('');
+  const [bBUA,   setBBUA]   = useState('');
+  const [exBUA,  setExBUA]  = useState('0');
+  const [bTDR,   setBTDR]   = useState('0');
+  const [bPrem,  setBPrem]  = useState('0');
+  // Societies
+  const [socs, setSocs] = useState([
+    { id: 1, name: '', type: 'chs', flats: '', area: '', status: 'done' },
+  ]);
+  // Results
+  const [result, setResult] = useState(null);
+  const [activeTab, setActiveTab] = useState('as'); // 'as' | 'fraud' | 'math' | 'doc' | 'steps'
+  const [errors, setErrors] = useState({});
+
+  let _socId = socs.length;
+  const addSoc = () => {
+    setSocs(s => [...s, { id: ++_socId + Date.now(), name: '', type: 'chs', flats: '', area: '', status: 'done' }]);
+  };
+  const delSoc = (id) => setSocs(s => s.filter(x => x.id !== id));
+  const updSoc = (id, field, val) => setSocs(s => s.map(x => x.id === id ? { ...x, [field]: val } : x));
+
+  const calculate = () => {
+    const errs = {};
+    const plotOwnN = parseFloat(plotOwn);
+    if (!plotOwn || isNaN(plotOwnN) || plotOwnN <= 0) errs.plotOwn = 'Enter a valid plot area';
+    if (socs.length === 0) errs.socs = 'Add at least one society';
+    const hasAreaSoc = socs.some(s => parseFloat(s.area) > 0);
+    if (!hasAreaSoc) errs.socs = 'Enter conveyed area for at least one society';
+    if (Object.keys(errs).length > 0) { setErrors(errs); return; }
+    setErrors({});
+
+    const baseFSI  = BASE_FSI[authority]?.[parseInt(roadWidth)] || 1.10;
+    const totalConv = socs.reduce((s, x) => s + (parseFloat(x.area) || 0), 0);
+    const pendSocs  = socs.filter(s => s.status !== 'done');
+    const bPlotN    = parseFloat(bPlot) || plotOwnN;
+    const bBUAN     = parseFloat(bBUA)  || 0;
+    const exBUAN    = parseFloat(exBUA) || 0;
+    const bTDRN     = parseFloat(bTDR)  || 0;
+    const bPremN    = parseFloat(bPrem) || 0;
+    const deductRdN = parseFloat(deductRd) || 0;
+    const recSpN    = parseFloat(recSp)    || 0;
+    const intRdN    = parseFloat(intRd)    || 0;
+    const amenInpN  = amenityInp ? parseFloat(amenityInp) : null;
+
+    // Builder's (fraudulent) numbers
+    const b_bal    = bPlotN - deductRdN;
+    const b_recSp  = recSpN || b_bal * 0.10;
+    const b_amen   = amenInpN !== null ? amenInpN : b_bal * AMENITY_PCT;
+    const b_npa    = b_bal - b_amen;
+    const b_base   = b_npa * baseFSI;
+    const b_maxP   = b_npa * PREM_RATE;
+    const b_maxT   = b_npa * TDR_RATE;
+    const b_slum   = b_maxT * SLUM_PCT;
+    const b_res    = b_maxT * RES_PCT;
+    const b_totFSI = b_base + bPremN + bTDRN;
+    const b_balBUA = Math.max(0, b_totFSI - exBUAN);
+    const b_ancil  = b_balBUA * ANCIL_RATE;
+    const b_totEnt = b_balBUA + b_ancil;
+    const b_maxAll = b_npa * (baseFSI + PREM_RATE + TDR_RATE);
+    const b_totMax = b_maxAll + Math.max(0, b_maxAll - exBUAN) * ANCIL_RATE;
+
+    // Correct numbers (excluding conveyed society land)
+    const c_plot   = Math.max(0, plotOwnN - totalConv);
+    const c_bal    = c_plot - deductRdN;
+    const c_recSp  = c_bal * 0.10;
+    const c_amen   = c_bal * AMENITY_PCT;
+    const c_npa    = Math.max(0, c_bal - c_amen);
+    const c_base   = c_npa * baseFSI;
+    const c_maxP   = c_npa * PREM_RATE;
+    const c_maxT   = c_npa * TDR_RATE;
+    const c_slum   = c_maxT * SLUM_PCT;
+    const c_res    = c_maxT * RES_PCT;
+    const c_totFSI = c_base + Math.min(bPremN, c_maxP) + Math.min(bTDRN, c_maxT);
+    const c_balBUA = Math.max(0, c_totFSI - exBUAN);
+    const c_ancil  = c_balBUA * ANCIL_RATE;
+    const c_totEnt = c_balBUA + c_ancil;
+    const c_maxAll = c_npa * (baseFSI + PREM_RATE + TDR_RATE);
+    const c_totMax = c_maxAll + Math.max(0, c_maxAll - exBUAN) * ANCIL_RATE;
+
+    const landFraud = Math.max(0, bPlotN - c_plot - totalConv) || Math.max(0, b_npa - c_npa);
+    const buaFraud  = bBUAN > 0 ? Math.max(0, bBUAN - c_totMax) : 0;
+
+    setResult({
+      totalConv, pendSocs, socs,
+      baseFSI, plotOwnN, bPlotN, bBUAN, exBUAN, bTDRN, bPremN,
+      deductRdN, recSpN: b_recSp, intRdN, amenInpN,
+      b: { bal: b_bal, recSp: b_recSp, amen: b_amen, npa: b_npa, base: b_base,
+           maxP: b_maxP, maxT: b_maxT, slum: b_slum, res: b_res,
+           totFSI: b_totFSI, balBUA: b_balBUA, ancil: b_ancil, totEnt: b_totEnt, totMax: b_totMax },
+      c: { plot: c_plot, bal: c_bal, recSp: c_recSp, amen: c_amen, npa: c_npa, base: c_base,
+           maxP: c_maxP, maxT: c_maxT, slum: c_slum, res: c_res,
+           totFSI: c_totFSI, balBUA: c_balBUA, ancil: c_ancil, totEnt: c_totEnt, totMax: c_totMax },
+      landFraud, buaFraud,
+    });
+    setActiveTab('as');
+  };
+
+  const instrLabel = { chs: 'Conveyance Deed', aoa: 'Deed of Declaration (DOD)', condo: 'DOD / MAOA 1970' };
+  const typeLabel  = { chs: 'CHS', aoa: 'AOA', condo: 'Condo' };
+
+  const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+
+  const legalDoc = result ? `AREA STATEMENT — CONVEYED LAND & FSI ENTITLEMENT
 Based on UDCPR 2020 | PMRDA Area Statement Format
 Date: ${today}
 
 A. LAND CONVEYED TO SOCIETIES
-${socs.map((s,i)=>`  ${i+1}. ${s.name||'[Name]'} (${typeL[s.type]||s.type})
-     Area: ${parseFloat(s.area)||0} sq.m. | Flats: ${s.flats||'—'} | ${instrL[s.type]||'—'} | ${s.status==='done'?'CONVEYED':s.status==='partial'?'PARTIAL':'PENDING'}`).join('\n')}
-  ─────────────────────────────
-  TOTAL CONVEYED: ${f(totalConv)} sq.m.
+${result.socs.map((s, i) =>
+  `  ${i + 1}. ${s.name || '[Name]'} (${typeLabel[s.type] || s.type})
+     Area   : ${parseFloat(s.area) || 0} sq.m.
+     Flats  : ${s.flats || '—'}
+     Instr. : ${instrLabel[s.type] || '—'}
+     Status : ${s.status === 'done' ? 'CONVEYED' : s.status === 'partial' ? 'PARTIAL' : 'PENDING'}`
+).join('\n\n')}
 
-B. AREA STATEMENT (UDCPR Format — Correct Figures)
-  Row 01a  Plot (Ownership Doc)          : ${f(plotOwn)} sq.m.
-           Less: Conveyed to Societies   : ${f(totalConv)} sq.m.
-           Correct Plot Area             : ${f(c_plot)} sq.m.
-  Row 02a  Less: Road Deduction          : ${f(deductRd)} sq.m.
-  Row 03   Balance Area                  : ${f(c_bal)} sq.m.
-  Row 04b  Amenity Space (15%)           : ${f(c_amen)} sq.m.
-  Row 05   NET PLOT AREA (NPA)           : ${f(c_npa)} sq.m.
-  Row 06a  Rec. Open Space (10% of Row 03)  : ${f(c_bal*0.10)} sq.m. (NOT deducted from NPA)
-  Row 07   Internal Road Area               : ${f(intRd)} sq.m. (NOT deducted)
-  Row 09   Base FSI BUA (×${baseFSI})         : ${f(c_base)} sq.m.
-  Row 10a  Max Premium FSI (NPA×0.30)    : ${f(c_maxP)} sq.m.
-  Row 11c  Max TDR (NPA×0.70)            : ${f(c_maxT)} sq.m.
-             Slum TDR (NPA×0.21)         : ${f(c_slum)} sq.m.
-             Res. TDR (NPA×0.49)         : ${f(c_res)} sq.m.
-  Row 13a  Total FSI Entitlement         : ${f(c_totalFSI)} sq.m.
-  Row 13b  Less Existing BUA             : ${f(exBUA)} sq.m.
-  Row 13d  Balance BUA                   : ${f(c_balBUA)} sq.m.
-  Row 13e  Ancillary (Balance × 0.60)    : ${f(c_ancil)} sq.m.
-  Row 13f  Total Entitlement (13d+13e)   : ${f(c_totEnt)} sq.m.
-  Row 14   MAX PERMISSIBLE BUA           : ${f(c_totMax)} sq.m.
+  ─────────────────────────────────────────
+  TOTAL CONVEYED : ${fmt(result.totalConv)} sq.m.
+
+B. AREA STATEMENT — CORRECT FIGURES (After Excluding Conveyed Lands)
+  Row 01a  Plot (Ownership Doc)              : ${fmt(result.plotOwnN)} sq.m.
+           Less: Conveyed to Societies       : ${fmt(result.totalConv)} sq.m.
+           Correct Plot Area                 : ${fmt(result.c.plot)} sq.m.
+  Row 02a  Less: Road Surrender              : ${fmt(result.deductRdN)} sq.m.
+  Row 03   Balance Area                      : ${fmt(result.c.bal)} sq.m.
+  Row 04b  Amenity Space (15%)               : ${fmt(result.c.amen)} sq.m.
+  Row 05   NET PLOT AREA (NPA)               : ${fmt(result.c.npa)} sq.m.
+  Row 06   Rec. Open Space (10% of Row 03)   : ${fmt(result.c.recSp)} sq.m. (not deducted)
+  Row 09   Base FSI BUA (×${result.baseFSI})             : ${fmt(result.c.base)} sq.m.
+  Row 10a  Max Premium FSI (NPA × 0.30)      : ${fmt(result.c.maxP)} sq.m.
+  Row 11c  Max TDR (NPA × 0.70)              : ${fmt(result.c.maxT)} sq.m.
+             Slum TDR (NPA × 0.21)           : ${fmt(result.c.slum)} sq.m.
+             Reservation TDR (NPA × 0.49)    : ${fmt(result.c.res)} sq.m.
+  Row 13a  Total FSI Entitlement             : ${fmt(result.c.totFSI)} sq.m.
+  Row 13b  Less Existing BUA                 : ${fmt(result.exBUAN)} sq.m.
+  Row 13d  Balance BUA (13a − 13b)           : ${fmt(result.c.balBUA)} sq.m.
+  Row 13e  Ancillary Area (Balance × 0.60)   : ${fmt(result.c.ancil)} sq.m.
+  Row 13f  Total Entitlement (13d + 13e)     : ${fmt(result.c.totEnt)} sq.m.
+  Row 14   MAX PERMISSIBLE BUA               : ${fmt(result.c.totMax)} sq.m.
            (Base + Full Premium + Full TDR + Ancillary)
-${bBUA>0?`
+${result.bBUAN > 0 ? `
 C. BUILDER'S PROPOSED vs CORRECT
-  Builder's Claimed Plot Area     : ${f(bPlot)} sq.m.
-  Correct Plot Area               : ${f(c_plot)} sq.m.
-  Society Land Fraudulently Used  : ${f0(bPlot-c_plot)} sq.m.
-  Builder's Proposed Total BUA    : ${f(bBUA)} sq.m.
-  Correct Maximum Permissible BUA : ${f(c_totMax)} sq.m.
-  EXCESS (via society land fraud) : ${f0(Math.max(0,bBUA-c_totMax))} sq.m.
-`:''}
+  Builder's Claimed Plot Area     : ${fmt(result.bPlotN)} sq.m.
+  Correct Plot Area               : ${fmt(result.c.plot)} sq.m.
+  Society Land Fraudulently Used  : ${fmt0(result.landFraud)} sq.m.
+  Builder's Proposed Total BUA    : ${fmt(result.bBUAN)} sq.m.
+  Correct Maximum Permissible BUA : ${fmt(result.c.totMax)} sq.m.
+  EXCESS (via society land fraud) : ${fmt0(Math.max(0, result.bBUAN - result.c.totMax))} sq.m.
+` : ''}
 D. LEGAL BASIS
   1. UDCPR 2020 Reg. 2.2.3 — FSI only on owned/possessed land
   2. UDCPR 2020 Reg. 1.4(v),(vi) — FSI base must exclude conveyed land
   3. MOFA 1963 S.11 — Builder must convey land to society
   4. MCS Act 1960 S.11(3) — Deemed Conveyance right of society
   5. MRTP Act 1966 S.45/51 — Illegal development = revocation
-  6. Row 13e: Ancillary = Balance BUA × 0.60 (not a separate FSI rate)
-  7. Row 10a: Premium FSI = NPA × 0.30 (purchasable on payment)
+  6. Row 13e: Ancillary = Balance BUA × 0.60
+  7. Row 10a: Premium FSI = NPA × 0.30
   8. Row 11c: TDR = NPA × 0.70 (Slum 0.21 + Reservation 0.49)
+  9. Row 06: Open Space = 10% of Balance Area (Row 03), not NPA
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Prepared by: [Society Secretary]  Date: ${today}
-[Signature]              [Society Stamp]`;
+Prepared by: [Society Secretary]   Date: ${today}
+[Signature]              [Society Stamp]` : '';
 
-  // Steps
-  document.getElementById('rSteps').innerHTML=`<div class="sl">${[
-    {n:'1',c:'#0369a1',t:'File RTI for Builder\'s Area Statement',d:'Apply to PMRDA/PMC under RTI Act 2005 for certified copy of the area statement, FSI calculation sheet, and ownership documents submitted by the builder. Compare their Row 01c (plot area) with your correct figure — this is the smoking gun.'},
-    {n:'2',c:'#065f46',t:'Use This Statement as Exhibit',d:'Attach this area statement to your complaint to PMRDA, DDR, RERA, or court. It mirrors the official PMRDA format row-by-row and shows exactly how much FSI is over-claimed at each step — Base BUA, Premium, TDR, and Ancillary.'},
-    ...(pend.length>0?[{n:'3',c:'#92400e',t:'File Deemed Conveyance for Pending Societies',d:pend.map(s=>s.name||'[Society]').join(', ')+' — file under Section 11 MCS Act with DDR. Once registered, 7/12 mutation updates and builder loses legal claim on that land area.'}]:[]),
-    {n:'4',c:'#e74c3c',t:'File PMRDA Objection Under MRTP Act Section 51',d:`State that the building permission is based on inflated plot area of ${f0(bPlot)} sq.m. instead of legitimate ${f0(c_plot)} sq.m. Attach this area statement. Demand revocation under MRTP Act Section 51.`},
-    {n:'5',c:'#7c3aed',t:'Pass MC Resolution Protecting FSI Rights',d:`Pass resolution: "This society does not consent to pooling of FSI from our ${f(totalConv)} sq.m. conveyed land with any other plot or developer." File with PMRDA, Sub-Registrar, and society records.`},
-  ].map(s=>`<div class="si" style="border-left:4px solid ${s.c}"><div class="sn2" style="background:${s.c}">${s.n}</div><div><div class="st">${s.t}</div><div class="sd">${s.d}</div></div></div>`).join('')}</div>`;
+  return (
+    <div>
+      <div className="grid-2" style={{ gap: 20 }}>
+        {/* LEFT */}
+        <div>
+          <div className="conv-card">
+            <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>📋 Plot Details — Rows 01–03</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>From 7/12 extract, ownership document, sanctioned layout</div>
 
-  document.getElementById('results').classList.add('show');
-  document.getElementById('results').scrollIntoView({behavior:'smooth',block:'start'});
+            <Field label="Area as per Ownership Document / 7-12 (Row 01a)" error={errors.plotOwn}>
+              <NumInput value={plotOwn} onChange={v => { setPlotOwn(v); setResult(null); }} placeholder="e.g. 97700" error={errors.plotOwn} />
+            </Field>
+            <Field label="Area under 15m+ Road to surrender (Row 02a)" hint="Road widening deduction only — internal roads NOT deducted here">
+              <NumInput value={deductRd} onChange={setDeductRd} placeholder="0" />
+            </Field>
+            <Field label="Planning Authority">
+              <select className="form-input" value={authority} onChange={e => setAuthority(e.target.value)}>
+                <option value="pmrda">PMRDA — Pune Metropolitan Region</option>
+                <option value="pmc">PMC — Pune Municipal Corporation</option>
+                <option value="pcmc">PCMC — Pimpri-Chinchwad</option>
+                <option value="other">Other Municipal Council</option>
+              </select>
+            </Field>
+            <Field label="Road Width in front of plot (determines Base FSI)" hint="UDCPR 2020 Table 6-A">
+              <select className="form-input" value={roadWidth} onChange={e => setRoadWidth(e.target.value)}>
+                <option value="9">Up to 9m — Base FSI 1.10</option>
+                <option value="12">9–15m (12m) — Base FSI 1.10</option>
+                <option value="18">15–24m (18m) — Base FSI 1.30</option>
+                <option value="24">24–30m (24m) — Base FSI 1.50</option>
+                <option value="30">30m+ — Base FSI 1.80</option>
+              </select>
+            </Field>
+          </div>
+
+          <div className="conv-card">
+            <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🌳 Amenity Space — Rows 04–08</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>NPA = Balance Area − Amenity Space</div>
+            <Field label="Amenity Space Proposed (Row 04b)" hint="Leave blank to auto-calculate at 15% of Balance Area">
+              <NumInput value={amenityInp} onChange={setAmenityInp} placeholder="auto: 15% of balance area" />
+            </Field>
+            <Field label="Recreational Open Space (Row 06 — 10% of Row 03, NOT deducted from NPA)">
+              <NumInput value={recSp} onChange={setRecSp} placeholder="auto: 10% of balance area" />
+            </Field>
+            <Field label="Internal Road Area (Row 07 — NOT deducted from NPA)">
+              <NumInput value={intRd} onChange={setIntRd} placeholder="e.g. 5812" />
+            </Field>
+          </div>
+
+          <div className="conv-card">
+            <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🏗️ Builder's Claimed Figures</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>From builder's area statement / sanction letter — for fraud detection</div>
+            <Field label="Builder's Claimed Plot Area (their Row 01c)">
+              <NumInput value={bPlot} onChange={setBPlot} placeholder="e.g. 97700" />
+            </Field>
+            <Field label="Builder's Proposed Total BUA (their Row 15e)">
+              <NumInput value={bBUA} onChange={setBBUA} placeholder="e.g. 107564" />
+            </Field>
+            <Field label="Existing BUA already on plot (Row 13b)">
+              <NumInput value={exBUA} onChange={setExBUA} placeholder="e.g. 51435" />
+            </Field>
+            <Field label="TDR Proposed by Builder (Row 11c proposed)">
+              <NumInput value={bTDR} onChange={setBTDR} placeholder="0 if not known" />
+            </Field>
+            <Field label="Premium FSI Proposed by Builder (Row 10b)">
+              <NumInput value={bPrem} onChange={setBPrem} placeholder="0 if not known" />
+            </Field>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div>
+          <div className="conv-card">
+            <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🏘️ Societies / Associations</div>
+            <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>Enter each society and the land conveyed / to be conveyed</div>
+            {errors.socs && <div className="conv-error" style={{ marginBottom: 12 }}>{errors.socs}</div>}
+            {socs.map((s, i) => (
+              <SocietyRow key={s.id} soc={s} index={i}
+                onUpdate={(field, val) => updSoc(s.id, field, val)}
+                onRemove={() => delSoc(s.id)}
+                showRemove={socs.length > 1}
+              />
+            ))}
+            <button className="conv-add-flat-btn" style={{ width: '100%', marginTop: 4 }} onClick={addSoc}>
+              + Add Society / Association
+            </button>
+          </div>
+
+          {/* Formula guide */}
+          <div className="conv-card" style={{ background: 'var(--dark)', borderColor: 'var(--dark-2)' }}>
+            <div style={{ fontWeight: 800, fontSize: 14, color: '#fff', marginBottom: 14 }}>📖 UDCPR 2020 Formula (PMRDA)</div>
+            {[
+              { color: 'var(--teal)',    title: 'Row 09 — Base FSI BUA',      body: 'NPA × Base FSI Rate\n(1.10 for <15m | 1.30 for 15–24m | 1.50 for 24–30m | 1.80 for 30m+)' },
+              { color: 'var(--orange)',  title: 'Row 10 — Premium FSI',        body: 'Max = NPA × 0.30\nPay premium to PMRDA to unlock' },
+              { color: '#2980b9',        title: 'Row 11c — TDR',               body: 'Max = NPA × 0.70\n↳ Slum TDR = NPA × 0.21\n↳ Reservation TDR = NPA × 0.49' },
+              { color: '#a855f7',        title: 'Row 13e — Ancillary Area',    body: '= Balance BUA × 0.60\n(Staircase, lift, lobby — not in FSI)\nBalance = Row 13a − Row 13b' },
+            ].map((g, i) => (
+              <div key={i} style={{ padding: '10px 12px', background: 'rgba(255,255,255,0.05)',
+                borderRadius: 8, borderLeft: `3px solid ${g.color}`, marginBottom: 8 }}>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{g.title}</div>
+                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', whiteSpace: 'pre-line' }}>{g.body}</div>
+              </div>
+            ))}
+            <div style={{ padding: '10px 12px', background: 'rgba(0,200,150,0.08)',
+              border: '1px solid rgba(0,200,150,0.2)', borderRadius: 8, marginTop: 4 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--teal)' }}>
+                Max Total = NPA × (1.10 + 0.30 + 0.70) = NPA × 2.10
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 3 }}>
+                Plus Ancillary (60% of Balance BUA) on top · Open Space = 10% of Row 03
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button className="btn-primary" style={{ width: '100%', justifyContent: 'center', marginTop: 8 }}
+        onClick={calculate}>
+        ⚡ Generate Area Statement & Detect FSI Fraud
+      </button>
+
+      <button className="btn-outline" style={{ width: '100%', justifyContent: 'center', marginTop: 10,
+        border: '1.5px solid var(--teal)', color: 'var(--teal)', background: 'transparent',
+        padding: '12px', borderRadius: 11, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+        fontFamily: 'var(--font)' }}
+        onClick={() => {
+          setPlotOwn('97700'); setDeductRd('0'); setAuthority('pmrda'); setRoadWidth('12');
+          setAmenityInp('14655'); setRecSp('9900'); setIntRd('5812');
+          setBPlot('97700'); setBBUA('107564'); setExBUA('51435'); setBTDR('0'); setBPrem('0');
+          setSocs([
+            { id: 1, name: 'Solacia Phase I Apartment Association', type: 'aoa', flats: '320', area: '21900', status: 'done' },
+            { id: 2, name: 'Solacia Phase II Apartment Association', type: 'aoa', flats: '280', area: '14000', status: 'done' },
+            { id: 3, name: 'RMC Garden Phase III Condominium',       type: 'condo', flats: '80', area: '4151', status: 'done' },
+            { id: 4, name: 'RMC Garden Phase I CHS Ltd.',            type: 'chs', flats: '110', area: '10392', status: 'done' },
+            { id: 5, name: 'Supreme Angan CHS Ltd.',                 type: 'chs', flats: '150', area: '12000', status: 'done' },
+            { id: 6, name: 'Ganga Alfa CHS Ltd.',                    type: 'chs', flats: '90',  area: '5131',  status: 'done' },
+            { id: 7, name: 'Solacia E1 & E2 CHS Ltd.',               type: 'chs', flats: '120', area: '4600',  status: 'done' },
+          ]);
+          setResult(null);
+        }}>
+        📋 Load Example: Gat 1185A, Wagholi
+      </button>
+
+      {/* ── RESULTS ────────────────────────────────────────────────────────── */}
+      {result && (
+        <div style={{ marginTop: 28 }}>
+
+          {/* Hero */}
+          <div className="conv-result-card" style={{ marginBottom: 20 }}>
+            <div className="conv-result-label">Total Land to be Conveyed to All Societies</div>
+            <div className="conv-result-value">{fmt(result.totalConv)}<span style={{ fontSize: 22, fontWeight: 400, marginLeft: 8 }}>sq.m.</span></div>
+            <div style={{ marginTop: 12, display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {result.pendSocs.length > 0 &&
+                <span className="badge badge-r">⚠️ {result.pendSocs.length} Conveyance Pending</span>}
+              {result.socs.filter(s => s.status === 'done').length > 0 &&
+                <span className="badge badge-g">✅ {result.socs.filter(s => s.status === 'done').length} Already Conveyed</span>}
+              {result.landFraud > 100 &&
+                <span className="badge badge-r">🚨 {fmt0(result.landFraud)} sq.m. Society Land Misused</span>}
+              {result.buaFraud > 100 &&
+                <span className="badge badge-r">🚨 BUA Overloading Detected</span>}
+            </div>
+          </div>
+
+          {/* Info boxes */}
+          <div className="igrid" style={{ marginBottom: 20 }}>
+            {[
+              { n: fmt(result.totalConv),  l: 'Total Conveyed (sq.m.)' },
+              { n: fmt(result.c.plot),     l: "Builder's Legit Land (sq.m.)" },
+              { n: fmt(result.c.npa),      l: 'Correct NPA (sq.m.)' },
+              { n: fmt(result.c.base),     l: 'Correct Base BUA' },
+              { n: fmt(result.c.maxP),     l: 'Max Premium FSI' },
+              { n: fmt(result.c.maxT),     l: 'Max TDR' },
+              { n: fmt(result.c.ancil),    l: 'Ancillary (Bal×0.60)' },
+              { n: fmt(result.c.totMax),   l: 'Max Total BUA (all FSI)' },
+            ].map((x, i) => (
+              <div key={i} className="ibox">
+                <div className="inum">{x.n}</div>
+                <div className="ilbl">{x.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Result tabs */}
+          <div className="conv-card">
+            <div className="tab-row" style={{ marginBottom: 20 }}>
+              {[
+                { id: 'as',    label: '📊 Area Statement' },
+                { id: 'fraud', label: '🔍 FSI Fraud Check' },
+                { id: 'math',  label: '🧮 Workings' },
+                { id: 'doc',   label: '📄 Legal Statement' },
+                { id: 'steps', label: '🗺️ Next Steps' },
+              ].map(t => (
+                <button key={t.id} className={`tab ${activeTab === t.id ? 'active' : ''}`}
+                  onClick={() => setActiveTab(t.id)}>{t.label}</button>
+              ))}
+            </div>
+
+            {/* Area Statement Tab */}
+            {activeTab === 'as' && (
+              <div>
+                <p style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 12 }}>
+                  📌 <strong style={{ color: 'var(--red)' }}>Red = Builder's figures</strong> (including society land) vs{' '}
+                  <strong style={{ color: '#065f46' }}>Green = Correct figures</strong> (after excluding conveyed lands)
+                </p>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ background: 'var(--dark)', color: 'rgba(255,255,255,0.85)', padding: '10px 14px', textAlign: 'left', fontSize: 11, width: 28 }}>#</th>
+                        <th style={{ background: 'var(--dark)', color: 'rgba(255,255,255,0.85)', padding: '10px 14px', textAlign: 'left', fontSize: 11 }}>Description</th>
+                        <th style={{ background: 'var(--dark)', color: '#f87171', padding: '10px 14px', textAlign: 'right', fontSize: 11 }}>Builder's<br/>Figures (sq.m.)</th>
+                        <th style={{ background: 'var(--dark)', color: '#6ee7b7', padding: '10px 14px', textAlign: 'right', fontSize: 11 }}>Correct<br/>Figures (sq.m.)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <ASSection num="01" title="AREA OF PLOT" />
+                      <ASRow num="a"  desc="As per Ownership Document"           bVal={result.bPlotN}    cVal={result.plotOwnN} />
+                      <ASRow num=""   desc="Less: Land Conveyed to Societies"    bVal={null}             cVal={result.totalConv} sub />
+                      <ASRow num="c"  desc="Minimum Consider Plot Area (correct)" bVal={result.bPlotN}   cVal={result.c.plot} />
+                      <ASSection num="02" title="DEDUCTIONS FOR" />
+                      <ASRow num="a"  desc="Area under 15m+ Wide Road (surrender)" bVal={result.deductRdN} cVal={result.deductRdN} sub />
+                      <ASSection num="03" title="BALANCE AREA OF PLOT (01 – 02a)" />
+                      <ASTotalRow desc="Balance Area" bVal={result.b.bal} cVal={result.c.bal} />
+                      <ASSection num="04" title="AMENITY SPACE @ 15% (Group Housing)" />
+                      <ASRow num="a"  desc="Required @ 15% of Balance Area"      bVal={result.b.bal * 0.15} cVal={result.c.bal * 0.15} sub />
+                      <ASRow num="b"  desc="Proposed"                             bVal={result.b.amen}   cVal={result.c.amen} sub />
+                      <ASSection num="05" title="NET PLOT AREA — NPA (03 – 04b)" />
+                      <ASTotalRow desc="Net Plot Area (NPA)" bVal={result.b.npa} cVal={result.c.npa} />
+                      <ASSection num="06" title="RECREATIONAL OPEN SPACE (= 10% of Row 03 — NOT deducted from NPA)" />
+                      <ASRow num="a"  desc="Required 10% of Balance Area (Row 03)" bVal={result.b.bal * 0.10} cVal={result.c.bal * 0.10} sub />
+                      <ASRow num="b"  desc="Proposed"                              bVal={result.b.recSp}  cVal={result.c.recSp} sub />
+                      <ASSection num="07" title="INTERNAL ROAD AREA (for reference — NOT deducted)" />
+                      <ASRow num=""   desc="Internal Road Area"                   bVal={result.intRdN}   cVal={result.intRdN} sub />
+                      <ASSection num="09" title="FSI PERMISSIBLE — BASE BUA" />
+                      <ASRow num=""   desc={`Base FSI Rate: ${result.baseFSI}x`}  bVal={null}            cVal={null} sub />
+                      <ASRow num=""   desc={`Base BUA (NPA × ${result.baseFSI})`} bVal={result.b.base}   cVal={result.c.base} />
+                      <ASSection num="10" title="PREMIUM FSI ON PAYMENT — Row 10 (Purchasable)" />
+                      <ASRow num="a"  desc="Max Permissible Premium FSI (NPA × 0.30)" bVal={result.b.maxP} cVal={result.c.maxP} sub />
+                      <ASRow num="b"  desc="Proposed Premium FSI by Builder"     bVal={result.bPremN}   cVal={Math.min(result.bPremN, result.c.maxP)} sub />
+                      <ASSection num="11" title="IN-SITU FSI / TDR LOADING — Row 11c" />
+                      <ASRow num="c"  desc="TDR Permissible (NPA × 0.70)"        bVal={result.b.maxT}   cVal={result.c.maxT} />
+                      <ASRow num=""   desc="  ↳ Slum TDR (NPA × 0.21)"           bVal={result.b.slum}   cVal={result.c.slum} sub />
+                      <ASRow num=""   desc="  ↳ Reservation TDR (NPA × 0.49)"    bVal={result.b.res}    cVal={result.c.res} sub />
+                      <ASRow num="d"  desc="TDR Proposed by Builder"              bVal={result.bTDRN}    cVal={Math.min(result.bTDRN, result.c.maxT)} sub />
+                      <ASSection num="13" title="TOTAL ENTITLEMENT OF FSI — Row 13" />
+                      <ASRow num="a"  desc="Total FSI [09 + 10(b) + 11(d)]"      bVal={result.b.totFSI} cVal={result.c.totFSI} />
+                      <ASRow num="b"  desc="Less: Existing Built-Up Area (Row 13b)" bVal={result.exBUAN} cVal={result.exBUAN} sub />
+                      <ASRow num="d"  desc="Balance Built-Up Area (13a − 13b)"   bVal={result.b.balBUA} cVal={result.c.balBUA} />
+                      <ASRow num="e"  desc="Ancillary Area (Balance × 0.60)"     bVal={result.b.ancil}  cVal={result.c.ancil} />
+                      <ASRow num="f"  desc="TOTAL (13d + 13e)"                   bVal={result.b.totEnt} cVal={result.c.totEnt} />
+                      <ASSection num="14" title="MAXIMUM PERMISSIBLE F.S.I. (Base + Full Premium + Full TDR + Ancillary)" />
+                      <ASTotalRow desc="Max Total BUA (incl. Ancillary)" bVal={result.b.totMax} cVal={result.c.totMax} />
+                      {result.bBUAN > 0 && (() => {
+                        const isFr = result.bBUAN > result.c.totMax + 50;
+                        return (
+                          <>
+                            <ASSection num="15" title="BUILDER'S PROPOSED BUA vs CORRECT MAXIMUM" />
+                            <tr style={{ background: isFr ? '#fef2f2' : '#f0fdf4' }}>
+                              <td />
+                              <td style={{ fontWeight: 700, color: isFr ? 'var(--red)' : '#065f46' }}>
+                                Builder's Proposed BUA {isFr ? '🚨 EXCEEDS CORRECT MAXIMUM' : '✅ Within limit'}
+                              </td>
+                              <td style={{ textAlign: 'right', fontWeight: 800, color: isFr ? 'var(--red)' : '#065f46', fontFamily: 'monospace' }}>
+                                {fmt(result.bBUAN)}
+                              </td>
+                              <td style={{ textAlign: 'right', fontWeight: 700, color: '#065f46', fontFamily: 'monospace' }}>
+                                {isFr ? `Max: ${fmt(result.c.totMax)}` : '✅'}
+                              </td>
+                            </tr>
+                          </>
+                        );
+                      })()}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Alerts */}
+                <div style={{ marginTop: 16 }}>
+                  {result.b.npa - result.c.npa > 50 && (
+                    <div className="alert ar">
+                      <div className="at">🚨 Net Plot Area Inflated by {fmt0(result.b.npa - result.c.npa)} sq.m.</div>
+                      Builder's NPA: <strong>{fmt(result.b.npa)} sq.m.</strong> | Correct NPA: <strong>{fmt(result.c.npa)} sq.m.</strong><br />
+                      This inflates every downstream figure — Base BUA, Premium cap, TDR cap, and Ancillary.<br />
+                      <strong>UDCPR 2020 Reg. 2.2.3:</strong> FSI computed only on land owned by and in possession of the applicant.
+                    </div>
+                  )}
+                  {result.bBUAN > 0 && result.bBUAN > result.c.totMax + 50 && (
+                    <div className="alert ar">
+                      <div className="at">🚨 Proposed BUA {fmt(result.bBUAN)} sq.m. Exceeds Correct Maximum of {fmt(result.c.totMax)} sq.m.</div>
+                      Excess: <strong>{fmt0(result.bBUAN - result.c.totMax)} sq.m.</strong> — achievable only by including society land in FSI base.
+                    </div>
+                  )}
+                  {result.pendSocs.length > 0 && (
+                    <div className="alert ao">
+                      <div className="at">⚠️ Conveyance Pending for {result.pendSocs.length} Society</div>
+                      {result.pendSocs.map(s => (
+                        <div key={s.id}>• <strong>{s.name || '[Unnamed]'}</strong>: {s.area || '?'} sq.m. — file Deemed Conveyance with DDR</div>
+                      ))}
+                    </div>
+                  )}
+                  {result.b.npa - result.c.npa <= 50 && result.bBUAN <= result.c.totMax + 50 && (
+                    <div className="alert ag">
+                      <div className="at">✅ Calculations Complete</div>
+                      Enter builder's claimed area and BUA to enable automatic fraud detection.
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* FSI Fraud Check Tab */}
+            {activeTab === 'fraud' && (
+              <div>
+                <div className="alert ab" style={{ marginBottom: 16 }}>
+                  <div className="at">ℹ️ How Ancillary Area Works (Row 13e)</div>
+                  Ancillary = <strong>Balance BUA × 0.60</strong> — NOT a separate FSI rate on NPA.<br />
+                  Balance BUA = Total FSI (Row 13a) − Existing BUA (Row 13b).<br />
+                  When builder inflates NPA by including society land, Balance BUA inflates, and Ancillary inflates too — a cascading fraud effect.
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
+                    <thead>
+                      <tr>
+                        <th style={{ background: 'var(--dark)', color: 'rgba(255,255,255,0.8)', padding: '10px 14px', textAlign: 'left', fontSize: 11 }}>FSI Component</th>
+                        <th style={{ background: 'var(--dark)', color: '#f87171', padding: '10px 14px', textAlign: 'right', fontSize: 11 }}>Builder ({fmt0(result.bPlotN)} sq.m.)</th>
+                        <th style={{ background: 'var(--dark)', color: '#6ee7b7', padding: '10px 14px', textAlign: 'right', fontSize: 11 }}>Correct ({fmt0(result.c.plot)} sq.m.)</th>
+                        <th style={{ background: 'var(--dark)', color: 'rgba(255,255,255,0.6)', padding: '10px 14px', textAlign: 'right', fontSize: 11 }}>Excess</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[
+                        ['Net Plot Area (NPA)',                       result.b.npa,    result.c.npa],
+                        [`Base FSI BUA (×${result.baseFSI})`,         result.b.base,   result.c.base],
+                        ['Max Premium FSI (×0.30)',                   result.b.maxP,   result.c.maxP],
+                        ['Max TDR (×0.70)',                           result.b.maxT,   result.c.maxT],
+                        [`Max Total FSI BUA (×${(result.baseFSI+0.30+0.70).toFixed(2)})`, result.b.npa*(result.baseFSI+0.30+0.70), result.c.npa*(result.baseFSI+0.30+0.70)],
+                        ['Less: Existing BUA',                        result.exBUAN,   result.exBUAN],
+                        ['Balance BUA (Row 13d)',                     result.b.balBUA, result.c.balBUA],
+                        ['Ancillary (Balance × 0.60) — Row 13e',     result.b.ancil,  result.c.ancil],
+                        ['TOTAL MAX PERMISSIBLE (13d + 13e)',         result.b.totMax, result.c.totMax],
+                      ].map(([lbl, bv, cv], i) => {
+                        const ex = bv - cv;
+                        return (
+                          <tr key={i} style={Math.abs(ex) > 0.5 ? { background: '#fef2f2' } : {}}>
+                            <td style={{ padding: '9px 14px', borderBottom: '1px solid var(--border)' }}>{lbl}</td>
+                            <td style={{ padding: '9px 14px', borderBottom: '1px solid var(--border)', textAlign: 'right', color: '#e74c3c', fontFamily: 'monospace', fontWeight: 600 }}>{fmt(bv)}</td>
+                            <td style={{ padding: '9px 14px', borderBottom: '1px solid var(--border)', textAlign: 'right', color: '#065f46', fontFamily: 'monospace', fontWeight: 600 }}>{fmt(cv)}</td>
+                            <td style={{ padding: '9px 14px', borderBottom: '1px solid var(--border)', textAlign: 'right', color: ex > 0.5 ? 'var(--red)' : 'var(--text-muted)', fontFamily: 'monospace', fontWeight: ex > 0.5 ? 700 : 400 }}>
+                              {Math.abs(ex) > 0.5 ? (ex > 0 ? '+' : '') + fmt0(ex) : '—'}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {result.bBUAN > 0 && (
+                        <tr style={{ background: result.bBUAN > result.c.totMax + 50 ? '#fef2f2' : '#f0fdf4' }}>
+                          <td style={{ padding: '9px 14px', fontWeight: 700 }}>Builder's ACTUAL Proposed BUA</td>
+                          <td style={{ padding: '9px 14px', textAlign: 'right', color: 'var(--red)', fontFamily: 'monospace', fontWeight: 800 }}>{fmt(result.bBUAN)}</td>
+                          <td style={{ padding: '9px 14px', textAlign: 'right', color: '#065f46', fontFamily: 'monospace', fontWeight: 700 }}>{fmt(result.c.totMax)} (max)</td>
+                          <td style={{ padding: '9px 14px', textAlign: 'right', fontWeight: 800, color: result.bBUAN > result.c.totMax + 50 ? 'var(--red)' : '#065f46' }}>
+                            {result.bBUAN > result.c.totMax + 50 ? `🚨 +${fmt0(result.bBUAN - result.c.totMax)}` : '✅ OK'}
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+                {result.bBUAN > 0 && result.bBUAN > result.c.totMax + 50 && (
+                  <div className="alert ar" style={{ marginTop: 14 }}>
+                    <div className="at">🚨 Mathematical Conclusion: BUA of {fmt(result.bBUAN)} sq.m. is Impossible Without Society Land</div>
+                    On legitimate land of <strong>{fmt(result.c.plot)} sq.m.</strong>, maximum BUA (base + full premium + full TDR + full ancillary) = <strong>{fmt(result.c.totMax)} sq.m.</strong><br />
+                    Builder proposes <strong>{fmt(result.bBUAN)} sq.m.</strong> — excess of <strong>{fmt0(result.bBUAN - result.c.totMax)} sq.m.</strong><br />
+                    Only achievable by loading FSI on the <strong>{fmt0(result.totalConv)} sq.m.</strong> of society land.<br />
+                    <strong>Cite:</strong> UDCPR 2020 Reg. 2.2.3, MRTP Act S.45/51
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Math Workings Tab */}
+            {activeTab === 'math' && (
+              <div style={{ background: 'var(--dark)', borderRadius: 12, padding: 22,
+                fontFamily: 'Courier New, monospace', fontSize: 12,
+                color: 'rgba(255,255,255,0.75)', lineHeight: 1.9, overflowX: 'auto' }}>
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>═══ BUILDER'S CALCULATION (Including Society Land — ALLEGED) ═══</div>
+                {[
+                  [`01. Plot claimed`, `${fmt(result.bPlotN)}`, '#f87171'],
+                  [`03. Balance (01 - Road ${fmt(result.deductRdN)})`, `${fmt(result.b.bal)}`, '#f87171'],
+                  [`04. Amenity 15% of Balance`, `${fmt(result.b.amen)}`, null],
+                  [`05. Net Plot Area (NPA)`, `${fmt(result.b.npa)}`, '#f87171'],
+                  [`06. Rec. Open Space (10% of Row 03)`, `${fmt(result.b.bal * 0.10)} (not deducted)`, null],
+                  [`09. Base BUA (${fmt(result.b.npa)} × ${result.baseFSI})`, `${fmt(result.b.base)}`, '#f87171'],
+                  [`10a. Max Premium (NPA × 0.30)`, `${fmt(result.b.maxP)}`, '#f87171'],
+                  [`11c. Max TDR (NPA × 0.70)`, `${fmt(result.b.maxT)}  [Slum: ${fmt(result.b.slum)}  Res: ${fmt(result.b.res)}]`, '#f87171'],
+                  [`13a. Total FSI (Base+Prem+TDR)`, `${fmt(result.b.totFSI)}`, '#f87171'],
+                  [`13b. Less Existing BUA`, `${fmt(result.exBUAN)}`, null],
+                  [`13d. Balance BUA (13a − 13b)`, `${fmt(result.b.balBUA)}`, '#f87171'],
+                  [`13e. Ancillary (${fmt(result.b.balBUA)} × 0.60)`, `${fmt(result.b.ancil)}`, '#f87171'],
+                  [`13f. Total Entitlement`, `${fmt(result.b.totEnt)}`, '#f87171'],
+                  [`    Max possible (all FSI + Ancil)`, `${fmt(result.b.totMax)}`, '#f87171'],
+                ].map(([label, val, color], i) => (
+                  <div key={i}>
+                    <span style={{ color: 'var(--teal)' }}>{label.split('(')[0]}</span>
+                    {label.includes('(') && <span style={{ color: 'rgba(255,255,255,0.4)' }}>({label.split('(')[1]}</span>}
+                    <span> = </span>
+                    <span style={{ color: color || '#fff', fontWeight: 700 }}>{val}</span>
+                  </div>
+                ))}
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '12px 0' }} />
+                <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 11 }}>═══ CORRECT CALCULATION (Excluding {fmt(result.totalConv)} sq.m. Conveyed) ═══</div>
+                {[
+                  [`01. Plot (${fmt(result.plotOwnN)} − ${fmt(result.totalConv)})`, `${fmt(result.c.plot)}`, '#6ee7b7'],
+                  [`03. Balance`, `${fmt(result.c.bal)}`, '#6ee7b7'],
+                  [`04. Amenity 15% of Balance`, `${fmt(result.c.amen)}`, null],
+                  [`05. Net Plot Area (NPA)`, `${fmt(result.c.npa)}`, '#6ee7b7'],
+                  [`06. Rec. Open Space (10% of Row 03)`, `${fmt(result.c.bal * 0.10)} (not deducted)`, null],
+                  [`09. Base BUA (${fmt(result.c.npa)} × ${result.baseFSI})`, `${fmt(result.c.base)}`, '#6ee7b7'],
+                  [`10a. Max Premium (NPA × 0.30)`, `${fmt(result.c.maxP)}`, '#6ee7b7'],
+                  [`11c. Max TDR (NPA × 0.70)`, `${fmt(result.c.maxT)}  [Slum: ${fmt(result.c.slum)}  Res: ${fmt(result.c.res)}]`, '#6ee7b7'],
+                  [`13a. Total FSI`, `${fmt(result.c.totFSI)}`, '#6ee7b7'],
+                  [`13b. Less Existing BUA`, `${fmt(result.exBUAN)}`, null],
+                  [`13d. Balance BUA (13a − 13b)`, `${fmt(result.c.balBUA)}`, '#6ee7b7'],
+                  [`13e. Ancillary (${fmt(result.c.balBUA)} × 0.60)`, `${fmt(result.c.ancil)}`, '#6ee7b7'],
+                  [`13f. Total Entitlement`, `${fmt(result.c.totEnt)}`, '#6ee7b7'],
+                  [`    Max possible (all FSI + Ancil)`, `${fmt(result.c.totMax)}`, '#6ee7b7'],
+                ].map(([label, val, color], i) => (
+                  <div key={i}>
+                    <span style={{ color: 'var(--teal)' }}>{label.split('(')[0]}</span>
+                    {label.includes('(') && <span style={{ color: 'rgba(255,255,255,0.4)' }}>({label.split('(')[1]}</span>}
+                    <span> = </span>
+                    <span style={{ color: color || '#fff', fontWeight: 700 }}>{val}</span>
+                  </div>
+                ))}
+                <div style={{ borderTop: '2px solid rgba(0,200,150,0.3)', marginTop: 12, paddingTop: 10,
+                  color: 'var(--teal)', fontSize: 13, fontWeight: 800 }}>
+                  LAND FRAUDULENTLY INCLUDED:  {fmt0(result.landFraud)} sq.m. of society land{'\n'}
+                  EXCESS BUA VIA FRAUD:        {result.bBUAN > 0 ? fmt0(result.bBUAN - result.c.totMax) + ' sq.m.' : '(enter builder BUA to calculate)'}{'\n'}
+                  CORRECT MAX PERMISSIBLE BUA: {fmt(result.c.totMax)} sq.m.
+                </div>
+              </div>
+            )}
+
+            {/* Legal Statement Tab */}
+            {activeTab === 'doc' && (
+              <div>
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 14 }}>
+                  Ready for DDR application, RERA complaint, court affidavit, or PMRDA objection letter.
+                </p>
+                <pre style={{ background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 10,
+                  padding: 18, fontSize: 12, lineHeight: 1.85, whiteSpace: 'pre-wrap',
+                  maxHeight: 450, overflowY: 'auto', fontFamily: 'Courier New, monospace' }}>
+                  {legalDoc}
+                </pre>
+                <button className="btn-primary" style={{ marginTop: 10 }}
+                  onClick={() => navigator.clipboard.writeText(legalDoc).then(() => alert('Copied!'))}>
+                  📋 Copy to Clipboard
+                </button>
+                <button onClick={() => window.print()}
+                  style={{ marginLeft: 8, marginTop: 10, padding: '10px 20px', background: 'var(--white)',
+                    color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 8,
+                    fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
+                  🖨️ Print
+                </button>
+              </div>
+            )}
+
+            {/* Next Steps Tab */}
+            {activeTab === 'steps' && (
+              <div className="sl">
+                {[
+                  { n: '1', c: '#0369a1', t: 'File RTI for Builder\'s Area Statement',
+                    d: `Apply to PMRDA/PMC under RTI Act 2005 for certified copy of the area statement, FSI calculation sheet, and ownership documents. Compare their Row 01c (${fmt0(result.bPlotN)} sq.m.) with your correct figure (${fmt0(result.c.plot)} sq.m.) — this is the smoking gun.` },
+                  { n: '2', c: '#065f46', t: 'Use This Statement as Exhibit',
+                    d: 'Attach this area statement to your complaint to PMRDA, DDR, RERA, or court. It mirrors the official PMRDA format row-by-row and shows exactly how much FSI is over-claimed at each step.' },
+                  ...(result.pendSocs.length > 0 ? [{
+                    n: '3', c: '#92400e', t: 'File Deemed Conveyance for Pending Societies',
+                    d: result.pendSocs.map(s => s.name || '[Society]').join(', ') + ' — file under Section 11 MCS Act with DDR. Once registered, 7/12 mutation updates and builder loses legal claim on that land area.',
+                  }] : []),
+                  { n: '4', c: '#e74c3c', t: 'File PMRDA Objection Under MRTP Act Section 51',
+                    d: `State that the building permission is based on inflated plot area of ${fmt0(result.bPlotN)} sq.m. instead of legitimate ${fmt0(result.c.plot)} sq.m. Attach this area statement. Demand revocation under MRTP Act Section 51.` },
+                  { n: '5', c: '#7c3aed', t: 'Pass MC Resolution Protecting FSI Rights',
+                    d: `Pass resolution: "This society does not consent to pooling of FSI from our ${fmt(result.totalConv)} sq.m. conveyed land with any other plot or developer." File with PMRDA, Sub-Registrar, and society records.` },
+                ].map(s => (
+                  <div key={s.n} className="si" style={{ borderLeft: `4px solid ${s.c}` }}>
+                    <div className="sn2" style={{ background: s.c }}>{s.n}</div>
+                    <div>
+                      <div className="st">{s.t}</div>
+                      <div className="sd">{s.d}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-function cpDoc(){navigator.clipboard.writeText(document.getElementById('rDoc').textContent).then(()=>alert('Copied!'));}
-function reset(){socs=[];rSocs();['plotOwn','plotSanc','amenity','bPlot','bBUA'].forEach(id=>document.getElementById(id).value='');['deductRd','recSp','intRd','exBUA','bTDR','bPrem'].forEach(id=>document.getElementById(id).value='0');document.getElementById('results').classList.remove('show');}
-function loadEx(){
-  document.getElementById('plotOwn').value='97700';document.getElementById('plotSanc').value='97700';document.getElementById('deductRd').value='0';
-  document.getElementById('auth').value='pmrda';document.getElementById('rdw').value='12';
-  document.getElementById('amenity').value='14655';document.getElementById('recSp').value='9900';document.getElementById('intRd').value='5812';
-  document.getElementById('bPlot').value='97700';document.getElementById('bBUA').value='107564';
-  document.getElementById('exBUA').value='51435';document.getElementById('bTDR').value='0';document.getElementById('bPrem').value='0';
-  socs=[];
-  [{name:'Solacia Phase I Apartment Association',type:'aoa',flats:320,area:21900,status:'done'},{name:'Solacia Phase II Apartment Association',type:'aoa',flats:280,area:14000,status:'done'},{name:'RMC Garden Phase III Condominium',type:'condo',flats:80,area:4151,status:'done'},{name:'RMC Garden Phase I CHS Ltd.',type:'chs',flats:110,area:10392,status:'done'},{name:'Supreme Angan CHS Ltd.',type:'chs',flats:150,area:12000,status:'done'},{name:'Ganga Alfa CHS Ltd.',type:'chs',flats:90,area:5131,status:'done'},{name:'Solacia E1 & E2 CHS Ltd.',type:'chs',flats:120,area:4600,status:'done'}]
-  .forEach(s=>addSoc(s));
+// ─── MAIN PAGE ────────────────────────────────────────────────────────────────
+export default function ConveyanceCalculatorPage() {
+  const [mainTab, setMainTab] = useState('simple');
+
+  return (
+    <div className="section">
+      <div className="container">
+
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: 40 }}>
+          <h1 className="section-title">
+            Conveyance Area <span>Calculator</span>
+          </h1>
+          <p className="section-sub">
+            Calculate your society's land entitlement, FSI permissibility, and detect builder fraud —
+            based on the exact PMRDA Area Statement format and UDCPR 2020.
+          </p>
+        </div>
+
+        {/* Main tab selector */}
+        <div style={{ maxWidth: 780, margin: '0 auto 32px', display: 'flex',
+          background: 'var(--white)', border: '1px solid var(--border)',
+          borderRadius: 14, padding: 6, gap: 6 }}>
+          {[
+            { id: 'simple',   label: '🏠 Simple Conveyance Calculator', sub: 'Area entitlement + UDS per flat' },
+            { id: 'detailed', label: '📐 Full PMRDA Area Statement',     sub: 'FSI + TDR + Ancillary + Fraud Detection' },
+          ].map(t => (
+            <button key={t.id}
+              onClick={() => setMainTab(t.id)}
+              style={{
+                flex: 1, padding: '12px 16px', borderRadius: 10, border: 'none', cursor: 'pointer',
+                background: mainTab === t.id ? 'var(--teal)' : 'transparent',
+                color: mainTab === t.id ? '#fff' : 'var(--text-muted)',
+                fontFamily: 'var(--font)', textAlign: 'center', transition: 'all 0.2s',
+              }}>
+              <div style={{ fontWeight: 700, fontSize: 14 }}>{t.label}</div>
+              <div style={{ fontSize: 11, opacity: 0.75, marginTop: 2 }}>{t.sub}</div>
+            </button>
+          ))}
+        </div>
+
+        <div style={{ maxWidth: mainTab === 'detailed' ? 1140 : 780, margin: '0 auto' }}>
+          {mainTab === 'simple'   && <SimpleTab />}
+          {mainTab === 'detailed' && <DetailedTab />}
+        </div>
+
+        {/* Disclaimer */}
+        <div style={{ maxWidth: mainTab === 'detailed' ? 1140 : 780, margin: '24px auto 0',
+          padding: '12px 18px', background: '#fffbf0', border: '1px solid #fde68a',
+          borderRadius: 10, fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
+          ⚠️ This platform provides general legal information only. It is not a substitute for professional
+          legal advice. Calculations are based on UDCPR 2020 and actual PMRDA area statement formats —
+          always verify from certified 7/12 extracts, approved layout plans, and conveyance deeds.
+          For conveyance deed preparation and court proceedings, consult a qualified advocate and
+          town planner.
+        </div>
+
+      </div>
+    </div>
+  );
 }
-rSocs();
-</script>
-</body>
-</html>
