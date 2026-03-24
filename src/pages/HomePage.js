@@ -53,7 +53,7 @@ export default function HomePage({ navigate }) {
       <section className="section section-dark">
         <div className="container">
           <div className="section-title" style={{ color: '#fff', marginBottom: 8 }}>
-            Four Ways to Get <span>Help</span>
+            Six Ways to Get <span>Help</span>
           </div>
           <p className="section-sub" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 40 }}>
             Pick what works best for your situation
@@ -98,6 +98,26 @@ export default function HomePage({ navigate }) {
                 and flags which specific bye-law was violated and what remedy is available.
               </div>
               <span className="feature-tag">Instant bye-law analysis →</span>
+            </div>
+            <div className="feature-card" onClick={() => navigate('rera')}>
+              <div className="feature-num">05</div>
+              <div className="feature-icon">⚖️</div>
+              <div className="feature-title">RERA Registration Checker</div>
+              <div className="feature-desc">
+                Verify if your builder or project is registered on MahaRERA. Step-by-step guide with
+                red flags to watch out for and green signals to look for.
+              </div>
+              <span className="feature-tag">Check builder on MahaRERA →</span>
+            </div>
+            <div className="feature-card" onClick={() => navigate('checklist')}>
+              <div className="feature-num">06</div>
+              <div className="feature-icon">✅</div>
+              <div className="feature-title">Pre-Purchase Checklist</div>
+              <div className="feature-desc">
+                25 things to verify before buying a flat in Maharashtra — RERA, title, approvals,
+                society, and financials. Track progress and save your checklist automatically.
+              </div>
+              <span className="feature-tag">25-point buyer's checklist →</span>
             </div>
           </div>
         </div>

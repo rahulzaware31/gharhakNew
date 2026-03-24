@@ -7,6 +7,8 @@ export default function Navbar({ currentPage, navigate }) {
     { id: 'chat', label: 'AI Advisor' },
     { id: 'docs', label: 'Draft Documents' },
     { id: 'byelaw', label: 'Bye-Law Checker' },
+    { id: 'rera', label: 'RERA Checker' },
+    { id: 'checklist', label: 'Buy Checklist' },
   ];
 
   return (
