@@ -24,6 +24,7 @@ export default function Footer({ navigate }) {
               { label: 'AI Advisor', page: 'chat' },
               { label: 'Complaint Wizard', page: 'wizard' },
               { label: 'Draft Documents', page: 'docs' },
+              { label: 'Conveyance Calculator', page: 'conveyance' },
             ].map(l => (
               <span key={l.page} className="footer-link" onClick={() => navigate(l.page)}>{l.label}</span>
             ))}

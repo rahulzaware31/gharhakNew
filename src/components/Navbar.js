@@ -9,6 +9,7 @@ export default function Navbar({ currentPage, navigate }) {
     { id: 'byelaw', label: 'Bye-Law Checker' },
     { id: 'rera', label: 'RERA Checker' },
     { id: 'checklist', label: 'Buy Checklist' },
+    { id: 'conveyance', label: 'Conveyance Calc' },
   ];
 
   return (

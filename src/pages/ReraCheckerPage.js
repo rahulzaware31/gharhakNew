@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 
 const RERA_SEARCH_URL = 'https://maharera.maharashtra.gov.in/';
-const RERA_PROJECT_SEARCH = 'https://maharera.maharashtra.gov.in/Home/ProjectSearch';
-const RERA_PROMOTER_SEARCH = 'https://maharera.maharashtra.gov.in/Home/PromoterSearch';
+const RERA_PROJECT_SEARCH = 'https://maharera.maharashtra.gov.in/projects-search-result';
+const RERA_PROMOTER_SEARCH = 'https://maharera.maharashtra.gov.in/promoters-search-result';
 
 const STEPS = [
   {
@@ -172,7 +172,7 @@ export default function ReraCheckerPage() {
                 👷 All Registered Builders
               </a>
               <a
-                href="https://maharera.maharashtra.gov.in/Home/ComplaintSearch"
+                href="https://maharera.maharashtra.gov.in/complaints-search-result"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rera-ext-link"
