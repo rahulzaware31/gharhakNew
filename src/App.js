@@ -6,6 +6,8 @@ import WizardPage from './pages/WizardPage';
 import DocGeneratorPage from './pages/DocGeneratorPage';
 import IssuePage from './pages/IssuePage';
 import ByeLawCheckerPage from './pages/ByeLawCheckerPage';
+import PrePurchaseChecklistPage from './pages/PrePurchaseChecklistPage';
+import ReraCheckerPage from './pages/ReraCheckerPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -33,6 +35,8 @@ export default function App() {
         {page === 'docs' && <DocGeneratorPage />}
         {page === 'issue' && <IssuePage />}
         {page === 'byelaw' && <ByeLawCheckerPage />}
+        {page === 'checklist' && <PrePurchaseChecklistPage />}
+        {page === 'rera' && <ReraCheckerPage />}
       </main>
       <Footer navigate={navigate} />
     </AppContext.Provider>
