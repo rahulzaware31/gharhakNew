@@ -53,7 +53,7 @@ export default function HomePage({ navigate }) {
       <section className="section section-dark">
         <div className="container">
           <div className="section-title" style={{ color: '#fff', marginBottom: 8 }}>
-            Six Ways to Get <span>Help</span>
+            Seven Ways to Get <span>Help</span>
           </div>
           <p className="section-sub" style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 40 }}>
             Pick what works best for your situation
@@ -118,6 +118,16 @@ export default function HomePage({ navigate }) {
                 society, and financials. Track progress and save your checklist automatically.
               </div>
               <span className="feature-tag">25-point buyer's checklist →</span>
+            </div>
+            <div className="feature-card" onClick={() => navigate('conveyance')}>
+              <div className="feature-num">07</div>
+              <div className="feature-icon">📐</div>
+              <div className="feature-title">Conveyance Area Calculator</div>
+              <div className="feature-desc">
+                Calculate the exact land area your society is legally entitled to receive from the
+                builder — for single buildings and multi-building complexes. Also computes UDS per flat.
+              </div>
+              <span className="feature-tag">MOFA · MCS Act · GR 2018 →</span>
             </div>
           </div>
         </div>
