@@ -804,13 +804,21 @@ export default function WizardPage() {
   ) : '';
 
   return (
-    <div className="section">
-      <div className="container">
-        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 className="section-title">Complaint <span>Wizard</span></h1>
-          <p className="section-sub">5 questions — get a detailed, law-cited, authority-specific action plan with draft letter</p>
+    <div>
+      <div className="page-header-band">
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: '#e6faf5' }}>🧭</div>
+            <div className="page-header-text">
+              <div className="page-header-title">Complaint Wizard</div>
+              <div className="page-header-desc">5 questions · Law-cited action plan · Authority-specific steps · Draft letter included</div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container">
 
         <div className="wizard-container">
 
@@ -1233,6 +1241,7 @@ export default function WizardPage() {
           )}
 
         </div>
+      </div>
       </div>
     </div>
   );
