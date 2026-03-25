@@ -16,10 +16,7 @@ export default function IssuePage() {
     <div className="section">
       <div className="container" style={{ maxWidth: 880 }}>
         {/* Back */}
-        <button
-          onClick={() => navigate('home')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 14, fontWeight: 600, marginBottom: 32, display: 'flex', alignItems: 'center', gap: 6 }}
-        >
+        <button className="page-back-btn" onClick={() => navigate('home')}>
           ← Back to all issues
         </button>
 

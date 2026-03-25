@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { DOCUMENT_TEMPLATES, ISSUE_CATEGORIES } from '../data/issues';
+import { AppContext } from '../App';
 
 const FIELD_LABELS = {
   societyName: 'Society Name',
@@ -111,6 +112,7 @@ ${Object.entries(formData).filter(([, v]) => v).map(([k, v]) => `${FIELD_LABELS[
 }
 
 export default function DocGeneratorPage() {
+  const { navigate } = useContext(AppContext);
   const [selected, setSelected] = useState(null);
   const [formData, setFormData] = useState({});
   const [generated, setGenerated] = useState('');
@@ -190,6 +192,7 @@ Requirements:
   return (
     <div className="section">
       <div className="container">
+        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h1 className="section-title">Document <span>Generator</span></h1>
           <p className="section-sub">Ready-made complaint templates for PMC, DDR, MahaRERA, Consumer Forum & more</p>

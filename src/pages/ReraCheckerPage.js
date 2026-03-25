@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../App';
 
 const RERA_SEARCH_URL = 'https://maharera.maharashtra.gov.in/';
 const RERA_PROJECT_SEARCH = 'https://maharera.maharashtra.gov.in/projects-search-result';
@@ -73,6 +74,7 @@ const SEVERITY_COLORS = {
 };
 
 export default function ReraCheckerPage() {
+  const { navigate } = useContext(AppContext);
   const [query, setQuery] = useState('');
   const [searchType, setSearchType] = useState('project'); // project | builder | regno
 
@@ -89,6 +91,7 @@ export default function ReraCheckerPage() {
   return (
     <div className="section">
       <div className="container">
+        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h1 className="section-title">RERA <span>Registration Checker</span></h1>

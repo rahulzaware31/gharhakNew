@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
+import { AppContext } from '../App';
 
 const STORAGE_KEY = 'gharhak_checklist_v1';
 
@@ -249,6 +250,7 @@ const RISK_COLORS = {
 };
 
 export default function PrePurchaseChecklistPage() {
+  const { navigate } = useContext(AppContext);
   const [checked, setChecked] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
@@ -286,6 +288,7 @@ export default function PrePurchaseChecklistPage() {
   return (
     <div className="section">
       <div className="container">
+        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h1 className="section-title">Flat Buyer's <span>Pre-Purchase Checklist</span></h1>

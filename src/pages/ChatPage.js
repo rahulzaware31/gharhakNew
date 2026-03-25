@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext } from 'react';
+import { AppContext } from '../App';
 
 const SYSTEM_PROMPT = `You are GharHak AI, a housing rights advisor for Maharashtra, India. You help flat owners, CHS (Co-operative Housing Society) members, and condominium residents understand and assert their legal rights.
 
@@ -55,6 +56,7 @@ function MessageBubble({ msg }) {
 }
 
 export default function ChatPage() {
+  const { navigate } = useContext(AppContext);
   const [messages, setMessages] = useState([
     {
       role: 'ai',
@@ -132,6 +134,7 @@ export default function ChatPage() {
   return (
     <div className="section">
       <div className="container">
+        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
         <div style={{ marginBottom: 32, textAlign: 'center' }}>
           <h1 className="section-title">AI Legal <span>Advisor</span></h1>
           <p className="section-sub">Powered by Groq · Llama 3 · Trained on Maharashtra housing law</p>

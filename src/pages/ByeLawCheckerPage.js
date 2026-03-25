@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../App';
 
 // Key provisions from Maharashtra Model Bye-Laws 2014 for Co-operative Housing Societies
 const MODEL_BYE_LAWS = [
@@ -150,6 +151,7 @@ const EXAMPLE_COMPLAINTS = [
 ];
 
 export default function ByeLawCheckerPage() {
+  const { navigate } = useContext(AppContext);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -231,6 +233,7 @@ Rules:
   return (
     <div className="section">
       <div className="container">
+        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h1 className="section-title">Bye-Law <span>Violation Checker</span></h1>
