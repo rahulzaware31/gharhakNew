@@ -1515,6 +1515,135 @@ body {
 }
 .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.2); }
 
+/* ── Real Cases Section ────────────────────────────────────────────────── */
+.section-cases {
+  background: linear-gradient(180deg, #f8fafb 0%, #eef9f5 100%);
+  border-top: 1px solid var(--border);
+}
+.cases-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+.cases-filter-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--white);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+  font-family: var(--font);
+}
+.cases-filter-btn:hover { border-color: var(--teal); color: var(--teal); }
+.cases-filter-btn.active { background: var(--teal); border-color: var(--teal); color: #fff; }
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+.case-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: var(--transition);
+  box-shadow: var(--shadow);
+}
+.case-card:hover {
+  border-color: var(--teal);
+  box-shadow: 0 6px 24px rgba(0,200,150,0.1);
+  transform: translateY(-2px);
+}
+.case-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.case-badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.case-type-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--dark);
+  color: var(--teal);
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.case-year-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+.case-issue-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.case-title { font-size: 15px; font-weight: 700; color: var(--dark); line-height: 1.4; }
+.case-summary { font-size: 13px; color: var(--text-muted); line-height: 1.65; }
+.case-outcome {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+.case-outcome-label {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #16a34a;
+  margin-bottom: 6px;
+}
+.case-outcome-text { font-size: 13px; color: var(--text); line-height: 1.65; }
+.case-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.case-expand-btn {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font);
+  transition: color 0.15s;
+}
+.case-expand-btn:hover { color: var(--teal); }
+.case-source-link {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--teal);
+  text-decoration: none;
+}
+.case-source-link:hover { opacity: 0.7; }
+@media (max-width: 768px) {
+  .cases-grid { grid-template-columns: 1fr; }
+  .cases-filters { gap: 6px; }
+  .cases-filter-btn { font-size: 12px; padding: 6px 12px; }
+}
+
 /* ── Issue detail grid ────────────────────────────────────────────────── */
 .issue-detail-grid {
   display: grid;
