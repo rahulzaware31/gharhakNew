@@ -1,6 +1,87 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { AppContext } from '../App';
-import { ISSUE_CATEGORIES } from '../data/issues';
+import { ISSUE_CATEGORIES, REAL_CASES } from '../data/issues';
+
+function RealCasesSection() {
+  const [activeFilter, setActiveFilter] = useState('All');
+  const [expanded, setExpanded] = useState(null);
+
+  const filters = ['All', ...Array.from(new Set(REAL_CASES.map(c => c.issueTag)))];
+  const visible = activeFilter === 'All' ? REAL_CASES : REAL_CASES.filter(c => c.issueTag === activeFilter);
+
+  return (
+    <section className="section section-cases">
+      <div className="container">
+        <div className="tools-label">Landmark Cases</div>
+        <div className="section-title">Real Cases from <span>Maharashtra Courts</span></div>
+        <p className="section-sub">
+          Judgments, RERA orders, and news stories — see how others with similar problems won.
+        </p>
+
+        {/* Filter tabs */}
+        <div className="cases-filters">
+          {filters.map(f => (
+            <button
+              key={f}
+              className={`cases-filter-btn ${activeFilter === f ? 'active' : ''}`}
+              onClick={() => { setActiveFilter(f); setExpanded(null); }}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+
+        {/* Cases grid */}
+        <div className="cases-grid">
+          {visible.map(c => (
+            <div key={c.id} className="case-card">
+              <div className="case-card-top">
+                <div className="case-badges">
+                  <span className="case-type-badge">
+                    {c.typeIcon} {c.type}
+                  </span>
+                  <span className="case-year-badge">{c.year}</span>
+                </div>
+                <span className="case-issue-tag" style={{ background: c.issueColor + '18', color: c.issueColor }}>
+                  {c.issueTag}
+                </span>
+              </div>
+
+              <div className="case-title">{c.title}</div>
+              <div className="case-summary">{c.summary}</div>
+
+              {expanded === c.id && (
+                <div className="case-outcome">
+                  <div className="case-outcome-label">
+                    {c.outcomeType === 'win' ? '✅ Outcome' : 'ℹ️ Outcome'}
+                  </div>
+                  <div className="case-outcome-text">{c.outcome}</div>
+                </div>
+              )}
+
+              <div className="case-card-footer">
+                <button
+                  className="case-expand-btn"
+                  onClick={() => setExpanded(expanded === c.id ? null : c.id)}
+                >
+                  {expanded === c.id ? '▲ Hide outcome' : '▼ See outcome'}
+                </button>
+                <a
+                  href={c.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="case-source-link"
+                >
+                  {c.source} ↗
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function HomePage({ navigate }) {
   const { setSelectedIssue } = useContext(AppContext);
@@ -187,6 +268,9 @@ export default function HomePage({ navigate }) {
           </div>
         </div>
       </section>
+
+      {/* ── Real Cases ──────────────────────────────────────────────────── */}
+      <RealCasesSection />
 
       {/* ── CTA Banner ───────────────────────────────────────────────────── */}
       <section className="cta-banner">
