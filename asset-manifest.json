@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/gharhakNew/static/css/main.eb85ed26.css",
-    "main.js": "/gharhakNew/static/js/main.4d4ef0cf.js",
+    "main.css": "/gharhakNew/static/css/main.e7ed5b3f.css",
+    "main.js": "/gharhakNew/static/js/main.981c184e.js",
     "index.html": "/gharhakNew/index.html",
-    "main.eb85ed26.css.map": "/gharhakNew/static/css/main.eb85ed26.css.map",
-    "main.4d4ef0cf.js.map": "/gharhakNew/static/js/main.4d4ef0cf.js.map"
+    "main.e7ed5b3f.css.map": "/gharhakNew/static/css/main.e7ed5b3f.css.map",
+    "main.981c184e.js.map": "/gharhakNew/static/js/main.981c184e.js.map"
   },
   "entrypoints": [
-    "static/css/main.eb85ed26.css",
-    "static/js/main.4d4ef0cf.js"
+    "static/css/main.e7ed5b3f.css",
+    "static/js/main.981c184e.js"
   ]
 }
