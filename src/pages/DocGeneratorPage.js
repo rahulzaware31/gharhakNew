@@ -31,6 +31,11 @@ const FIELD_LABELS = {
   registrationDate: 'Date of Registration',
   purchaseDate: 'Date of Purchase / Agreement',
   amountPaid: 'Amount Paid (₹)',
+  memberName: 'Member / Flat Owner Name',
+  flatNo: 'Flat / Unit Number',
+  outstandingAmount: 'Outstanding Amount (₹)',
+  period: 'Period of Outstanding Dues (e.g. Apr 2024 – Mar 2025)',
+  dueDate: 'Due Date for Payment',
 };
 
 const TEXTAREA_FIELDS = new Set([
@@ -54,6 +59,7 @@ const DOC_ICONS = {
   consumer_forum_society: '🏢',
   coop_court_petition: '👨‍⚖️',
   mc_resolution: '📝',
+  defaulter_notice: '💸',
   police_complaint: '👮',
 };
 
@@ -101,6 +107,50 @@ Issued by:
 [Address]
 
 Copy to: District Deputy Registrar, Sub-Registrar Office`;
+  }
+
+  if (template.id === 'defaulter_notice') {
+    return `DEFAULTER NOTICE
+
+Date: ${today}
+
+To,
+${formData.memberName || '[Member Name]'},
+Flat No. ${formData.flatNo || '[Flat No.]'},
+${formData.societyName || '[Society Name]'},
+[Address]
+
+Subject: Notice for Outstanding Maintenance Dues — Flat No. ${formData.flatNo || '[Flat No.]'}
+
+Dear ${formData.memberName || 'Member'},
+
+This is to bring to your notice that as per our records, you have outstanding maintenance dues amounting to ₹${formData.outstandingAmount || '[Amount]'} for the period of ${formData.period || '[Period]'} for the above-mentioned flat in our society.
+${formData.issueDescription ? `\nAdditional Remarks:\n${formData.issueDescription}\n` : ''}
+As per Bye-Law No. 68 of the Model Bye-Laws 2014 and Section 79A of the Maharashtra Co-operative Societies Act 1960, all members are obligated to pay maintenance charges and other dues promptly. Non-payment of dues is a violation of your membership obligations and the registered bye-laws of this society.
+
+You are hereby directed to clear all outstanding dues amounting to ₹${formData.outstandingAmount || '[Amount]'} within 15 (fifteen) days of receipt of this notice, i.e., on or before ${formData.dueDate || '[Due Date]'}.
+
+Failure to comply will compel the Managing Committee to:
+1. Charge interest on outstanding dues as prescribed under the bye-laws
+2. Initiate recovery proceedings before the Co-operative Court under MCS Act 1960
+3. Restrict access to society amenities as permitted under bye-laws
+4. Report the matter to the District Deputy Registrar for appropriate action
+
+Please treat this as a final notice before legal proceedings are initiated. Kindly contact the Society office for payment or to resolve any discrepancy.
+
+For ${formData.societyName || '[Society Name]'},
+
+_______________________
+Secretary / Chairman
+Managing Committee
+Reg. No.: ${formData.regNo || '[Reg. No.]'}
+
+Date: ${today}
+
+Copy to: District Deputy Registrar Office, Notice Board
+
+---
+Disclaimer: This notice is issued under the Maharashtra Co-operative Societies Act 1960 and Model Bye-Laws 2014.`;
   }
 
   return `[Document: ${template.title}]

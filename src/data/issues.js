@@ -200,6 +200,7 @@ export const DOCUMENT_TEMPLATES = [
 
   // ── Society Internal ────────────────────────────────────────────────────
   { id: "mc_resolution", title: "Managing Committee Resolution", titleMr: "व्यवस्थापन समिती ठराव", category: "chs_condominium", authority: "Society", fields: ["societyName", "regNo", "resolutionSubject", "resolutionText"] },
+  { id: "defaulter_notice", title: "Defaulter Notice to Member", titleMr: "थकबाकीदार सदस्याला नोटीस", category: "maintenance", authority: "Society", fields: ["societyName", "regNo", "memberName", "flatNo", "outstandingAmount", "period", "dueDate", "issueDescription"] },
 
   // ── Police ──────────────────────────────────────────────────────────────
   { id: "police_complaint", title: "Police Complaint (Illegal Construction)", titleMr: "पोलीस तक्रार", category: "illegal_construction", authority: "Police", fields: ["complainantName", "address", "accusedName", "incidentDescription", "witnesses"] },
