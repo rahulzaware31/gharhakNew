@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../App';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const SQ_FT_PER_SQ_M = 10.7639;
@@ -1083,12 +1084,14 @@ Prepared by: [Society Secretary]   Date: ${today}
 
 // ─── MAIN PAGE ────────────────────────────────────────────────────────────────
 export default function ConveyanceCalculatorPage() {
+  const { navigate } = useContext(AppContext);
   const [mainTab, setMainTab] = useState('simple');
 
   return (
     <div className="section">
       <div className="container">
 
+        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h1 className="section-title">

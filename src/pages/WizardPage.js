@@ -806,6 +806,7 @@ export default function WizardPage() {
   return (
     <div className="section">
       <div className="container">
+        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
         <div style={{ textAlign: 'center', marginBottom: 40 }}>
           <h1 className="section-title">Complaint <span>Wizard</span></h1>
           <p className="section-sub">5 questions — get a detailed, law-cited, authority-specific action plan with draft letter</p>
