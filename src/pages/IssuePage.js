@@ -13,30 +13,28 @@ export default function IssuePage() {
   const steps = COMPLAINT_STEPS[selectedIssue.id];
 
   return (
-    <div className="section">
-      <div className="container" style={{ maxWidth: 880 }}>
-        {/* Back */}
-        <button className="page-back-btn" onClick={() => navigate('home')}>
-          ← Back to all issues
-        </button>
-
-        {/* Header */}
-        <div style={{
-          background: `linear-gradient(135deg, ${selectedIssue.color}15, ${selectedIssue.color}05)`,
-          border: `1.5px solid ${selectedIssue.color}30`,
-          borderRadius: 20,
-          padding: '40px',
-          marginBottom: 32,
-          borderLeft: `6px solid ${selectedIssue.color}`,
-        }}>
-          <div style={{ fontSize: 52, marginBottom: 16 }}>{selectedIssue.icon}</div>
-          <h1 style={{ fontSize: 36, fontWeight: 800, letterSpacing: -1, marginBottom: 6 }}>{selectedIssue.title}</h1>
-          <div className="mr" style={{ fontSize: 18, color: 'var(--text-muted)', marginBottom: 16 }}>{selectedIssue.titleMr}</div>
-          <p style={{ fontSize: 16, color: 'var(--text-muted)', maxWidth: 600 }}>{selectedIssue.description}</p>
+    <div>
+      <div className="page-header-band" style={{ borderLeft: `4px solid ${selectedIssue.color}` }}>
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to all issues</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: `${selectedIssue.color}18`, fontSize: 28 }}>
+              {selectedIssue.icon}
+            </div>
+            <div className="page-header-text">
+              <div className="page-header-title">{selectedIssue.title}</div>
+              <div className="page-header-desc mr" style={{ fontFamily: 'inherit' }}>
+                <span className="mr">{selectedIssue.titleMr} · </span>{selectedIssue.description}
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container" style={{ maxWidth: 880 }}>
 
         {/* Two column layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 32 }}>
+        <div className="issue-detail-grid" style={{ marginBottom: 32 }}>
           {/* Laws */}
           <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 16, padding: 28 }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -120,6 +118,7 @@ export default function IssuePage() {
             📄 Draft a Document
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

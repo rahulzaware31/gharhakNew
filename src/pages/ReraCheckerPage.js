@@ -89,16 +89,21 @@ export default function ReraCheckerPage() {
   };
 
   return (
-    <div className="section">
-      <div className="container">
-        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 className="section-title">RERA <span>Registration Checker</span></h1>
-          <p className="section-sub">
-            Verify if your builder or project is registered on MahaRERA — and know exactly what to check for red flags.
-          </p>
+    <div>
+      <div className="page-header-band">
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: '#eff6ff' }}>⚖️</div>
+            <div className="page-header-text">
+              <div className="page-header-title">RERA Registration Checker</div>
+              <div className="page-header-desc">Verify your builder on MahaRERA · Know exactly what red flags to look for</div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container">
 
         <div style={{ maxWidth: 820, margin: '0 auto' }}>
           {/* Search Card */}
@@ -266,6 +271,7 @@ export default function ReraCheckerPage() {
             ⚠️ This platform provides general legal information only. Always verify directly on the official MahaRERA portal (maharera.maharashtra.gov.in). This tool does not connect to MahaRERA's database — it opens the official portal for you to check directly. For legal matters, consult a qualified advocate.
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

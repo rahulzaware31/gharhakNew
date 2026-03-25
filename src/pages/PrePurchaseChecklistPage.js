@@ -286,16 +286,21 @@ export default function PrePurchaseChecklistPage() {
   const progressColor = pct === 100 ? '#16a34a' : pct >= 60 ? '#d97706' : '#dc2626';
 
   return (
-    <div className="section">
-      <div className="container">
-        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 className="section-title">Flat Buyer's <span>Pre-Purchase Checklist</span></h1>
-          <p className="section-sub">
-            25 things to verify before buying a flat in Maharashtra — saves you from years of legal trouble.
-          </p>
+    <div>
+      <div className="page-header-band">
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: '#f0fdf4' }}>✅</div>
+            <div className="page-header-text">
+              <div className="page-header-title">Pre-Purchase Checklist</div>
+              <div className="page-header-desc">25 points to verify before buying a flat in Maharashtra · Progress saves automatically</div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container">
 
         <div style={{ maxWidth: 860, margin: '0 auto' }}>
           {/* Progress Bar Card */}
@@ -460,6 +465,7 @@ export default function PrePurchaseChecklistPage() {
             ⚠️ This platform provides general legal information only. It is not a substitute for professional legal advice. This checklist is a guide — always engage an independent advocate for title verification and agreement review before making any payment. Laws and regulations may change.
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

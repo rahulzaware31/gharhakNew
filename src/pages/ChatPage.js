@@ -132,14 +132,21 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="section">
-      <div className="container">
-        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
-        <div style={{ marginBottom: 32, textAlign: 'center' }}>
-          <h1 className="section-title">AI Legal <span>Advisor</span></h1>
-          <p className="section-sub">Powered by Groq · Llama 3 · Trained on Maharashtra housing law</p>
+    <div>
+      <div className="page-header-band">
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: '#ede9fe' }}>🤖</div>
+            <div className="page-header-text">
+              <div className="page-header-title">AI Legal Advisor</div>
+              <div className="page-header-desc">Ask in English or Marathi · Powered by Groq · Trained on Maharashtra housing law</div>
+            </div>
+          </div>
         </div>
-
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container">
         <div className="chat-container">
           <div className="chat-header">
             <div className="chat-avatar">🤖</div>
@@ -191,6 +198,7 @@ export default function ChatPage() {
           ⚠️ GharHak AI provides general legal information only. It is not a substitute for professional legal advice.
           For court proceedings, please consult a qualified advocate.
         </p>
+      </div>
       </div>
     </div>
   );

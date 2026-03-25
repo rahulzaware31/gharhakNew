@@ -1088,20 +1088,21 @@ export default function ConveyanceCalculatorPage() {
   const [mainTab, setMainTab] = useState('simple');
 
   return (
-    <div className="section">
-      <div className="container">
-
-        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 className="section-title">
-            Conveyance Area <span>Calculator</span>
-          </h1>
-          <p className="section-sub">
-            Calculate your society's land entitlement, FSI permissibility, and detect builder fraud —
-            based on the exact PMRDA Area Statement format and UDCPR 2020.
-          </p>
+    <div>
+      <div className="page-header-band">
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: '#f5f3ff' }}>📐</div>
+            <div className="page-header-text">
+              <div className="page-header-title">Conveyance Area Calculator</div>
+              <div className="page-header-desc">Society land entitlement · FSI · UDS per flat · Builder fraud detection · UDCPR 2020</div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container">
 
         {/* Main tab selector */}
         <div style={{ maxWidth: 780, margin: '0 auto 32px', display: 'flex',
@@ -1141,6 +1142,7 @@ export default function ConveyanceCalculatorPage() {
           town planner.
         </div>
 
+      </div>
       </div>
     </div>
   );

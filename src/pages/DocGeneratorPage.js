@@ -190,13 +190,21 @@ Requirements:
   };
 
   return (
-    <div className="section">
-      <div className="container">
-        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 className="section-title">Document <span>Generator</span></h1>
-          <p className="section-sub">Ready-made complaint templates for PMC, DDR, MahaRERA, Consumer Forum & more</p>
+    <div>
+      <div className="page-header-band">
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: '#fef3c7' }}>📄</div>
+            <div className="page-header-text">
+              <div className="page-header-title">Document Generator</div>
+              <div className="page-header-desc">16 ready-made templates · PMC, DDR, MahaRERA, Consumer Forum & more</div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container">
 
         {!selected ? (
           <>
@@ -325,6 +333,7 @@ Requirements:
             )}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -231,16 +231,21 @@ Rules:
   };
 
   return (
-    <div className="section">
-      <div className="container">
-        <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
-        {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: 40 }}>
-          <h1 className="section-title">Bye-Law <span>Violation Checker</span></h1>
-          <p className="section-sub mr" style={{ fontFamily: 'inherit' }}>
-            Describe what your Managing Committee did — AI will identify which specific Model Bye-Laws were violated and what remedy you have.
-          </p>
+    <div>
+      <div className="page-header-band">
+        <div className="page-header-inner">
+          <button className="page-back-btn" onClick={() => navigate('home')}>← Back to Home</button>
+          <div className="page-header-meta">
+            <div className="page-header-icon" style={{ background: '#fff7ed' }}>📋</div>
+            <div className="page-header-text">
+              <div className="page-header-title">Bye-Law Violation Checker</div>
+              <div className="page-header-desc">Describe what your MC did — AI identifies violated bye-laws and your remedy</div>
+            </div>
+          </div>
         </div>
+      </div>
+      <div className="section" style={{ paddingTop: 0 }}>
+      <div className="container">
 
         {!result ? (
           <div style={{ maxWidth: 760, margin: '0 auto' }}>
@@ -409,6 +414,7 @@ Rules:
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
