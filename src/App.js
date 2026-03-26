@@ -16,6 +16,7 @@ import SocietyHandoverChecklistPage from './pages/SocietyHandoverChecklistPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
+import FeedbackButton from './components/FeedbackButton';
 
 export const AppContext = React.createContext();
 
@@ -67,6 +68,7 @@ export default function App() {
         {page === 'handover'   && <SocietyHandoverChecklistPage />}
       </main>
       <Footer navigate={navigate} />
+      <FeedbackButton />
     </AppContext.Provider>
   );
 }
