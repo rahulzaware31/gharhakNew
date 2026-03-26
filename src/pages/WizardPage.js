@@ -917,12 +917,12 @@ export default function WizardPage() {
               <div className="wizard-step-sub">Personalises your action plan and draft letter</div>
               <div className="form-field">
                 <label className="form-label">Your city / area <span style={{ color: 'var(--red)' }}>*</span></label>
-                <input className="form-input" placeholder="e.g. Pune, Wagholi, Thane, Mumbai, Nashik..."
+                <input className="form-input" placeholder="e.g. Pune, Thane, Mumbai, Nashik, Nagpur..."
                   value={details.city} onChange={e => setDetails(d => ({ ...d, city: e.target.value }))} />
               </div>
               <div className="form-field">
                 <label className="form-label">Society / Project name <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400 }}>(optional)</span></label>
-                <input className="form-input" placeholder="e.g. Solacia E1 E2 CHS, RMC Garden Phase 3..."
+                <input className="form-input" placeholder="e.g. Sunrise Heights CHS, Green Valley Phase 3..."
                   value={details.society} onChange={e => setDetails(d => ({ ...d, society: e.target.value }))} />
               </div>
               <div className="form-field">

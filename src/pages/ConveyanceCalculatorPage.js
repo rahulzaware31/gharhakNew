@@ -63,7 +63,7 @@ function SocietyRow({ soc, index, onUpdate, onRemove, showRemove }) {
       <Field label="Society / Association Name">
         <input
           className="form-input"
-          placeholder="e.g. Solacia E1 & E2 CHS Ltd."
+          placeholder="e.g. Sunrise Heights CHS Ltd."
           value={soc.name}
           onChange={e => onUpdate('name', e.target.value)}
         />
@@ -713,17 +713,17 @@ Prepared by: [Society Secretary]   Date: ${today}
           setAmenityInp('14655'); setRecSp('9900'); setIntRd('5812');
           setBPlot('97700'); setBBUA('107564'); setExBUA('51435'); setBTDR('0'); setBPrem('0');
           setSocs([
-            { id: 1, name: 'Solacia Phase I Apartment Association', type: 'aoa', flats: '320', area: '21900', status: 'done' },
-            { id: 2, name: 'Solacia Phase II Apartment Association', type: 'aoa', flats: '280', area: '14000', status: 'done' },
-            { id: 3, name: 'RMC Garden Phase III Condominium',       type: 'condo', flats: '80', area: '4151', status: 'done' },
-            { id: 4, name: 'RMC Garden Phase I CHS Ltd.',            type: 'chs', flats: '110', area: '10392', status: 'done' },
-            { id: 5, name: 'Supreme Angan CHS Ltd.',                 type: 'chs', flats: '150', area: '12000', status: 'done' },
-            { id: 6, name: 'Ganga Alfa CHS Ltd.',                    type: 'chs', flats: '90',  area: '5131',  status: 'done' },
-            { id: 7, name: 'Solacia E1 & E2 CHS Ltd.',               type: 'chs', flats: '120', area: '4600',  status: 'done' },
+            { id: 1, name: 'Sunrise Heights Phase I Apartment Association', type: 'aoa', flats: '320', area: '21900', status: 'done' },
+            { id: 2, name: 'Sunrise Heights Phase II Apartment Association', type: 'aoa', flats: '280', area: '14000', status: 'done' },
+            { id: 3, name: 'Green Valley Phase III Condominium',             type: 'condo', flats: '80', area: '4151', status: 'done' },
+            { id: 4, name: 'Green Valley Phase I CHS Ltd.',                  type: 'chs', flats: '110', area: '10392', status: 'done' },
+            { id: 5, name: 'Panchvati Residency CHS Ltd.',                   type: 'chs', flats: '150', area: '12000', status: 'done' },
+            { id: 6, name: 'Shanti Nagar CHS Ltd.',                          type: 'chs', flats: '90',  area: '5131',  status: 'done' },
+            { id: 7, name: 'Daffodil Gardens CHS Ltd.',                      type: 'chs', flats: '120', area: '4600',  status: 'done' },
           ]);
           setResult(null);
         }}>
-        📋 Load Example: Gat 1185A, Wagholi
+        📋 Load Example Data
       </button>
 
       {/* ── RESULTS ────────────────────────────────────────────────────────── */}
