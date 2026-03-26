@@ -53,9 +53,6 @@ export default function Footer({ navigate }) {
             >
               ✉️ Write to Us
             </a>
-            <span className="footer-link" style={{ marginTop: 14, cursor: 'text', wordBreak: 'break-all' }}>
-              rahulzaware31@gmail.com
-            </span>
           </div>
         </div>
         <div className="footer-bottom">

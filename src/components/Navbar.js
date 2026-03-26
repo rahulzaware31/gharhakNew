@@ -14,26 +14,29 @@ const TOOLS = [
   { id: 'cases',      label: 'Real Cases',                   description: 'Court judgments and RERA orders won by residents', icon: '🏆' },
 ];
 
+const MAIN_LINKS = [
+  { id: 'home',   label: 'Home',             icon: '🏠' },
+  { id: 'wizard', label: 'Complaint Wizard', icon: '🧭' },
+  { id: 'chat',   label: 'AI Advisor',       icon: '💬' },
+  { id: 'docs',   label: 'Documents',        icon: '📄' },
+];
+
+const MORE_LINKS = [
+  { id: 'byelaw',     label: 'Bye-Law Checker',   icon: '📋' },
+  { id: 'rera',       label: 'RERA Checker',       icon: '⚖️' },
+  { id: 'checklist',  label: 'Buy Checklist',      icon: '✅' },
+  { id: 'conveyance', label: 'Conveyance Calc',    icon: '🏛️' },
+  { id: 'possession', label: 'Possession List',    icon: '🔑' },
+  { id: 'handover',   label: 'Society Handover',   icon: '🏘️' },
+  { id: 'cases',      label: 'Real Cases',         icon: '🏆' },
+];
+
 export default function Navbar({ currentPage, navigate }) {
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchActive, setSearchActive] = useState(false);
   const searchRef = useRef(null);
   const inputRef = useRef(null);
-
-  const links = [
-    { id: 'home', label: 'Home' },
-    { id: 'wizard', label: 'Complaint Wizard' },
-    { id: 'chat', label: 'AI Advisor' },
-    { id: 'docs', label: 'Draft Documents' },
-    { id: 'byelaw', label: 'Bye-Law Checker' },
-    { id: 'rera', label: 'RERA Checker' },
-    { id: 'checklist', label: 'Buy Checklist' },
-    { id: 'conveyance', label: 'Conveyance Calc' },
-    { id: 'possession', label: 'Possession List' },
-    { id: 'handover',   label: 'Society Handover' },
-    { id: 'cases',      label: 'Real Cases' },
-  ];
 
   // Build unified search index
   const searchIndex = [
@@ -66,6 +69,7 @@ export default function Navbar({ currentPage, navigate }) {
   const handleNav = (id) => {
     navigate(id);
     setOpen(false);
+    setSearchQuery('');
   };
 
   useEffect(() => {
@@ -92,8 +96,10 @@ export default function Navbar({ currentPage, navigate }) {
           <div className="nav-logo-icon">🏠</div>
           <div className="nav-logo-text">Ghar<span>Hak</span></div>
         </a>
+
+        {/* Desktop nav — only 4 key links */}
         <div className="nav-links">
-          {links.map(l => (
+          {MAIN_LINKS.map(l => (
             <button
               key={l.id}
               className={`nav-link ${currentPage === l.id ? 'active' : ''}`}
@@ -163,6 +169,7 @@ export default function Navbar({ currentPage, navigate }) {
             <div className="nav-logo-text" style={{ fontSize: 20 }}>Ghar<span style={{ color: 'var(--teal)' }}>Hak</span></div>
             <button className="nav-mobile-close" onClick={() => setOpen(false)}>✕</button>
           </div>
+
           {/* Mobile search */}
           <div className="nav-mobile-search">
             <span className="nav-search-icon-inner">🔍</span>
@@ -189,19 +196,37 @@ export default function Navbar({ currentPage, navigate }) {
               )}
             </div>
           )}
+
           <div className="nav-mobile-links">
-            {links.map(l => (
+            {/* Main section */}
+            <div className="nav-mobile-section-label">Main</div>
+            {MAIN_LINKS.map(l => (
               <button
                 key={l.id}
                 className={`nav-mobile-link ${currentPage === l.id ? 'active' : ''}`}
                 onClick={() => handleNav(l.id)}
               >
+                <span className="nav-mobile-link-icon">{l.icon}</span>
+                {l.label}
+              </button>
+            ))}
+
+            {/* Specialised tools section */}
+            <div className="nav-mobile-section-label" style={{ marginTop: 12 }}>Specialised Tools</div>
+            {MORE_LINKS.map(l => (
+              <button
+                key={l.id}
+                className={`nav-mobile-link ${currentPage === l.id ? 'active' : ''}`}
+                onClick={() => handleNav(l.id)}
+              >
+                <span className="nav-mobile-link-icon">{l.icon}</span>
                 {l.label}
               </button>
             ))}
           </div>
+
           <div className="nav-mobile-cta">
-            <button onClick={() => handleNav('wizard')}>File Complaint →</button>
+            <button onClick={() => handleNav('wizard')}>🧭 File Complaint →</button>
           </div>
         </div>
       </div>
