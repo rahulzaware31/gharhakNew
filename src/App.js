@@ -9,6 +9,8 @@ import ByeLawCheckerPage from './pages/ByeLawCheckerPage';
 import PrePurchaseChecklistPage from './pages/PrePurchaseChecklistPage';
 import ReraCheckerPage from './pages/ReraCheckerPage';
 import ConveyanceCalculatorPage from './pages/ConveyanceCalculatorPage';
+import ChecklistPage from './pages/ChecklistPage';
+import RealCasesPage from './pages/RealCasesPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -39,6 +41,8 @@ export default function App() {
         {page === 'checklist' && <PrePurchaseChecklistPage />}
         {page === 'rera' && <ReraCheckerPage />}
         {page === 'conveyance' && <ConveyanceCalculatorPage />}
+        {page === 'possession' && <ChecklistPage />}
+        {page === 'cases'      && <RealCasesPage />}
       </main>
       <Footer navigate={navigate} />
     </AppContext.Provider>
