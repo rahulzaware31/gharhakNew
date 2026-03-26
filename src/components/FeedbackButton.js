@@ -19,7 +19,7 @@ export default function FeedbackButton() {
     const subject = encodeURIComponent(`GharHak – ${topic}`);
     const body = encodeURIComponent(message.trim());
     trackEvent('feedback_sent', { topic });
-    window.location.href = `mailto:rahulzaware31@gmail.com?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:contact@gharhak.in?subject=${subject}&body=${body}`;
     setOpen(false);
     setMessage('');
     setTopic(TOPICS[0]);

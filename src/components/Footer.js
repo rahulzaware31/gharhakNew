@@ -47,14 +47,8 @@ export default function Footer({ navigate }) {
             <p style={{ fontSize: 13, lineHeight: 1.7, marginBottom: 16 }}>
               Have feedback, found a bug, or want to share a case judgment? We'd love to hear from you.
             </p>
-            <a
-              href="mailto:rahulzaware31@gmail.com?subject=GharHak Feedback"
-              style={{ display: 'inline-block', padding: '9px 18px', background: 'var(--teal)', color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}
-            >
-              ✉️ Write to Us
-            </a>
-            <span className="footer-link" style={{ marginTop: 14, cursor: 'text', wordBreak: 'break-all' }}>
-              rahulzaware31@gmail.com
+            <span style={{ display: 'inline-block', padding: '9px 18px', background: 'var(--teal)', color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 700 }}>
+              ✉️ Use the Feedback button below
             </span>
           </div>
         </div>
