@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { AppContext } from '../App';
+import { trackEvent } from '../analytics';
 
 const SYSTEM_PROMPT = `You are GharHak AI, a housing rights advisor for Maharashtra, India. You help flat owners, CHS (Co-operative Housing Society) members, and condominium residents understand and assert their legal rights.
 
@@ -75,6 +76,8 @@ export default function ChatPage() {
   const sendMessage = async (text) => {
     const userText = (text || input).trim();
     if (!userText || loading) return;
+
+    trackEvent('chat_message_sent', { message_index: messages.filter(m => m.role === 'user').length + 1 });
 
     const userMsg = { role: 'user', content: userText, time: formatTime() };
     const newMessages = [...messages, userMsg];
