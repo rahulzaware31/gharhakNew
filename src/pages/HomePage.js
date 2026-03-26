@@ -126,6 +126,9 @@ export default function HomePage({ navigate }) {
     { id: 'rera',   icon: '⚖️', title: 'RERA Checker',   desc: 'Verify builder registration on MahaRERA' },
     { id: 'checklist', icon: '✅', title: 'Buyer Checklist', desc: '25 points to verify before buying a flat' },
     { id: 'conveyance', icon: '📐', title: 'Conveyance Calc', desc: 'Calculate your society\'s land entitlement' },
+    { id: 'possession', icon: '🔑', title: 'Possession Checklist', desc: 'Verify before accepting flat possession' },
+    { id: 'handover',   icon: '🏘️', title: 'Society Handover Checklist', desc: 'Society checklist before developer handover' },
+    { id: 'cases',      icon: '🏆', title: 'Real Cases',           desc: 'Court judgments and RERA orders won by residents' },
   ];
 
   return (

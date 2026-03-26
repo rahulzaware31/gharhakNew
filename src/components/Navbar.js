@@ -9,8 +9,9 @@ const TOOLS = [
   { id: 'rera', label: 'RERA Checker', description: 'Verify RERA registration of a project', icon: '⚖️' },
   { id: 'checklist', label: 'Pre-Purchase Checklist', description: '25-point buyer safety checklist', icon: '✅' },
   { id: 'conveyance', label: 'Conveyance Calculator', description: 'Calculate FSI and conveyance area', icon: '🏛️' },
-  { id: 'possession', label: 'Possession Checklist',  description: '33-point checklist before accepting flat', icon: '✅' },
-  { id: 'cases',      label: 'Real Cases',            description: 'Court judgments and RERA orders won by residents', icon: '🏆' },
+  { id: 'possession', label: 'Possession Checklist',          description: '33-point checklist before accepting flat', icon: '🔑' },
+  { id: 'handover',   label: 'Society Handover Checklist',   description: 'Society checklist before accepting developer handover', icon: '🏘️' },
+  { id: 'cases',      label: 'Real Cases',                   description: 'Court judgments and RERA orders won by residents', icon: '🏆' },
 ];
 
 export default function Navbar({ currentPage, navigate }) {
@@ -30,6 +31,7 @@ export default function Navbar({ currentPage, navigate }) {
     { id: 'checklist', label: 'Buy Checklist' },
     { id: 'conveyance', label: 'Conveyance Calc' },
     { id: 'possession', label: 'Possession List' },
+    { id: 'handover',   label: 'Society Handover' },
     { id: 'cases',      label: 'Real Cases' },
   ];
 

@@ -11,6 +11,7 @@ import ReraCheckerPage from './pages/ReraCheckerPage';
 import ConveyanceCalculatorPage from './pages/ConveyanceCalculatorPage';
 import ChecklistPage from './pages/ChecklistPage';
 import RealCasesPage from './pages/RealCasesPage';
+import SocietyHandoverChecklistPage from './pages/SocietyHandoverChecklistPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -43,6 +44,7 @@ export default function App() {
         {page === 'conveyance' && <ConveyanceCalculatorPage />}
         {page === 'possession' && <ChecklistPage />}
         {page === 'cases'      && <RealCasesPage />}
+        {page === 'handover'   && <SocietyHandoverChecklistPage />}
       </main>
       <Footer navigate={navigate} />
     </AppContext.Provider>
