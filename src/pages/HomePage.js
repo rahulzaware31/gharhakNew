@@ -1,90 +1,10 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '../App';
-import { ISSUE_CATEGORIES, REAL_CASES } from '../data/issues';
-
-function RealCasesSection() {
-  const [activeFilter, setActiveFilter] = useState('All');
-  const [expanded, setExpanded] = useState(null);
-
-  const filters = ['All', ...Array.from(new Set(REAL_CASES.map(c => c.issueTag)))];
-  const visible = activeFilter === 'All' ? REAL_CASES : REAL_CASES.filter(c => c.issueTag === activeFilter);
-
-  return (
-    <section className="section section-cases">
-      <div className="container">
-        <div className="tools-label">Landmark Cases</div>
-        <div className="section-title">Real Cases from <span>Maharashtra Courts</span></div>
-        <p className="section-sub">
-          Judgments, RERA orders, and news stories — see how others with similar problems won.
-        </p>
-
-        {/* Filter tabs */}
-        <div className="cases-filters">
-          {filters.map(f => (
-            <button
-              key={f}
-              className={`cases-filter-btn ${activeFilter === f ? 'active' : ''}`}
-              onClick={() => { setActiveFilter(f); setExpanded(null); }}
-            >
-              {f}
-            </button>
-          ))}
-        </div>
-
-        {/* Cases grid */}
-        <div className="cases-grid">
-          {visible.map(c => (
-            <div key={c.id} className="case-card">
-              <div className="case-card-top">
-                <div className="case-badges">
-                  <span className="case-type-badge">
-                    {c.typeIcon} {c.type}
-                  </span>
-                  <span className="case-year-badge">{c.year}</span>
-                </div>
-                <span className="case-issue-tag" style={{ background: c.issueColor + '18', color: c.issueColor }}>
-                  {c.issueTag}
-                </span>
-              </div>
-
-              <div className="case-title">{c.title}</div>
-              <div className="case-summary">{c.summary}</div>
-
-              {expanded === c.id && (
-                <div className="case-outcome">
-                  <div className="case-outcome-label">
-                    {c.outcomeType === 'win' ? '✅ Outcome' : 'ℹ️ Outcome'}
-                  </div>
-                  <div className="case-outcome-text">{c.outcome}</div>
-                </div>
-              )}
-
-              <div className="case-card-footer">
-                <button
-                  className="case-expand-btn"
-                  onClick={() => setExpanded(expanded === c.id ? null : c.id)}
-                >
-                  {expanded === c.id ? '▲ Hide outcome' : '▼ See outcome'}
-                </button>
-                <a
-                  href={c.sourceUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="case-source-link"
-                >
-                  {c.source} ↗
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+import { ISSUE_CATEGORIES } from '../data/issues';
 
 export default function HomePage({ navigate }) {
   const { setSelectedIssue } = useContext(AppContext);
+  const [showAllSecondary, setShowAllSecondary] = useState(false);
 
   const handleIssueClick = (issue) => {
     setSelectedIssue(issue);
@@ -122,25 +42,29 @@ export default function HomePage({ navigate }) {
   ];
 
   const secondaryTools = [
-    { id: 'byelaw', icon: '📋', title: 'Bye-Law Checker', desc: 'Check if your MC violated society bye-laws' },
-    { id: 'rera',   icon: '⚖️', title: 'RERA Checker',   desc: 'Verify builder registration on MahaRERA' },
-    { id: 'checklist', icon: '✅', title: 'Buyer Checklist', desc: '25 points to verify before buying a flat' },
-    { id: 'conveyance', icon: '📐', title: 'Conveyance Calc', desc: 'Calculate your society\'s land entitlement' },
-    { id: 'possession', icon: '🔑', title: 'Possession Checklist', desc: 'Verify before accepting flat possession' },
-    { id: 'handover',   icon: '🏘️', title: 'Society Handover Checklist', desc: 'Society checklist before developer handover' },
-    { id: 'cases',      icon: '🏆', title: 'Real Cases',           desc: 'Court judgments and RERA orders won by residents' },
+    { id: 'byelaw',     icon: '📋', title: 'Bye-Law Checker',              desc: 'Check if your MC violated society bye-laws' },
+    { id: 'rera',       icon: '⚖️', title: 'RERA Checker',                 desc: 'Verify builder registration on MahaRERA' },
+    { id: 'checklist',  icon: '✅', title: 'Buyer Checklist',              desc: '25 points to verify before buying a flat' },
+    { id: 'conveyance', icon: '📐', title: 'Conveyance Calc',              desc: 'Calculate your society\'s land entitlement' },
+    { id: 'possession', icon: '🔑', title: 'Possession Checklist',         desc: 'Verify before accepting flat possession' },
+    { id: 'handover',   icon: '🏘️', title: 'Society Handover Checklist',   desc: 'Society checklist before developer handover' },
+    { id: 'cases',      icon: '🏆', title: 'Real Cases',                   desc: 'Court judgments and RERA orders won by residents' },
   ];
+
+  const VISIBLE_COUNT = 4;
+  const visibleTools = showAllSecondary ? secondaryTools : secondaryTools.slice(0, VISIBLE_COUNT);
+  const hiddenCount = secondaryTools.length - VISIBLE_COUNT;
 
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="hero">
-        <div className="hero-badge">🇮🇳 Maharashtra Housing Rights Platform · निःशुल्क सेवा</div>
+        <div className="hero-badge">🇮🇳 Maharashtra Housing Rights · निःशुल्क सेवा</div>
         <h1>Know Your <span>Housing Rights</span></h1>
         <div className="hero-mr mr">घरमालकांचे हक्क जाणा, न्याय मागा</div>
         <p className="hero-sub">
-          Free guidance for Maharashtra flat owners. AI advice, step-by-step complaint wizard,
-          and ready-to-use legal documents — in English and Marathi.
+          Free guidance for Maharashtra flat owners — AI advice, complaint wizard,
+          and ready-to-use legal documents in English and Marathi.
         </p>
         <div className="hero-actions">
           <button className="btn-primary" onClick={() => navigate('wizard')}>
@@ -161,7 +85,7 @@ export default function HomePage({ navigate }) {
           </div>
           <div className="hero-stat">
             <div className="hero-stat-num">15+</div>
-            <div className="hero-stat-label">Key Laws Covered</div>
+            <div className="hero-stat-label">Laws Covered</div>
           </div>
           <div className="hero-stat">
             <div className="hero-stat-num">₹0</div>
@@ -170,40 +94,8 @@ export default function HomePage({ navigate }) {
         </div>
       </section>
 
-      {/* ── How It Works ─────────────────────────────────────────────────── */}
-      <section className="section hiw-section">
-        <div className="container">
-          <div className="hiw-header">
-            <div className="section-title" style={{ marginBottom: 4 }}>How <span>GharHak</span> Works</div>
-            <p className="section-sub" style={{ marginBottom: 0 }}>Three simple steps to assert your housing rights</p>
-          </div>
-          <div className="hiw-steps">
-            <div className="hiw-step">
-              <div className="hiw-num">1</div>
-              <div className="hiw-icon">🏠</div>
-              <div className="hiw-title">Describe Your Issue</div>
-              <div className="hiw-desc">Tell us what happened — maintenance overcharge, builder delay, illegal construction, parking dispute, or anything else.</div>
-            </div>
-            <div className="hiw-arrow">→</div>
-            <div className="hiw-step">
-              <div className="hiw-num">2</div>
-              <div className="hiw-icon">⚙️</div>
-              <div className="hiw-title">Use the Right Tool</div>
-              <div className="hiw-desc">Use the Complaint Wizard, AI Advisor, or browse by issue type — GharHak maps your problem to the exact law and authority.</div>
-            </div>
-            <div className="hiw-arrow">→</div>
-            <div className="hiw-step">
-              <div className="hiw-num">3</div>
-              <div className="hiw-icon">📬</div>
-              <div className="hiw-title">Take Action</div>
-              <div className="hiw-desc">Get a step-by-step plan, generate ready-to-send complaint letters, and know exactly where to file — PMC, DDR, MahaRERA, or Consumer Forum.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* ── Primary Tools ────────────────────────────────────────────────── */}
-      <section className="section" style={{ paddingTop: 0 }}>
+      <section className="section" style={{ paddingTop: 56, paddingBottom: 48 }}>
         <div className="container">
           <div className="tools-label">Start Here</div>
           <div className="section-title" style={{ marginBottom: 6 }}>Choose Your <span>Starting Point</span></div>
@@ -229,11 +121,11 @@ export default function HomePage({ navigate }) {
       </section>
 
       {/* ── Secondary Tools ──────────────────────────────────────────────── */}
-      <section className="section section-teal-light" style={{ paddingTop: 40, paddingBottom: 56 }}>
+      <section className="section section-teal-light" style={{ paddingTop: 36, paddingBottom: 48 }}>
         <div className="container">
           <div className="tools-label">Specialised Tools</div>
           <div className="secondary-tools-grid">
-            {secondaryTools.map(tool => (
+            {visibleTools.map(tool => (
               <div key={tool.id} className="secondary-tool-card" onClick={() => navigate(tool.id)}>
                 <div className="stc-icon">{tool.icon}</div>
                 <div>
@@ -244,6 +136,16 @@ export default function HomePage({ navigate }) {
               </div>
             ))}
           </div>
+          {!showAllSecondary && (
+            <div className="secondary-tools-toggle">
+              <button
+                className="secondary-tools-toggle-btn"
+                onClick={() => setShowAllSecondary(true)}
+              >
+                Show {hiddenCount} more tools ↓
+              </button>
+            </div>
+          )}
         </div>
       </section>
 
@@ -271,9 +173,6 @@ export default function HomePage({ navigate }) {
           </div>
         </div>
       </section>
-
-      {/* ── Real Cases ──────────────────────────────────────────────────── */}
-      <RealCasesSection />
 
       {/* ── CTA Banner ───────────────────────────────────────────────────── */}
       <section className="cta-banner">
