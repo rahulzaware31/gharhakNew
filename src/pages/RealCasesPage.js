@@ -325,12 +325,12 @@ export default function RealCasesPage() {
               <div style={{ fontWeight: 800, fontSize: 15, marginBottom: 4 }}>🏆 Did you win a case?</div>
               <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.6 }}>
                 Help others by sharing your judgment or RERA order. Email us at{' '}
-                <a href="mailto:solaciae1e2@gmail.com" style={{ color: 'var(--teal)', fontWeight: 700 }}>
-                  solaciae1e2@gmail.com
+                <a href="mailto:hello@gharhak.in" style={{ color: 'var(--teal)', fontWeight: 700 }}>
+                  hello@gharhak.in
                 </a>
               </div>
             </div>
-            <a href="mailto:solaciae1e2@gmail.com?subject=GharHak Case Submission"
+            <a href="mailto:hello@gharhak.in?subject=GharHak Case Submission"
               style={{ padding: '10px 22px', background: 'var(--teal)', color: '#fff',
                 borderRadius: 9, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}>
               Share Your Case →
