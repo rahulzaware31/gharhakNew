@@ -1,5 +1,6 @@
 import React, { useState, useContext, useRef } from 'react';
 import { AppContext } from '../App';
+import { trackEvent } from '../analytics';
 
 // ─── Deep issue data ──────────────────────────────────────────────────────────
 const ISSUES = [
@@ -776,6 +777,11 @@ export default function WizardPage() {
   const goBack = () => setStep(s => Math.max(s - 1, 1));
 
   const buildResult = () => {
+    trackEvent('wizard_completed', {
+      issue_type: issue?.id || 'unknown',
+      urgency: urgency || 'unknown',
+      city: details.city || 'not_provided',
+    });
     setResult({
       issue,
       subIssue,

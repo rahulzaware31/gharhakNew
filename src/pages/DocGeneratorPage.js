@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { DOCUMENT_TEMPLATES, ISSUE_CATEGORIES } from '../data/issues';
 import { AppContext } from '../App';
+import { trackEvent } from '../analytics';
 
 const FIELD_LABELS = {
   societyName: 'Society Name',
@@ -188,6 +189,11 @@ export default function DocGeneratorPage() {
   };
 
   const generateWithAI = async () => {
+    trackEvent('document_generated', {
+      template_id: selected?.id || 'unknown',
+      template_title: selected?.title || 'unknown',
+      authority: selected?.authority || 'unknown',
+    });
     setLoading(true);
     const today = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
 

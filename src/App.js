@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './index.css';
+import { trackPage } from './analytics';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import WizardPage from './pages/WizardPage';
@@ -22,10 +23,29 @@ export default function App() {
   const [page, setPage] = useState('home');
   const [selectedIssue, setSelectedIssue] = useState(null);
 
+  const PAGE_TITLES = {
+    home: 'Home',
+    chat: 'AI Legal Advisor',
+    wizard: 'Complaint Wizard',
+    docs: 'Document Generator',
+    issue: 'Issue Detail',
+    byelaw: 'Bye-Law Checker',
+    checklist: 'Pre-Purchase Checklist',
+    rera: 'RERA Checker',
+    conveyance: 'Conveyance Calculator',
+    possession: 'Possession Checklist',
+    cases: 'Real Cases',
+    handover: 'Society Handover Checklist',
+  };
+
   const navigate = (p, data = null) => {
     setPage(p);
     if (data) setSelectedIssue(data);
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    const title = data?.title
+      ? `Issue: ${data.title}`
+      : (PAGE_TITLES[p] || p);
+    trackPage(`/${p}`, title);
   };
 
   return (
