@@ -202,6 +202,13 @@ export const DOCUMENT_TEMPLATES = [
   { id: "mc_resolution", title: "Managing Committee Resolution", titleMr: "व्यवस्थापन समिती ठराव", category: "chs_condominium", authority: "Society", fields: ["societyName", "regNo", "resolutionSubject", "resolutionText"] },
   { id: "defaulter_notice", title: "Defaulter Notice to Member", titleMr: "थकबाकीदार सदस्याला नोटीस", category: "maintenance", authority: "Society", fields: ["societyName", "regNo", "memberName", "flatNo", "outstandingAmount", "period", "dueDate", "issueDescription"] },
 
+  // ── Society Handover ─────────────────────────────────────────────────────
+  { id: "handover_deficiency_notice", title: "Legal Notice: Pending Handover Documents (Builder)", titleMr: "कायदेशीर नोटीस: हस्तांतरण कागदपत्रे प्रलंबित", category: "society_handover", authority: "Legal Notice", fields: ["societyName", "regNo", "builderName", "projectName", "deficiencyList", "deadline"] },
+  { id: "rera_structural_defect", title: "MahaRERA Complaint: Structural Defect (Section 14)", titleMr: "MahaRERA तक्रार: संरचनात्मक दोष (कलम १४)", category: "society_handover", authority: "MahaRERA", fields: ["complainantName", "societyName", "projectName", "reraRegNo", "defectDescription", "possessionDate", "reliefSought"] },
+  { id: "builder_ec_demand", title: "Demand Notice: Encumbrance Certificate & Mortgage Clearance", titleMr: "मागणी नोटीस: भारमुक्तता प्रमाणपत्र व गहाण मुक्तता", category: "society_handover", authority: "Legal Notice", fields: ["societyName", "builderName", "plotDetails", "bankName", "mortgageAmount", "issueDescription"] },
+  { id: "ddr_handover_complaint", title: "DDR Complaint: Builder Refusing to Hand Over Society Documents", titleMr: "DDR तक्रार: बिल्डर सोसायटी कागदपत्रे देण्यास नकार", category: "society_handover", authority: "DDR", fields: ["societyName", "regNo", "builderName", "projectName", "documentsRequired", "issueDescription", "reliefSought"] },
+  { id: "handover_acceptance_letter", title: "Conditional Handover Acceptance Letter (With Deficiencies)", titleMr: "सशर्त हस्तांतरण स्वीकृती पत्र (त्रुटींसह)", category: "society_handover", authority: "Society", fields: ["societyName", "regNo", "builderName", "projectName", "handoverDate", "pendingItems", "builderCommitmentDeadline"] },
+
   // ── Police ──────────────────────────────────────────────────────────────
   { id: "police_complaint", title: "Police Complaint (Illegal Construction)", titleMr: "पोलीस तक्रार", category: "illegal_construction", authority: "Police", fields: ["complainantName", "address", "accusedName", "incidentDescription", "witnesses"] },
 ];
