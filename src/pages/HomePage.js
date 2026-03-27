@@ -24,6 +24,7 @@ export default function HomePage({ navigate }) {
     { id: 'conveyance', icon: '📐', title: 'Conveyance Calc',            desc: "Calculate your society's land entitlement" },
     { id: 'possession', icon: '🔑', title: 'Possession Checklist',       desc: 'Verify before accepting flat possession' },
     { id: 'cases',      icon: '🏆', title: 'Real Cases',                 desc: 'Court judgments and RERA orders won by residents' },
+    { id: 'awareness',  icon: '📣', title: 'Society Awareness',          desc: 'Plain-language guides for 10 common society problems' },
   ];
 
   const VISIBLE_COUNT = 4;

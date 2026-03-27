@@ -12,6 +12,7 @@ const TOOLS = [
   { id: 'possession', label: 'Possession Checklist',          description: '33-point checklist before accepting flat', icon: '🔑' },
   { id: 'handover',   label: 'Society Handover Checklist',   description: 'Society checklist before accepting developer handover', icon: '🏘️' },
   { id: 'cases',      label: 'Real Cases',                   description: 'Court judgments and RERA orders won by residents', icon: '🏆' },
+  { id: 'awareness',  label: 'Society Awareness',            description: 'Plain-language guides for common society problems', icon: '📣' },
 ];
 
 const MAIN_LINKS = [
@@ -29,6 +30,7 @@ const MORE_LINKS = [
   { id: 'possession', label: 'Possession List',    icon: '🔑' },
   { id: 'handover',   label: 'Society Handover',   icon: '🏘️' },
   { id: 'cases',      label: 'Real Cases',         icon: '🏆' },
+  { id: 'awareness',  label: 'Society Awareness',  icon: '📣' },
 ];
 
 export default function Navbar({ currentPage, navigate }) {

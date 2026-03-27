@@ -13,6 +13,7 @@ import ConveyanceCalculatorPage from './pages/ConveyanceCalculatorPage';
 import ChecklistPage from './pages/ChecklistPage';
 import RealCasesPage from './pages/RealCasesPage';
 import SocietyHandoverChecklistPage from './pages/SocietyHandoverChecklistPage';
+import SocietyAwarenessPage from './pages/SocietyAwarenessPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -37,6 +38,7 @@ export default function App() {
     possession: 'Possession Checklist',
     cases: 'Real Cases',
     handover: 'Society Handover Checklist',
+    awareness: 'Society Awareness & Rights',
   };
 
   const navigate = (p, data = null) => {
@@ -66,6 +68,7 @@ export default function App() {
         {page === 'possession' && <ChecklistPage />}
         {page === 'cases'      && <RealCasesPage />}
         {page === 'handover'   && <SocietyHandoverChecklistPage />}
+        {page === 'awareness'  && <SocietyAwarenessPage />}
       </main>
       <Footer navigate={navigate} />
       <FeedbackButton />
