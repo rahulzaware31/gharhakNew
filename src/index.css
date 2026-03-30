@@ -1993,8 +1993,12 @@ body {
 }
 
 @media (max-width: 480px) {
-  .secondary-tools-grid { grid-template-columns: 1fr; }
+  .secondary-tools-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
+  .secondary-tool-card { flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px 10px; min-height: 0; }
+  .stc-icon { font-size: 22px; }
+  .stc-title { font-size: 12px; }
   .stc-desc { display: none; }
+  .stc-arrow { display: none; }
   .page-header-band { padding: 16px 14px; }
   .hero-badge { font-size: 11px; padding: 5px 12px; }
 }
