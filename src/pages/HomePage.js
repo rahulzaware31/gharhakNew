@@ -1,59 +1,28 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '../App';
 import { ISSUE_CATEGORIES } from '../data/issues';
 
 export default function HomePage({ navigate }) {
   const { setSelectedIssue } = useContext(AppContext);
-  const [showAllSecondary, setShowAllSecondary] = useState(false);
 
   const handleIssueClick = (issue) => {
     setSelectedIssue(issue);
     navigate('issue', issue);
   };
 
-  const primaryTools = [
-    {
-      id: 'wizard',
-      icon: '🧭',
-      label: 'Best for most people',
-      title: 'Complaint Wizard',
-      desc: 'Answer 5 quick questions and get a personalised, law-cited action plan — exactly which authority to approach and in what order.',
-      cta: 'Start Wizard →',
-      color: 'var(--teal)',
-    },
-    {
-      id: 'chat',
-      icon: '🤖',
-      label: 'Ask anything',
-      title: 'AI Legal Advisor',
-      desc: 'Describe your problem in plain English or Marathi. Get instant guidance on applicable laws and next steps.',
-      cta: 'Chat Now →',
-      color: '#6366f1',
-    },
-    {
-      id: 'docs',
-      icon: '📄',
-      label: 'Ready-to-send',
-      title: 'Document Generator',
-      desc: 'Generate legal notices, RTI applications, RERA complaints, and PMC/DDR letters — fill details once, get a formatted document.',
-      cta: 'Browse Templates →',
-      color: '#f59e0b',
-    },
+  const allTools = [
+    { id: 'docs',       icon: '📄', title: 'Document Generator',          desc: 'Generate legal notices, RTI applications, RERA complaints' },
+    { id: 'byelaw',     icon: '📋', title: 'Bye-Law Checker',             desc: 'Check if your committee violated society bye-laws' },
+    { id: 'rera',       icon: '⚖️', title: 'RERA Checker',                desc: 'Verify builder registration on MahaRERA' },
+    { id: 'checklist',  icon: '✅', title: 'Buyer Checklist',             desc: '25 points to verify before buying a flat' },
+    { id: 'conveyance', icon: '📐', title: 'Conveyance Calc',             desc: "Calculate your society's land entitlement" },
+    { id: 'possession', icon: '🔑', title: 'Possession Checklist',        desc: 'Verify before accepting flat possession' },
+    { id: 'handover',   icon: '🏘️', title: 'Society Handover Checklist', desc: 'Society checklist before accepting developer handover' },
+    { id: 'cases',      icon: '🏆', title: 'Real Cases',                  desc: 'Court judgments and RERA orders won by residents' },
+    { id: 'awareness',  icon: '📣', title: 'Society Awareness',           desc: 'Plain-language guides for 10 common society problems' },
+    { id: 'wizard',     icon: '🧭', title: 'Complaint Wizard',            desc: 'Step-by-step guide to file a complaint' },
+    { id: 'chat',       icon: '🤖', title: 'AI Legal Advisor',            desc: 'Get instant legal answers via AI chat' },
   ];
-
-  const secondaryTools = [
-    { id: 'byelaw',     icon: '📋', title: 'Bye-Law Checker',            desc: 'Check if your MC violated society bye-laws' },
-    { id: 'rera',       icon: '⚖️', title: 'RERA Checker',               desc: 'Verify builder registration on MahaRERA' },
-    { id: 'checklist',  icon: '✅', title: 'Buyer Checklist',            desc: '25 points to verify before buying a flat' },
-    { id: 'conveyance', icon: '📐', title: 'Conveyance Calc',            desc: "Calculate your society's land entitlement" },
-    { id: 'possession', icon: '🔑', title: 'Possession Checklist',       desc: 'Verify before accepting flat possession' },
-    { id: 'cases',      icon: '🏆', title: 'Real Cases',                 desc: 'Court judgments and RERA orders won by residents' },
-    { id: 'awareness',  icon: '📣', title: 'Society Awareness',          desc: 'Plain-language guides for 10 common society problems' },
-  ];
-
-  const VISIBLE_COUNT = 4;
-  const visibleTools = showAllSecondary ? secondaryTools : secondaryTools.slice(0, VISIBLE_COUNT);
-  const hiddenCount = secondaryTools.length - VISIBLE_COUNT;
 
   return (
     <>
@@ -67,11 +36,11 @@ export default function HomePage({ navigate }) {
           and ready-to-use legal documents in English and Marathi.
         </p>
         <div className="hero-actions">
-          <button className="btn-primary" onClick={() => navigate('wizard')}>
-            🧭 Start Complaint Wizard
+          <button className="btn-primary" onClick={() => navigate('docs')}>
+            📄 Browse Documents
           </button>
-          <button className="btn-outline" onClick={() => navigate('chat')}>
-            💬 Ask AI Advisor
+          <button className="btn-outline" onClick={() => navigate('byelaw')}>
+            📋 Bye-Law Checker
           </button>
         </div>
         <div className="hero-stats">
@@ -94,38 +63,14 @@ export default function HomePage({ navigate }) {
         </div>
       </section>
 
-      {/* ── Primary Tools ────────────────────────────────────────────────── */}
-      <section className="section" style={{ paddingTop: 56, paddingBottom: 48 }}>
-        <div className="container">
-          <div className="tools-label">Start Here</div>
-          <div className="section-title" style={{ marginBottom: 6 }}>Choose Your <span>Starting Point</span></div>
-          <p className="section-sub">Not sure where to begin? The Complaint Wizard works for most situations.</p>
-
-          <div className="primary-tools-grid">
-            {primaryTools.map(tool => (
-              <div
-                key={tool.id}
-                className="primary-tool-card"
-                style={{ '--tool-color': tool.color }}
-                onClick={() => navigate(tool.id)}
-              >
-                <div className="ptc-label">{tool.label}</div>
-                <div className="ptc-icon">{tool.icon}</div>
-                <div className="ptc-title">{tool.title}</div>
-                <div className="ptc-desc">{tool.desc}</div>
-                <div className="ptc-cta">{tool.cta}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Secondary Tools ──────────────────────────────────────────────── */}
+      {/* ── All Tools ────────────────────────────────────────────────────── */}
       <section className="section section-teal-light" style={{ paddingTop: 36, paddingBottom: 48 }}>
         <div className="container">
-          <div className="tools-label">Specialised Tools</div>
+          <div className="tools-label">All Tools</div>
+          <div className="section-title" style={{ marginBottom: 6 }}>Everything in <span>One Place</span></div>
+          <p className="section-sub">All legal tools available — pick what you need.</p>
           <div className="secondary-tools-grid">
-            {visibleTools.map(tool => (
+            {allTools.map(tool => (
               <div key={tool.id} className="secondary-tool-card" onClick={() => navigate(tool.id)}>
                 <div className="stc-icon">{tool.icon}</div>
                 <div>
@@ -136,16 +81,6 @@ export default function HomePage({ navigate }) {
               </div>
             ))}
           </div>
-          {!showAllSecondary && (
-            <div className="secondary-tools-toggle">
-              <button
-                className="secondary-tools-toggle-btn"
-                onClick={() => setShowAllSecondary(true)}
-              >
-                Show {hiddenCount} more tools ↓
-              </button>
-            </div>
-          )}
         </div>
       </section>
 
