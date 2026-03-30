@@ -1,94 +1,56 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { AppContext } from '../App';
 import { ISSUE_CATEGORIES } from '../data/issues';
 
-const PROBLEM_CARDS = [
-  { emoji: '🏗️', quote: '"Builder promised conveyance 8 years ago. Still waiting."' },
-  { emoji: '📋', quote: '"Our OC is pending for 3 years. Builder keeps saying \'next month\'."' },
-  { emoji: '🚗', quote: '"Someone has locked our open parking. MC does nothing."' },
-  { emoji: '💰', quote: '"Maintenance increased 40% without any AGM."' },
-  { emoji: '🗳️', quote: '"Same MC for 7 years. No elections ever held."' },
-  { emoji: '📜', quote: '"Can\'t sell my flat. Society won\'t give NOC."' },
+const HERO_PROBLEM_CARDS = [
+  { icon: '🏛️', border: '#e74c3c', text: 'Builder hasn\'t given conveyance deed in 8 years' },
+  { icon: '📋', border: '#27ae60', text: 'OC pending 3 years. Builder says "next month" every month.' },
+  { icon: '🚗', border: '#f39c12', text: 'Someone locked our open parking. MC ignores complaints.' },
+  { icon: '💰', border: '#e67e22', text: 'Maintenance raised 40% without AGM. No accounts shared.' },
+  { icon: '🗳️', border: '#e74c3c', text: 'Same MC for 7 years. Elections never held.' },
+  { icon: '📜', border: '#2980b9', text: 'Society refusing NOC. Can\'t sell my flat.' },
 ];
 
-const TOOL_CARDS = [
-  {
-    id: 'wizard',
-    icon: '🧭',
-    title: 'Complaint Wizard',
-    desc: 'Answer 5 questions → Get your personal action plan',
-    tag: 'Most Popular',
-    tagClass: 'gh-tag-popular',
-    features: ['Step-by-step guidance', 'Know exactly who to approach', 'Printable action plan'],
-    featured: true,
-  },
-  {
-    id: 'chat',
-    icon: '🤖',
-    title: 'AI Legal Advisor',
-    desc: 'Chat in English or Marathi → Instant legal guidance',
-    tag: '24/7 Available',
-    tagClass: 'gh-tag-ai',
-    features: ['English + मराठी', 'Cite applicable laws', 'Instant answers'],
-    featured: false,
-  },
-  {
-    id: 'docs',
-    icon: '📄',
-    title: 'Document Generator',
-    desc: 'Select template → Fill details → Ready to send',
-    tag: '16+ Templates',
-    tagClass: 'gh-tag-docs',
-    features: ['Legal notices', 'RTI applications', 'RERA complaints'],
-    featured: false,
-  },
+const TOOLS = [
+  { id: 'wizard',     icon: '🧭', title: 'Complaint Wizard',     desc: '5 questions → personalised action plan' },
+  { id: 'docs',       icon: '📄', title: 'Document Generator',   desc: 'Legal notices, RTI, RERA complaints ready to send' },
+  { id: 'awareness',  icon: '🏘️', title: 'Society Rights Guide', desc: '8 common CHS violations explained step-by-step' },
+  { id: 'conveyance', icon: '📐', title: 'FSI Calculator',        desc: 'Calculate land entitlement, detect FSI fraud' },
+  { id: 'checklist',  icon: '✅', title: 'Buyer Checklist',       desc: '25 checks before signing any property deal' },
+  { id: 'possession', icon: '🔑', title: 'Possession Checklist',  desc: '33 checks before accepting flat possession' },
+  { id: 'cases',      icon: '🏆', title: 'Real Cases',            desc: 'Court judgments where residents won' },
 ];
 
-const TOOL_CHIPS = [
-  { id: 'byelaw',     icon: '📋', label: 'Bye-Law Checker' },
-  { id: 'rera',       icon: '⚖️', label: 'RERA Checker' },
-  { id: 'checklist',  icon: '✅', label: 'Buyer Checklist' },
-  { id: 'conveyance', icon: '📐', label: 'Conveyance Calculator' },
-  { id: 'possession', icon: '🔑', label: 'Possession Checklist' },
-  { id: 'awareness',  icon: '📣', label: 'Society Rights Guide' },
-  { id: 'cases',      icon: '🏆', label: 'Real Cases' },
-];
-
-const HERO_CHIPS = [
-  { label: 'Conveyance Deed',    color: '#e74c3c' },
-  { label: 'RERA Complaint',     color: '#2980b9' },
-  { label: 'OC Pending',         color: '#27ae60' },
-  { label: 'Parking Rights',     color: '#f39c12' },
-  { label: 'Maintenance Dispute',color: '#e67e22' },
-  { label: 'Illegal Construction',color: '#c0392b' },
+const SOUND_FAMILIAR = [
+  { emoji: '🏗️', title: 'Builder won\'t give conveyance deed',   sub: 'Your society is legally entitled to the land. Builder cannot refuse.' },
+  { emoji: '📋', title: 'No OC after years of possession',        sub: 'Living without OC is illegal. Builder must obtain it — or pay compensation.' },
+  { emoji: '🚗', title: 'Open parking sold or locked',            sub: 'Supreme Court ruling: open parking cannot be sold by anyone.' },
+  { emoji: '💰', title: 'Maintenance hiked without AGM',          sub: 'Any increase without AGM resolution is illegal. You can withhold the excess.' },
+  { emoji: '🗳️', title: 'MC elections never held',               sub: 'After 5 years, MC has no legal authority. DDR can remove them.' },
+  { emoji: '📜', title: 'NOC for flat sale refused',              sub: 'Society can refuse only for specific legal reasons. Arbitrary refusal is illegal.' },
 ];
 
 const REAL_CASES = [
   {
-    court: 'Supreme Court',
-    year: '2010',
-    title: 'Open Parking CANNOT Be Sold by Builder',
-    outcome: 'Builder ordered to return all open parking spaces to residents.',
-    id: 'cases',
+    court: 'Supreme Court, 2010',
+    outcome: 'Open parking declared common area. Builder ordered to return all sold parking slots.',
+    tag: 'Parking Rights',
   },
   {
-    court: 'MahaRERA',
-    year: '2023',
-    title: 'Flat Buyers Awarded 10.05% Interest on 4-Year Delay',
-    outcome: 'Builder directed to pay interest from promised possession date.',
-    id: 'cases',
+    court: 'MahaRERA, 2023',
+    outcome: 'Builder penalised ₹8.2 lakh for 4-year possession delay. Interest awarded to flat owner.',
+    tag: 'Possession Delay',
   },
   {
-    court: 'Bombay High Court',
-    year: '2019',
-    title: 'Society Gets Deemed Conveyance Despite Builder\'s Objections',
-    outcome: 'DDR ordered to process conveyance — builder cannot block it.',
-    id: 'cases',
+    court: 'Bombay High Court, 2019',
+    outcome: 'DDR directed to pass conveyance order within 3 months. Society got land after 6 years.',
+    tag: 'Conveyance',
   },
 ];
 
 export default function HomePage({ navigate }) {
   const { setSelectedIssue } = useContext(AppContext);
+  const heroCardsRef = useRef(null);
 
   const handleIssueClick = (issue) => {
     setSelectedIssue(issue);
@@ -97,92 +59,77 @@ export default function HomePage({ navigate }) {
 
   return (
     <>
-      {/* ── Hero ──────────────────────────────────────────────────────────── */}
-      <section className="gh-hero">
-        <div className="gh-hero-inner container">
+      {/* ── SECTION 1: Hero ──────────────────────────────────────────────── */}
+      <section className="hp2-hero">
+        <div className="hp2-hero-inner container">
           {/* Left */}
-          <div className="gh-hero-left">
-            <div className="gh-hero-badge">🇮🇳 Free · Maharashtra · निःशुल्क</div>
+          <div className="hp2-hero-left">
+            <div className="hp2-badge-pill">🇮🇳 Maharashtra · Free · निःशुल्क सेवा</div>
 
-            <h1 className="gh-hero-headline">
-              Your Builder<br />
-              Has Lawyers.<br />
-              <span className="gh-gradient-text">Now You Have GharHak.</span>
+            <h1 className="hp2-headline">
+              Your flat. Your rights.
+              <br />
+              <span className="hp2-headline-teal">Know both.</span>
             </h1>
 
-            <p className="gh-hero-sub">
-              Free AI-powered legal guidance for 5 crore Maharashtra flat owners.
-              Know your rights. File complaints. Get justice.
+            <p className="hp2-hero-mr mr">घरमालकांचे हक्क जाणा, न्याय मागा</p>
+
+            <p className="hp2-hero-body">
+              Most Maharashtra flat owners don't know what they're legally entitled to —
+              or what to do when builders and committees break the rules.
+              GharHak gives you the exact steps, the exact laws, and the exact letters to send.
             </p>
 
-            <p className="gh-hero-mr mr">घरमालकांचे हक्क आता सोप्या भाषेत</p>
+            <button
+              className="hp2-cta-btn"
+              onClick={() => navigate('wizard')}
+            >
+              What is your problem? →
+            </button>
 
-            <div className="gh-hero-actions">
-              <button className="btn-primary gh-btn-hero-primary" onClick={() => navigate('wizard')}>
-                🧭 Start Complaint Wizard
-              </button>
-              <button className="btn-outline gh-btn-hero-ghost" onClick={() => navigate('chat')}>
-                💬 Ask AI Advisor
-              </button>
-            </div>
-
-            <div className="gh-trust-pills">
-              <span className="gh-trust-pill">✓ No login</span>
-              <span className="gh-trust-pill">✓ Always ₹0</span>
-              <span className="gh-trust-pill">✓ English + मराठी</span>
-              <span className="gh-trust-pill">✓ AI-powered</span>
+            <div className="hp2-trust-pills">
+              <span className="hp2-trust-pill">✓ No login required</span>
+              <span className="hp2-trust-pill">✓ Always free</span>
+              <span className="hp2-trust-pill">✓ English + मराठी</span>
             </div>
           </div>
 
-          {/* Right */}
-          <div className="gh-hero-right">
-            <div className="gh-float-card">
-              <div className="gh-float-card-header">
-                <span className="gh-pulse-dot"></span>
-                <span className="gh-float-card-label">🏆 SC 2010 Judgment</span>
-              </div>
-              <p className="gh-float-card-text">
-                Open parking <strong>CANNOT be sold</strong> by builder — Supreme Court ruling protects your rights
-              </p>
-            </div>
-
-            <div className="gh-issue-chips">
-              {HERO_CHIPS.map((chip) => (
+          {/* Right — floating problem cards */}
+          <div className="hp2-hero-right" ref={heroCardsRef}>
+            <div className="hp2-float-stack">
+              {HERO_PROBLEM_CARDS.map((card, i) => (
                 <div
-                  key={chip.label}
-                  className="gh-issue-chip"
-                  style={{ '--chip-color': chip.color }}
-                  onClick={() => navigate('wizard')}
+                  key={i}
+                  className="hp2-float-card"
+                  style={{
+                    '--card-border': card.border,
+                    animationDelay: `${i * 0.12}s`,
+                  }}
                 >
-                  <span className="gh-issue-chip-dot" style={{ background: chip.color }}></span>
-                  <span className="gh-issue-chip-label">{chip.label}</span>
-                  <span className="gh-issue-chip-arrow">→</span>
+                  <span className="hp2-float-card-icon">{card.icon}</span>
+                  <p className="hp2-float-card-text">{card.text}</p>
+                  <span className="hp2-float-card-link">See what to do →</span>
                 </div>
               ))}
-            </div>
-
-            <div className="gh-ai-status">
-              <span className="gh-ai-dot"></span>
-              AI advisor is online
             </div>
           </div>
         </div>
 
         {/* Stats bar */}
-        <div className="gh-stats-bar">
+        <div className="hp2-stats-bar">
           <div className="container">
-            <div className="gh-stats-inner">
+            <div className="hp2-stats-inner">
               {[
-                { num: '9+', label: 'Issue Categories' },
+                { num: '9+',  label: 'Issue Types' },
                 { num: '16+', label: 'Document Templates' },
                 { num: '15+', label: 'Laws Covered' },
-                { num: '₹0', label: 'Always Free' },
+                { num: '₹0',  label: 'Always Free' },
               ].map((s, i) => (
                 <React.Fragment key={s.label}>
-                  {i > 0 && <div className="gh-stats-divider" />}
-                  <div className="gh-stat">
-                    <div className="gh-stat-num">{s.num}</div>
-                    <div className="gh-stat-label">{s.label}</div>
+                  {i > 0 && <div className="hp2-stats-divider" />}
+                  <div className="hp2-stat">
+                    <div className="hp2-stat-num">{s.num}</div>
+                    <div className="hp2-stat-label">{s.label}</div>
                   </div>
                 </React.Fragment>
               ))}
@@ -191,148 +138,113 @@ export default function HomePage({ navigate }) {
         </div>
       </section>
 
-      {/* ── "Is This You?" ────────────────────────────────────────────────── */}
-      <section className="gh-section gh-section-dark">
+      {/* ── SECTION 2: What's your problem? ──────────────────────────────── */}
+      <section className="hp2-section hp2-section-white">
         <div className="container">
-          <div className="gh-section-label">Sound Familiar?</div>
-          <h2 className="gh-section-title gh-title-light">
-            Is this <span className="gh-teal">you?</span>
-          </h2>
-          <div className="gh-problem-grid">
-            {PROBLEM_CARDS.map((card) => (
-              <div key={card.emoji} className="gh-problem-card">
-                <div className="gh-problem-emoji">{card.emoji}</div>
-                <p className="gh-problem-quote">{card.quote}</p>
-                <button
-                  className="gh-problem-help"
-                  onClick={() => navigate('wizard')}
-                >
-                  We can help →
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <h2 className="hp2-section-headline">What is your problem?</h2>
+          <p className="hp2-section-sub">Select your issue — get the exact laws, authorities, and steps to resolve it.</p>
 
-      {/* ── 3 Ways to Get Help ────────────────────────────────────────────── */}
-      <section className="gh-section gh-section-white">
-        <div className="container">
-          <div className="gh-section-label">Get Started</div>
-          <h2 className="gh-section-title">Choose how you want <span>help</span></h2>
-          <p className="gh-section-sub">Three powerful tools. All free. No login needed.</p>
-          <div className="gh-tool-grid">
-            {TOOL_CARDS.map((tool) => (
-              <div
-                key={tool.id}
-                className={`gh-tool-card${tool.featured ? ' gh-tool-card-featured' : ''}`}
-                onClick={() => navigate(tool.id)}
-              >
-                <div className={`gh-tool-tag ${tool.tagClass}`}>{tool.tag}</div>
-                <div className="gh-tool-icon">{tool.icon}</div>
-                <h3 className="gh-tool-title">{tool.title}</h3>
-                <p className="gh-tool-desc">{tool.desc}</p>
-                <ul className="gh-tool-features">
-                  {tool.features.map((f) => (
-                    <li key={f} className="gh-tool-feature">
-                      <span className="gh-tool-check">✓</span> {f}
-                    </li>
-                  ))}
-                </ul>
-                <button className={`gh-tool-btn${tool.featured ? ' gh-tool-btn-primary' : ''}`}>
-                  Get Started →
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Issue Grid ────────────────────────────────────────────────────── */}
-      <section className="gh-section gh-section-bg">
-        <div className="container">
-          <div className="gh-section-label">Issue Library</div>
-          <h2 className="gh-section-title">What's your <span>issue?</span></h2>
-          <p className="gh-section-sub">Select your problem — see applicable laws, authorities, and action steps.</p>
-          <div className="gh-issue-grid">
+          <div className="hp2-issue-grid">
             {ISSUE_CATEGORIES.map((issue) => (
               <div
                 key={issue.id}
-                className="gh-issue-category-card"
-                style={{ '--card-color': issue.color }}
+                className="hp2-issue-tile"
+                style={{ '--tile-color': issue.color }}
                 onClick={() => handleIssueClick(issue)}
               >
-                <div className="gh-issue-category-icon">{issue.icon}</div>
-                <div className="gh-issue-category-title">{issue.title}</div>
-                <div className="gh-issue-category-mr mr">{issue.titleMr}</div>
-                <div className="gh-issue-category-desc">{issue.description}</div>
-                <div className="gh-issue-category-arrow">→</div>
+                <div className="hp2-issue-tile-icon">{issue.icon}</div>
+                <div className="hp2-issue-tile-title">{issue.title}</div>
+                <div className="hp2-issue-tile-mr mr">{issue.titleMr}</div>
+                <div className="hp2-issue-tile-desc">{issue.description}</div>
+                <div className="hp2-issue-tile-cta" style={{ color: issue.color }}>→ See steps</div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Specialised Tools Strip ───────────────────────────────────────── */}
-      <section className="gh-tools-strip">
+      {/* ── SECTION 3: Tools ─────────────────────────────────────────────── */}
+      <section className="hp2-section hp2-section-dark">
         <div className="container">
-          <div className="gh-tools-strip-header">
-            <div className="gh-section-label gh-label-light">Specialised Tools</div>
-            <h2 className="gh-section-title gh-title-light">More <span className="gh-teal">Tools</span></h2>
-          </div>
-          <div className="gh-chips-scroll">
-            {TOOL_CHIPS.map((chip) => (
-              <button
-                key={chip.id}
-                className="gh-chip"
-                onClick={() => navigate(chip.id)}
+          <h2 className="hp2-section-headline hp2-headline-light">Free tools for every situation</h2>
+          <p className="hp2-section-sub hp2-sub-muted">Not sure where to start? Each tool solves a specific problem.</p>
+
+          <div className="hp2-tools-grid">
+            {TOOLS.map((tool) => (
+              <div
+                key={tool.id}
+                className="hp2-tool-tile"
+                onClick={() => navigate(tool.id)}
               >
-                <span className="gh-chip-icon">{chip.icon}</span>
-                {chip.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── Social Proof / Real Cases ─────────────────────────────────────── */}
-      <section className="gh-section gh-section-gray">
-        <div className="container">
-          <div className="gh-section-label">Real Outcomes</div>
-          <h2 className="gh-section-title">People Like You <span>Won</span></h2>
-          <p className="gh-section-sub">Landmark judgments that protect Maharashtra flat owners.</p>
-          <div className="gh-cases-grid">
-            {REAL_CASES.map((c) => (
-              <div key={c.title} className="gh-case-card" onClick={() => navigate(c.id)}>
-                <div className="gh-case-header">
-                  <span className="gh-case-court">{c.court}</span>
-                  <span className="gh-case-year">{c.year}</span>
-                </div>
-                <h3 className="gh-case-title">{c.title}</h3>
-                <p className="gh-case-outcome">
-                  <span className="gh-case-win">🏆 Won</span> {c.outcome}
-                </p>
+                <div className="hp2-tool-icon">{tool.icon}</div>
+                <div className="hp2-tool-title">{tool.title}</div>
+                <div className="hp2-tool-desc">{tool.desc}</div>
+                <span className="hp2-tool-arrow">→</span>
               </div>
             ))}
           </div>
-          <div className="gh-cases-cta">
-            <button className="btn-outline gh-cases-btn" onClick={() => navigate('cases')}>
-              See All Cases →
+        </div>
+      </section>
+
+      {/* ── SECTION 4: Sound Familiar? ───────────────────────────────────── */}
+      <section className="hp2-section hp2-section-gray">
+        <div className="container">
+          <h2 className="hp2-section-headline">Sound familiar?</h2>
+          <p className="hp2-section-sub">These are the most common problems faced by Maharashtra flat owners.</p>
+
+          <div className="hp2-familiar-grid">
+            {SOUND_FAMILIAR.map((item, i) => (
+              <div key={i} className="hp2-familiar-card">
+                <div className="hp2-familiar-emoji">{item.emoji}</div>
+                <div className="hp2-familiar-title">{item.title}</div>
+                <div className="hp2-familiar-sub">{item.sub}</div>
+                <button
+                  className="hp2-familiar-link"
+                  onClick={() => navigate('wizard')}
+                >
+                  See what to do →
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SECTION 5: Real Cases ────────────────────────────────────────── */}
+      <section className="hp2-section hp2-section-white">
+        <div className="container">
+          <h2 className="hp2-section-headline">Real cases. Real outcomes.</h2>
+          <p className="hp2-section-sub">Maharashtra flat owners who knew their rights — and used them.</p>
+
+          <div className="hp2-cases-grid">
+            {REAL_CASES.map((c, i) => (
+              <div key={i} className="hp2-case-card">
+                <div className="hp2-case-court">🏆 {c.court}</div>
+                <p className="hp2-case-outcome">{c.outcome}</p>
+                <span className="hp2-case-tag">{c.tag}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="hp2-cases-cta">
+            <button className="hp2-outline-btn" onClick={() => navigate('cases')}>
+              See all cases →
             </button>
           </div>
         </div>
       </section>
 
-      {/* ── Bottom CTA Banner ─────────────────────────────────────────────── */}
-      <section className="gh-cta-banner">
+      {/* ── SECTION 6: Bottom CTA ────────────────────────────────────────── */}
+      <section className="hp2-cta-section">
         <div className="container">
-          <div className="gh-cta-inner">
-            <h2 className="gh-cta-title">Is your builder violating your rights?</h2>
-            <p className="gh-cta-sub">Start in 2 minutes. No lawyer needed. Completely free.</p>
-            <button className="gh-cta-btn" onClick={() => navigate('wizard')}>
-              Get Your Free Action Plan →
-            </button>
-          </div>
+          <h2 className="hp2-cta-headline">Don't wait. Know your rights today.</h2>
+          <p className="hp2-cta-sub">Free. No signup. Works in English and Marathi. Takes 2 minutes.</p>
+          <button className="hp2-cta-white-btn" onClick={() => navigate('wizard')}>
+            Find Your Solution →
+          </button>
+          <p className="hp2-cta-disclaimer">
+            ⚠️ GharHak provides legal information, not legal advice.
+          </p>
         </div>
       </section>
     </>
