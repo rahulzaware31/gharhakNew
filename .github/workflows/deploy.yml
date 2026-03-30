@@ -26,6 +26,7 @@ jobs:
         run: npm run build
         env:
           REACT_APP_GROQ_API_KEY: ${{ secrets.REACT_APP_GROQ_API_KEY }}
+          REACT_APP_GA_ID: ${{ secrets.REACT_APP_GA_ID }}
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
