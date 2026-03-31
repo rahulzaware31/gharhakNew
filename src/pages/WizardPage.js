@@ -2,6 +2,121 @@ import React, { useState, useContext, useRef } from 'react';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
 
+// ─── AI Config ────────────────────────────────────────────────────────────────
+const SYSTEM_PROMPT = `You are GharHak, a Maharashtra housing rights legal advisor.
+You help flat owners and CHS members understand their rights and take action.
+
+You have deep knowledge of:
+- Maharashtra Co-operative Societies Act 1960 (MCS Act)
+- MOFA 1963 (Maharashtra Ownership Flats Act)
+- RERA 2016 (Real Estate Regulation and Development Act)
+- UDCPR 2020 (Unified Development Control and Promotion Regulations)
+- MCS Model Bye-Laws 2014
+- Consumer Protection Act 2019
+- MRTP Act 1966
+- Maharashtra Lift Act, Fire Prevention Act
+
+When given a user's housing problem, you must respond ONLY with a valid JSON object
+(no markdown, no preamble, no explanation outside the JSON) in this exact format:
+
+{
+  "summary": "2-sentence personalised summary of their specific situation and what they can do",
+  "urgencyNote": "1-2 sentences specific to their urgency level — what this means and how fast they must act",
+  "steps": [
+    {
+      "n": 1,
+      "action": "Short action title",
+      "law": "Exact law section e.g. MCS Act § 11(3)",
+      "detail": "3-4 sentences of specific, actionable detail personalised to their situation. Reference their city, society name, or description where relevant.",
+      "timeframe": "e.g. Do this in Week 1"
+    }
+  ],
+  "timeline": [
+    { "period": "Week 1", "action": "Specific action for this period" },
+    { "period": "Week 2", "action": "Specific action for this period" },
+    { "period": "Month 1", "action": "Specific action for this period" },
+    { "period": "Month 2–3", "action": "Specific action for this period" },
+    { "period": "If stalled", "action": "Escalation path if no response" }
+  ],
+  "documents": [
+    "Document name and why it is needed"
+  ],
+  "laws": [
+    { "ref": "Law name and section", "detail": "What this law says in plain language and how it applies to their case" }
+  ],
+  "authorities": [
+    {
+      "name": "Authority name",
+      "role": "Why approach this authority",
+      "portal": "URL or null",
+      "portalLabel": "Link label or null",
+      "address": "Physical address guidance",
+      "isPrimary": true
+    }
+  ],
+  "draftLetter": "Complete ready-to-use draft letter addressed to the correct authority. Fill in their society name and city. Use [brackets] for fields they need to fill. Include correct legal citations. Make it firm and professional.",
+  "redFlags": [
+    "Specific warning based on their description"
+  ],
+  "advocateNote": "Personalised note about whether they need an advocate based on their urgency and situation"
+}
+
+Rules:
+- Personalise every field using the user's actual city, society name, description, and urgency
+- For critical urgency: front-load urgent court/authority steps, mention Bombay High Court Writ Petition
+- For low urgency: start with notice, give longer timelines
+- steps array: minimum 4, maximum 7 steps
+- draftLetter: must be complete and ready to use, not a template with [insert content here]
+- All law references must be exact section numbers
+- Do not use generic advice — every sentence should reflect their specific situation
+- If description mentions specific details (years waiting, flat number, builder name), use them in the output
+- Output ONLY the JSON object. No text before or after.`;
+
+const buildUserPrompt = (issue, details, urgency, subIssue) => {
+  const urgencyLabels = {
+    critical: 'CRITICAL — builder is actively constructing / violating court order / registering sales illegally',
+    high: 'HIGH — ongoing violation, significant financial risk, need urgent action',
+    medium: 'MEDIUM — violation exists, not escalating yet, want to take protective action',
+    low: 'LOW — seeking information, future planning, understanding rights'
+  };
+
+  return `Generate a personalised housing rights action plan for this Maharashtra flat owner:
+
+ISSUE CATEGORY: ${issue.title}
+SPECIFIC PROBLEM: ${subIssue}
+URGENCY: ${urgencyLabels[urgency] || urgency}
+CITY/AREA: ${details.city || 'Maharashtra (city not specified)'}
+SOCIETY/PROJECT: ${details.society || 'Not specified'}
+THEIR DESCRIPTION: ${details.description || 'No additional details provided'}
+HAS ADVOCATE: ${details.hasAdvocate === 'yes' ? 'Yes — already engaged' : details.hasAdvocate === 'looking' ? 'Looking for one' : 'No advocate yet'}
+
+Applicable laws for this issue type: ${issue.laws?.map(l => l.ref).join(', ') || 'MCS Act, MOFA, RERA'}
+Relevant authorities: ${issue.authorities?.map(a => a.name).join(', ') || 'DDR, MahaRERA, Consumer Forum'}
+
+Generate the complete action plan JSON now.`;
+};
+
+const generateAIPlan = async (issueData, details, urgency, subIssue) => {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      max_tokens: 3000,
+      temperature: 0.3,
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: buildUserPrompt(issueData, details, urgency, subIssue) }
+      ]
+    })
+  });
+  const data = await response.json();
+  return data.choices?.[0]?.message?.content || null;
+};
+
 // ─── Deep issue data ──────────────────────────────────────────────────────────
 const ISSUES = [
   {
@@ -757,6 +872,9 @@ export default function WizardPage() {
   const [details, setDetails]         = useState({ society: '', city: '', description: '', hasAdvocate: '' });
   const [result, setResult]           = useState(null);
   const [resultTab, setResultTab]     = useState('plan');
+  const [aiLoading, setAiLoading]     = useState(false);
+  const [aiError, setAiError]         = useState('');
+  const [aiResult, setAiResult]       = useState(null);
   const resultRef                     = useRef(null);
 
   const issue = ISSUES.find(i => i.id === issueId);
@@ -770,13 +888,15 @@ export default function WizardPage() {
     return true;
   };
 
-  const goNext = () => {
-    if (step === 4) buildResult();
+  const goNext = async () => {
+    if (step === 4) {
+      await buildResult();
+    }
     setStep(s => Math.min(s + 1, TOTAL_STEPS));
   };
   const goBack = () => setStep(s => Math.max(s - 1, 1));
 
-  const buildResult = () => {
+  const buildResult = async () => {
     trackEvent('wizard_completed', {
       issue_type: issue?.id || 'unknown',
       urgency: urgency || 'unknown',
@@ -789,23 +909,49 @@ export default function WizardPage() {
       urgencyObj,
       details,
     });
+    setAiLoading(true);
+    setAiError('');
+    setAiResult(null);
     setTimeout(() => resultRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+
+    try {
+      const raw = await generateAIPlan(issue, details, urgency, subIssue);
+      if (!raw) throw new Error('Empty response');
+      const clean = raw.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
+      setAiResult(parsed);
+    } catch (err) {
+      console.error('AI generation failed:', err);
+      setAiError('Could not generate personalised plan. Showing standard guidance instead.');
+      setAiResult(null);
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const restart = () => {
     setStep(1); setIssueId(null); setSubIssue(null); setUrgency(null);
     setDetails({ society: '', city: '', description: '', hasAdvocate: '' });
     setResult(null); setResultTab('plan');
+    setAiLoading(false); setAiError(''); setAiResult(null);
   };
 
+  // ─── Fallback helpers: use AI result when available, static data otherwise ──
+  const getSteps    = () => aiResult?.steps     || result?.issue?.steps     || [];
+  const getTimeline = () => aiResult?.timeline   || result?.issue?.timeline   || [];
+  const getDocs     = () => aiResult?.documents  || result?.issue?.docs       || [];
+  const getLaws     = () => aiResult?.laws       || result?.issue?.laws?.map(l => ({ ref: l.ref, detail: l.detail })) || [];
+  const getAuths    = () => aiResult?.authorities || result?.issue?.authorities || [];
+  const getLetter   = () => aiResult?.draftLetter || (result?.issue?.draftLetter ? result.issue.draftLetter(result.details) : '');
+
   const whatsappText = result ? encodeURIComponent(
-    `🏠 GharHak Housing Rights Action Plan\n` +
+    `🏠 GharHak — My Housing Rights Action Plan\n\n` +
     `Issue: ${result.issue.title}\n` +
-    `Sub-issue: ${result.subIssue}\n` +
-    `Urgency: ${result.urgencyObj.label}\n` +
-    `City: ${result.details.city}\n\n` +
-    `ACTION STEPS:\n` +
-    result.issue.steps.map(s => `${s.n}. ${s.action} (${s.law})`).join('\n') +
+    `Problem: ${result.subIssue}\n` +
+    `Urgency: ${result.urgencyObj?.label}\n\n` +
+    (aiResult?.summary ? `Summary: ${aiResult.summary}\n\n` : '') +
+    `Steps:\n` +
+    getSteps().slice(0, 4).map((s, i) => `${i + 1}. ${s.action}`).join('\n') +
     `\n\nFull plan: gharhak.in`
   ) : '';
 
@@ -958,273 +1104,359 @@ export default function WizardPage() {
           {step === 5 && result && (
             <div ref={resultRef}>
 
-              {/* Header */}
-              <div style={{
-                background: 'linear-gradient(135deg, var(--dark), var(--dark-2))',
-                borderRadius: 20, padding: '32px 36px', marginBottom: 20,
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
-                  <span style={{ fontSize: 44 }}>{result.issue.icon}</span>
-                  <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: -0.5 }}>
-                      Your Action Plan
-                    </div>
-                    <div style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
-                      {result.issue.title} · {result.details.city}
-                    </div>
+              {/* STATE A — Loading */}
+              {aiLoading && (
+                <div className="wizard-card" style={{ textAlign: 'center', padding: 48 }}>
+                  <div style={{ fontSize: 40, marginBottom: 16 }}>⚙️</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>
+                    Analysing your situation...
                   </div>
-                </div>
-
-                {/* Summary badges */}
-                <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                  <span style={{ padding: '5px 14px', borderRadius: 999, fontSize: 12, fontWeight: 700,
-                    background: `${result.urgencyObj.color}22`, color: result.urgencyObj.color,
-                    border: `1px solid ${result.urgencyObj.color}44` }}>
-                    {result.urgencyObj.label} Urgency
-                  </span>
-                  <span style={{ padding: '5px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600,
-                    background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}>
-                    {result.subIssue}
-                  </span>
-                  {result.details.society && (
-                    <span style={{ padding: '5px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600,
-                      background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}>
-                      {result.details.society}
-                    </span>
-                  )}
-                </div>
-
-                {/* Critical warning */}
-                {urgency === 'critical' && (
-                  <div style={{ marginTop: 16, padding: '14px 18px', background: 'rgba(231,76,60,0.15)',
-                    border: '1.5px solid rgba(231,76,60,0.4)', borderRadius: 12,
-                    color: '#fca5a5', fontSize: 14, fontWeight: 600 }}>
-                    🚨 Critical — Consider filing Writ Petition in Bombay High Court for urgent interim injunction.
-                    Courts can grant relief within 24–48 hours. Do not delay.
+                  <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 24 }}>
+                    Generating a personalised action plan based on your {details.description ? 'description' : 'inputs'}
                   </div>
-                )}
-              </div>
-
-              {/* Result tabs */}
-              <div className="wizard-card" style={{ padding: 0, overflow: 'hidden' }}>
-                <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', overflowX: 'auto' }}>
-                  {[
-                    { id: 'plan',       label: '🗺️ Action Plan' },
-                    { id: 'timeline',   label: '📅 Timeline' },
-                    { id: 'docs',       label: '📁 Documents' },
-                    { id: 'laws',       label: '⚖️ Laws' },
-                    { id: 'authorities',label: '🏛️ Authorities' },
-                    { id: 'letter',     label: '📄 Draft Letter' },
-                  ].map(t => (
-                    <button key={t.id} onClick={() => setResultTab(t.id)}
-                      style={{
-                        padding: '14px 18px', border: 'none', cursor: 'pointer',
-                        background: resultTab === t.id ? 'var(--teal-light)' : 'transparent',
-                        color: resultTab === t.id ? 'var(--teal)' : 'var(--text-muted)',
-                        fontFamily: 'var(--font)', fontSize: 13, fontWeight: 700,
-                        borderBottom: resultTab === t.id ? '3px solid var(--teal)' : '3px solid transparent',
-                        whiteSpace: 'nowrap', transition: 'all .2s',
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10, maxWidth: 400, margin: '0 auto' }}>
+                    {['Identifying applicable laws...', 'Building your action steps...', 'Preparing draft letter...', 'Checking relevant authorities...'].map((msg, i) => (
+                      <div key={i} style={{
+                        display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px',
+                        background: 'var(--teal-light)', borderRadius: 8, fontSize: 13, color: 'var(--teal)',
                       }}>
-                      {t.label}
-                    </button>
-                  ))}
+                        <div style={{
+                          width: 6, height: 6, borderRadius: 999, background: 'var(--teal)',
+                          flexShrink: 0,
+                        }} />
+                        {msg}
+                      </div>
+                    ))}
+                  </div>
                 </div>
+              )}
 
-                <div style={{ padding: 28 }}>
-
-                  {/* ACTION PLAN TAB */}
-                  {resultTab === 'plan' && (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
-                        textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
-                        Step-by-Step Action Plan — {result.issue.steps.length} Steps
-                      </div>
-                      {result.issue.steps.map((s, i) => (
-                        <div key={i} style={{ display: 'flex', gap: 16, paddingBottom: 24, position: 'relative' }}>
-                          {i < result.issue.steps.length - 1 && (
-                            <div style={{ position: 'absolute', left: 14, top: 30, width: 2,
-                              height: 'calc(100% - 10px)', background: 'var(--border)' }} />
-                          )}
-                          <div style={{
-                            width: 30, height: 30, background: 'var(--teal)', color: '#fff',
-                            borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 13, fontWeight: 800, flexShrink: 0, position: 'relative', zIndex: 1,
-                          }}>{s.n}</div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6, flexWrap: 'wrap' }}>
-                              <span style={{ fontWeight: 800, fontSize: 15 }}>{s.action}</span>
-                              <span style={{
-                                padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700,
-                                background: 'var(--dark)', color: 'var(--teal)',
-                              }}>{s.law}</span>
-                            </div>
-                            <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7 }}>{s.detail}</div>
-                          </div>
+              {/* Header + tabs — shown when not loading */}
+              {!aiLoading && (
+                <>
+                  {/* Header */}
+                  <div style={{
+                    background: 'linear-gradient(135deg, var(--dark), var(--dark-2))',
+                    borderRadius: 20, padding: '32px 36px', marginBottom: 20,
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 16 }}>
+                      <span style={{ fontSize: 44 }}>{result.issue.icon}</span>
+                      <div>
+                        <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: -0.5 }}>
+                          Your Action Plan
                         </div>
-                      ))}
+                        <div style={{ color: 'var(--teal)', fontSize: 14, fontWeight: 600, marginTop: 2 }}>
+                          {result.issue.title} · {result.details.city}
+                        </div>
+                      </div>
                     </div>
-                  )}
 
-                  {/* TIMELINE TAB */}
-                  {resultTab === 'timeline' && (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
-                        textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
-                        What to Do and When
-                      </div>
-                      {result.issue.timeline.map((t, i) => (
-                        <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
-                          <div style={{
-                            minWidth: 80, padding: '6px 12px', background: 'var(--dark)', color: 'var(--teal)',
-                            borderRadius: 8, fontSize: 12, fontWeight: 700, textAlign: 'center',
-                            height: 'fit-content', flexShrink: 0,
-                          }}>{t.period}</div>
-                          <div style={{
-                            flex: 1, padding: '12px 16px', background: 'var(--bg)',
-                            border: '1px solid var(--border)', borderRadius: 10,
-                            fontSize: 13, color: 'var(--text)', lineHeight: 1.6,
-                          }}>{t.action}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* DOCUMENTS TAB */}
-                  {resultTab === 'docs' && (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
-                        textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
-                        Documents to Collect Before Filing
-                      </div>
-                      <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
-                        Collect all documents listed below before approaching any authority. Missing documents are the most common reason for complaint delays.
-                      </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {result.issue.docs.map((doc, i) => (
-                          <div key={i} style={{
-                            display: 'flex', alignItems: 'flex-start', gap: 12,
-                            padding: '12px 16px', background: 'var(--bg)',
-                            border: '1px solid var(--border)', borderRadius: 10,
-                          }}>
-                            <div style={{
-                              width: 22, height: 22, background: 'var(--teal-light)',
-                              borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                              color: 'var(--teal)', fontSize: 11, fontWeight: 800, flexShrink: 0,
-                            }}>{i + 1}</div>
-                            <span style={{ fontSize: 14 }}>{doc}</span>
-                          </div>
-                        ))}
-                      </div>
-                      {result.details.hasAdvocate === 'no' && (
-                        <div style={{ marginTop: 20, padding: '14px 18px', background: 'var(--teal-light)',
-                          border: '1.5px solid rgba(0,200,150,0.3)', borderRadius: 12, fontSize: 13 }}>
-                          💡 <strong>Tip:</strong> Collect all documents above before your first meeting with an advocate.
-                          This saves consultation time and cost significantly.
-                        </div>
+                    {/* Summary badges */}
+                    <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+                      <span style={{ padding: '5px 14px', borderRadius: 999, fontSize: 12, fontWeight: 700,
+                        background: `${result.urgencyObj.color}22`, color: result.urgencyObj.color,
+                        border: `1px solid ${result.urgencyObj.color}44` }}>
+                        {result.urgencyObj.label} Urgency
+                      </span>
+                      <span style={{ padding: '5px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                        background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}>
+                        {result.subIssue}
+                      </span>
+                      {result.details.society && (
+                        <span style={{ padding: '5px 14px', borderRadius: 999, fontSize: 12, fontWeight: 600,
+                          background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)' }}>
+                          {result.details.society}
+                        </span>
                       )}
                     </div>
-                  )}
 
-                  {/* LAWS TAB */}
-                  {resultTab === 'laws' && (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
-                        textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
-                        Laws That Apply to Your Case
+                    {/* Critical warning */}
+                    {urgency === 'critical' && (
+                      <div style={{ marginTop: 16, padding: '14px 18px', background: 'rgba(231,76,60,0.15)',
+                        border: '1.5px solid rgba(231,76,60,0.4)', borderRadius: 12,
+                        color: '#fca5a5', fontSize: 14, fontWeight: 600 }}>
+                        🚨 Critical — Consider filing Writ Petition in Bombay High Court for urgent interim injunction.
+                        Courts can grant relief within 24–48 hours. Do not delay.
+                        {aiResult?.urgencyNote && (
+                          <div style={{ marginTop: 8, fontWeight: 400, fontSize: 13 }}>{aiResult.urgencyNote}</div>
+                        )}
                       </div>
-                      {result.issue.laws.map((law, i) => (
-                        <div key={i} style={{ display: 'flex', gap: 16, padding: '16px 0',
-                          borderBottom: i < result.issue.laws.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                          <div style={{
-                            padding: '6px 14px', background: 'var(--dark)', color: 'var(--teal)',
-                            borderRadius: 8, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
-                            height: 'fit-content', flexShrink: 0,
-                          }}>{law.ref}</div>
-                          <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.6, paddingTop: 4 }}>
-                            {law.detail}
-                          </div>
-                        </div>
-                      ))}
+                    )}
+                    {urgency !== 'critical' && aiResult?.urgencyNote && (
+                      <div style={{ marginTop: 16, padding: '12px 16px', background: 'rgba(255,255,255,0.06)',
+                        borderRadius: 10, color: 'rgba(255,255,255,0.75)', fontSize: 13 }}>
+                        {aiResult.urgencyNote}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* AI summary box */}
+                  {aiResult?.summary && (
+                    <div style={{ padding: '16px 20px', background: 'var(--teal-light)',
+                      border: '1.5px solid rgba(0,200,150,0.3)', borderRadius: 14, marginBottom: 16,
+                      fontSize: 14, color: 'var(--text)', lineHeight: 1.7 }}>
+                      <strong style={{ color: 'var(--teal)' }}>Your Situation: </strong>{aiResult.summary}
                     </div>
                   )}
 
-                  {/* AUTHORITIES TAB */}
-                  {resultTab === 'authorities' && (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
-                        textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
-                        Where to File Your Complaint
-                      </div>
-                      {result.issue.authorities.map((auth, i) => (
-                        <div key={i} style={{
-                          padding: '20px', background: i === 0 ? 'var(--teal-light)' : 'var(--bg)',
-                          border: `1.5px solid ${i === 0 ? 'rgba(0,200,150,0.35)' : 'var(--border)'}`,
-                          borderRadius: 14, marginBottom: 12,
-                        }}>
-                          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                                {i === 0 && <span style={{ padding: '2px 10px', background: 'var(--teal)', color: '#fff',
-                                  borderRadius: 999, fontSize: 10, fontWeight: 700 }}>PRIMARY</span>}
-                                <span style={{ fontWeight: 800, fontSize: 15 }}>{auth.name}</span>
+                  {/* STATE C — Error banner */}
+                  {aiError && (
+                    <div style={{ padding: '12px 18px', background: '#fffbf0',
+                      border: '1.5px solid #fde68a', borderRadius: 10, marginBottom: 16,
+                      fontSize: 13, color: '#92400e' }}>
+                      ⚠️ {aiError}
+                    </div>
+                  )}
+
+                  {/* Result tabs */}
+                  <div className="wizard-card" style={{ padding: 0, overflow: 'hidden' }}>
+                    <div style={{ display: 'flex', borderBottom: '1px solid var(--border)', overflowX: 'auto' }}>
+                      {[
+                        { id: 'plan',       label: '🗺️ Action Plan' },
+                        { id: 'timeline',   label: '📅 Timeline' },
+                        { id: 'docs',       label: '📁 Documents' },
+                        { id: 'laws',       label: '⚖️ Laws' },
+                        { id: 'authorities',label: '🏛️ Authorities' },
+                        { id: 'letter',     label: '📄 Draft Letter' },
+                      ].map(t => (
+                        <button key={t.id} onClick={() => setResultTab(t.id)}
+                          style={{
+                            padding: '14px 18px', border: 'none', cursor: 'pointer',
+                            background: resultTab === t.id ? 'var(--teal-light)' : 'transparent',
+                            color: resultTab === t.id ? 'var(--teal)' : 'var(--text-muted)',
+                            fontFamily: 'var(--font)', fontSize: 13, fontWeight: 700,
+                            borderBottom: resultTab === t.id ? '3px solid var(--teal)' : '3px solid transparent',
+                            whiteSpace: 'nowrap', transition: 'all .2s',
+                          }}>
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+
+                    <div style={{ padding: 28 }}>
+
+                      {/* ACTION PLAN TAB */}
+                      {resultTab === 'plan' && (
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
+                            textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
+                            Step-by-Step Action Plan — {getSteps().length} Steps
+                          </div>
+                          {aiResult?.redFlags?.length > 0 && (
+                            <div style={{ padding: '14px 18px', background: '#fef2f2',
+                              border: '1.5px solid #fca5a5', borderRadius: 12, marginBottom: 20 }}>
+                              <div style={{ fontSize: 12, fontWeight: 700, color: '#dc2626',
+                                textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>
+                                ⚠️ Red Flags in Your Case
                               </div>
-                              <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 6 }}>{auth.role}</div>
-                              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>📍 {auth.address}</div>
+                              {aiResult.redFlags.map((flag, i) => (
+                                <div key={i} style={{ fontSize: 13, color: '#7f1d1d', marginBottom: 4, lineHeight: 1.5 }}>
+                                  • {flag}
+                                </div>
+                              ))}
                             </div>
-                            {auth.portal && (
-                              <a href={auth.portal} target="_blank" rel="noopener noreferrer"
-                                style={{
-                                  padding: '8px 16px', background: 'var(--teal)', color: '#fff',
-                                  borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none',
-                                  whiteSpace: 'nowrap', flexShrink: 0,
-                                }}>
-                                🔗 {auth.portalLabel || 'File Online'}
-                              </a>
-                            )}
+                          )}
+                          {getSteps().map((s, i) => (
+                            <div key={i} style={{ display: 'flex', gap: 16, paddingBottom: 24, position: 'relative' }}>
+                              {i < getSteps().length - 1 && (
+                                <div style={{ position: 'absolute', left: 14, top: 30, width: 2,
+                                  height: 'calc(100% - 10px)', background: 'var(--border)' }} />
+                              )}
+                              <div style={{
+                                width: 30, height: 30, background: 'var(--teal)', color: '#fff',
+                                borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                fontSize: 13, fontWeight: 800, flexShrink: 0, position: 'relative', zIndex: 1,
+                              }}>{s.n || i + 1}</div>
+                              <div style={{ flex: 1 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
+                                  <span style={{ fontWeight: 800, fontSize: 15 }}>{s.action}</span>
+                                  <span style={{ padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 700,
+                                    background: 'var(--dark)', color: 'var(--teal)' }}>{s.law}</span>
+                                  {s.timeframe && (
+                                    <span style={{ padding: '2px 10px', borderRadius: 999, fontSize: 11, fontWeight: 600,
+                                      background: 'var(--teal-light)', color: 'var(--teal)' }}>{s.timeframe}</span>
+                                  )}
+                                </div>
+                                <div style={{ fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7 }}>{s.detail}</div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* TIMELINE TAB */}
+                      {resultTab === 'timeline' && (
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
+                            textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
+                            What to Do and When
+                          </div>
+                          {getTimeline().map((t, i) => (
+                            <div key={i} style={{ display: 'flex', gap: 16, marginBottom: 16 }}>
+                              <div style={{
+                                minWidth: 80, padding: '6px 12px', background: 'var(--dark)', color: 'var(--teal)',
+                                borderRadius: 8, fontSize: 12, fontWeight: 700, textAlign: 'center',
+                                height: 'fit-content', flexShrink: 0,
+                              }}>{t.period}</div>
+                              <div style={{
+                                flex: 1, padding: '12px 16px', background: 'var(--bg)',
+                                border: '1px solid var(--border)', borderRadius: 10,
+                                fontSize: 13, color: 'var(--text)', lineHeight: 1.6,
+                              }}>{t.action}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* DOCUMENTS TAB */}
+                      {resultTab === 'docs' && (
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
+                            textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+                            Documents to Collect Before Filing
+                          </div>
+                          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 20 }}>
+                            Collect all documents listed below before approaching any authority. Missing documents are the most common reason for complaint delays.
+                          </p>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {getDocs().map((doc, i) => (
+                              <div key={i} style={{
+                                display: 'flex', alignItems: 'flex-start', gap: 12,
+                                padding: '12px 16px', background: 'var(--bg)',
+                                border: '1px solid var(--border)', borderRadius: 10,
+                              }}>
+                                <div style={{
+                                  width: 22, height: 22, background: 'var(--teal-light)',
+                                  borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  color: 'var(--teal)', fontSize: 11, fontWeight: 800, flexShrink: 0,
+                                }}>{i + 1}</div>
+                                <span style={{ fontSize: 14 }}>{typeof doc === 'string' ? doc : doc.name || doc}</span>
+                              </div>
+                            ))}
+                          </div>
+                          {result.details.hasAdvocate === 'no' && (
+                            <div style={{ marginTop: 20, padding: '14px 18px', background: 'var(--teal-light)',
+                              border: '1.5px solid rgba(0,200,150,0.3)', borderRadius: 12, fontSize: 13 }}>
+                              💡 <strong>Tip:</strong> Collect all documents above before your first meeting with an advocate.
+                              This saves consultation time and cost significantly.
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* LAWS TAB */}
+                      {resultTab === 'laws' && (
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
+                            textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
+                            Laws That Apply to Your Case
+                          </div>
+                          {getLaws().map((law, i) => (
+                            <div key={i} style={{ display: 'flex', gap: 16, padding: '16px 0',
+                              borderBottom: i < getLaws().length - 1 ? '1px solid var(--border)' : 'none' }}>
+                              <div style={{
+                                padding: '6px 14px', background: 'var(--dark)', color: 'var(--teal)',
+                                borderRadius: 8, fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap',
+                                height: 'fit-content', flexShrink: 0,
+                              }}>{law.ref}</div>
+                              <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.6, paddingTop: 4 }}>
+                                {law.detail}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* AUTHORITIES TAB */}
+                      {resultTab === 'authorities' && (
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
+                            textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 20 }}>
+                            Where to File Your Complaint
+                          </div>
+                          {getAuths().map((auth, i) => {
+                            const isPrimary = auth.isPrimary === true || i === 0;
+                            return (
+                              <div key={i} style={{
+                                padding: '20px', background: isPrimary ? 'var(--teal-light)' : 'var(--bg)',
+                                border: `1.5px solid ${isPrimary ? 'rgba(0,200,150,0.35)' : 'var(--border)'}`,
+                                borderRadius: 14, marginBottom: 12,
+                              }}>
+                                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                                      {isPrimary && <span style={{ padding: '2px 10px', background: 'var(--teal)', color: '#fff',
+                                        borderRadius: 999, fontSize: 10, fontWeight: 700 }}>PRIMARY</span>}
+                                      <span style={{ fontWeight: 800, fontSize: 15 }}>{auth.name}</span>
+                                    </div>
+                                    <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 6 }}>{auth.role}</div>
+                                    <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>📍 {auth.address}</div>
+                                  </div>
+                                  {auth.portal && auth.portal !== 'null' && (
+                                    <a href={auth.portal} target="_blank" rel="noopener noreferrer"
+                                      style={{
+                                        padding: '8px 16px', background: 'var(--teal)', color: '#fff',
+                                        borderRadius: 8, fontSize: 12, fontWeight: 700, textDecoration: 'none',
+                                        whiteSpace: 'nowrap', flexShrink: 0,
+                                      }}>
+                                      🔗 {auth.portalLabel || 'File Online'}
+                                    </a>
+                                  )}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* DRAFT LETTER TAB */}
+                      {resultTab === 'letter' && (
+                        <div>
+                          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
+                            textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+                            Draft Complaint Letter — Ready to Use
+                          </div>
+                          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
+                            {aiResult?.draftLetter
+                              ? 'This letter has been personalised based on your inputs. Review [bracketed] fields before sending.'
+                              : 'Fill in the [bracketed] fields with your actual details. Have this reviewed by an advocate before sending.'}
+                          </p>
+                          <pre style={{
+                            background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 12,
+                            padding: '20px 24px', fontSize: 13, lineHeight: 1.8, whiteSpace: 'pre-wrap',
+                            fontFamily: 'inherit', maxHeight: 480, overflowY: 'auto',
+                          }}>
+                            {getLetter()}
+                          </pre>
+                          <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
+                            <button className="btn-primary"
+                              onClick={() => navigator.clipboard.writeText(getLetter()).then(() => alert('Copied to clipboard!'))}>
+                              📋 Copy Letter
+                            </button>
+                            <button onClick={() => navigate('docs')}
+                              style={{ padding: '12px 20px', background: 'var(--dark)', color: 'var(--teal)',
+                                border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                                fontFamily: 'var(--font)' }}>
+                              📄 Get Full Formatted Document →
+                            </button>
+                          </div>
+                          {aiResult?.advocateNote && (
+                            <div style={{ marginTop: 12, padding: '12px 16px', background: 'var(--teal-light)',
+                              border: '1px solid rgba(0,200,150,0.3)', borderRadius: 8, fontSize: 13, color: 'var(--text)' }}>
+                              💼 <strong>Advocate Note:</strong> {aiResult.advocateNote}
+                            </div>
+                          )}
+                          <div style={{ marginTop: 12, padding: '10px 16px', background: '#fffbf0',
+                            border: '1px solid #fde68a', borderRadius: 8, fontSize: 12, color: '#92400e' }}>
+                            ⚠️ This draft is a starting point only. Have it reviewed and customised by a qualified advocate before serving on any party.
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      )}
 
-                  {/* DRAFT LETTER TAB */}
-                  {resultTab === 'letter' && (
-                    <div>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--teal)',
-                        textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
-                        Draft Complaint Letter — Ready to Use
-                      </div>
-                      <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-                        Fill in the [bracketed] fields with your actual details. Have this reviewed by an advocate before sending.
-                      </p>
-                      <pre style={{
-                        background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 12,
-                        padding: '20px 24px', fontSize: 13, lineHeight: 1.8, whiteSpace: 'pre-wrap',
-                        fontFamily: 'inherit', maxHeight: 480, overflowY: 'auto',
-                      }}>
-                        {result.issue.draftLetter(result.details)}
-                      </pre>
-                      <div style={{ display: 'flex', gap: 10, marginTop: 14, flexWrap: 'wrap' }}>
-                        <button className="btn-primary"
-                          onClick={() => navigator.clipboard.writeText(result.issue.draftLetter(result.details)).then(() => alert('Copied to clipboard!'))}>
-                          📋 Copy Letter
-                        </button>
-                        <button onClick={() => navigate('docs')}
-                          style={{ padding: '12px 20px', background: 'var(--dark)', color: 'var(--teal)',
-                            border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                            fontFamily: 'var(--font)' }}>
-                          📄 Get Full Formatted Document →
-                        </button>
-                      </div>
-                      <div style={{ marginTop: 12, padding: '10px 16px', background: '#fffbf0',
-                        border: '1px solid #fde68a', borderRadius: 8, fontSize: 12, color: '#92400e' }}>
-                        ⚠️ This draft is a starting point only. Have it reviewed and customised by a qualified advocate before serving on any party.
-                      </div>
                     </div>
-                  )}
-
-                </div>
-              </div>
+                  </div>
+                </>
+              )}
 
               {/* Action buttons */}
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 20 }}>
