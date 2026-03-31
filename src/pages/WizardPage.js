@@ -1094,7 +1094,9 @@ export default function WizardPage() {
 
   const goNext = async () => {
     if (step === 4) {
+      setStep(5);
       await buildResult();
+      return;
     }
     setStep(s => Math.min(s + 1, TOTAL_STEPS));
   };
@@ -1138,6 +1140,44 @@ export default function WizardPage() {
     setDetails({ society: '', city: '', description: '', hasAdvocate: '' });
     setResult(null); setResultTab('plan');
     setAiLoading(false); setAiError(''); setAiResult(null);
+  };
+
+  const handlePrintResult = () => {
+    if (!resultRef.current) return;
+
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=1100,height=800');
+    if (!printWindow) {
+      alert('Please allow pop-ups to print your action plan.');
+      return;
+    }
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map(node => node.outerHTML)
+      .join('\n');
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>GharHak Action Plan</title>
+          ${styles}
+          <style>
+            body { margin: 0; padding: 24px; background: #fff; }
+          </style>
+        </head>
+        <body>
+          ${resultRef.current.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
   };
 
   // ─── Fallback helpers: use AI result when available, static data otherwise ──
@@ -1705,7 +1745,7 @@ export default function WizardPage() {
               {/* Action buttons */}
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 20 }}>
                 <button className="btn-primary" onClick={restart}>↺ Start New Complaint</button>
-                <button onClick={() => window.print()}
+                <button onClick={handlePrintResult}
                   style={{ padding: '12px 20px', background: 'var(--white)', color: 'var(--text)',
                     border: '1.5px solid var(--border)', borderRadius: 10, fontSize: 14, fontWeight: 700,
                     cursor: 'pointer', fontFamily: 'var(--font)' }}>

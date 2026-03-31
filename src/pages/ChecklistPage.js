@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 // ─── DATA ─────────────────────────────────────────────────────────────────────
 
@@ -259,6 +259,7 @@ export default function ChecklistPage() {
   const [activeList, setActiveList] = useState('flat'); // 'flat' | 'society'
   const [checked, setChecked]       = useState({});
   const [showSummary, setShowSummary] = useState(false);
+  const printRef = useRef(null);
 
   const LIST = activeList === 'flat' ? FLAT_CHECKLIST : SOCIETY_CHECKLIST;
 
@@ -308,6 +309,43 @@ export default function ChecklistPage() {
       .then(() => alert('Report copied to clipboard!'));
   };
 
+  const handlePrintSection = () => {
+    if (!printRef.current) return;
+
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=1100,height=800');
+    if (!printWindow) {
+      alert('Please allow pop-ups to print this checklist.');
+      return;
+    }
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map(node => node.outerHTML)
+      .join('\n');
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>GharHak Checklist</title>
+          ${styles}
+          <style>
+            body { margin: 0; padding: 24px; background: #fff; }
+          </style>
+        </head>
+        <body>
+          ${printRef.current.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  };
+
   return (
     <div className="section">
       <div className="container">
@@ -349,7 +387,7 @@ export default function ChecklistPage() {
           ))}
         </div>
 
-        <div style={{ maxWidth: 860, margin: '0 auto' }}>
+        <div ref={printRef} style={{ maxWidth: 860, margin: '0 auto' }}>
 
           {/* Progress hero */}
           <div style={{
@@ -388,7 +426,7 @@ export default function ChecklistPage() {
                   cursor: 'pointer', fontFamily: 'var(--font)' }}>
                 📋 Copy Report
               </button>
-              <button onClick={() => window.print()}
+              <button onClick={handlePrintSection}
                 style={{ padding: '9px 18px', background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)',
                   border: '1px solid rgba(255,255,255,0.15)', borderRadius: 9, fontSize: 12,
                   fontWeight: 700, cursor: 'pointer', fontFamily: 'var(--font)' }}>

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { DOCUMENT_TEMPLATES, ISSUE_CATEGORIES } from '../data/issues';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
@@ -169,6 +169,7 @@ export default function DocGeneratorPage() {
   const [generated, setGenerated] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeAuthority, setActiveAuthority] = useState('All');
+  const printRef = useRef(null);
 
   const authorities = AUTHORITY_ORDER.filter(a =>
     a === 'All' || DOCUMENT_TEMPLATES.some(t => t.authority === a)
@@ -238,6 +239,43 @@ Requirements:
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generated);
     alert('Copied to clipboard!');
+  };
+
+  const handlePrintSection = () => {
+    if (!printRef.current) return;
+
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=1100,height=800');
+    if (!printWindow) {
+      alert('Please allow pop-ups to print this document.');
+      return;
+    }
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map(node => node.outerHTML)
+      .join('\n');
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>GharHak Document</title>
+          ${styles}
+          <style>
+            body { margin: 0; padding: 24px; background: #fff; }
+          </style>
+        </head>
+        <body>
+          ${printRef.current.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
   };
 
   const getCatLabel = (catId) => {
@@ -352,7 +390,7 @@ Requirements:
             </div>
 
             {generated && (
-              <div style={{ background: 'var(--white)', border: '1.5px solid var(--teal)', borderRadius: 16, overflow: 'hidden' }}>
+              <div ref={printRef} style={{ background: 'var(--white)', border: '1.5px solid var(--teal)', borderRadius: 16, overflow: 'hidden' }}>
                 <div style={{ background: 'var(--teal-light)', padding: '16px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ fontWeight: 700, color: 'var(--teal)' }}>✓ Document Generated</div>
                   <div style={{ display: 'flex', gap: 8 }}>
@@ -363,7 +401,7 @@ Requirements:
                       Copy
                     </button>
                     <button
-                      onClick={() => window.print()}
+                      onClick={handlePrintSection}
                       style={{ padding: '8px 16px', background: 'var(--white)', color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 8, cursor: 'pointer', fontSize: 13, fontWeight: 700 }}
                     >
                       Print
