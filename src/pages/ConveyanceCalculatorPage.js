@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useRef } from 'react';
 import { AppContext } from '../App';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -435,6 +435,7 @@ function DetailedTab() {
   const [result, setResult] = useState(null);
   const [activeTab, setActiveTab] = useState('as'); // 'as' | 'fraud' | 'math' | 'doc' | 'steps'
   const [errors, setErrors] = useState({});
+  const docPrintRef = useRef(null);
 
   let _socId = socs.length;
   const addSoc = () => {
@@ -583,6 +584,43 @@ D. LEGAL BASIS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Prepared by: [Society Secretary]   Date: ${today}
 [Signature]              [Society Stamp]` : '';
+
+  const handlePrintSection = () => {
+    if (!docPrintRef.current) return;
+
+    const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=1100,height=800');
+    if (!printWindow) {
+      alert('Please allow pop-ups to print this document.');
+      return;
+    }
+
+    const styles = Array.from(document.querySelectorAll('style, link[rel="stylesheet"]'))
+      .map(node => node.outerHTML)
+      .join('\n');
+
+    printWindow.document.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <title>Conveyance Legal Statement</title>
+          ${styles}
+          <style>
+            body { margin: 0; padding: 24px; background: #fff; }
+          </style>
+        </head>
+        <body>
+          ${docPrintRef.current.innerHTML}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 250);
+  };
 
   return (
     <div>
@@ -1026,7 +1064,7 @@ Prepared by: [Society Secretary]   Date: ${today}
 
             {/* Legal Statement Tab */}
             {activeTab === 'doc' && (
-              <div>
+              <div ref={docPrintRef}>
                 <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 14 }}>
                   Ready for DDR application, RERA complaint, court affidavit, or PMRDA objection letter.
                 </p>
@@ -1039,7 +1077,7 @@ Prepared by: [Society Secretary]   Date: ${today}
                   onClick={() => navigator.clipboard.writeText(legalDoc).then(() => alert('Copied!'))}>
                   📋 Copy to Clipboard
                 </button>
-                <button onClick={() => window.print()}
+                <button onClick={handlePrintSection}
                   style={{ marginLeft: 8, marginTop: 10, padding: '10px 20px', background: 'var(--white)',
                     color: 'var(--text)', border: '1px solid var(--border)', borderRadius: 8,
                     fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>
