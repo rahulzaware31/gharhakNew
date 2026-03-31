@@ -1221,7 +1221,11 @@ export default function WizardPage() {
                       {groupIssues.map(iss => (
                         <button key={iss.id}
                           className={`option-btn ${issueId === iss.id ? 'selected' : ''}`}
-                          onClick={() => { setIssueId(iss.id); setSubIssue(null); }}
+                          onClick={() => {
+                            setIssueId(iss.id);
+                            setSubIssue(null);
+                            setStep(2);
+                          }}
                           style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 3, padding: '12px 14px' }}>
                           <span style={{ fontSize: 18 }}>{iss.icon}</span>
                           <span style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.3 }}>{iss.title}</span>
