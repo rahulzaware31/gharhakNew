@@ -118,7 +118,7 @@ const generateAIPlan = async (issueData, details, urgency, subIssue) => {
 };
 
 // ─── Deep issue data ──────────────────────────────────────────────────────────
-const ISSUES = [
+const BASE_ISSUES = [
   {
     id: 'conveyance',
     icon: '🏛️',
@@ -833,6 +833,197 @@ Flat No. [___]`,
   },
 ];
 
+const ISSUE_GROUPS = [
+  { id: 'society',   label: '🏘️ Society & CHS', color: '#e67e22' },
+  { id: 'builder',   label: '🏗️ Builder & Developer', color: '#e74c3c' },
+  { id: 'rera',      label: '⚖️ RERA', color: '#2980b9' },
+  { id: 'pmc',       label: '🏛️ PMC / PMRDA / Municipal', color: '#8e44ad' },
+  { id: 'ownership', label: '🏠 Flat Owner Rights', color: '#27ae60' },
+  { id: 'infra',     label: '🌳 Infrastructure & Amenities', color: '#16a085' },
+];
+
+const GROUP_LAWS = {
+  society: [
+    { ref: 'MCS Act 1960 § 73', detail: 'Managing Committee must function as per tenure, election, and governance rules.' },
+    { ref: 'MCS Model Bye-Laws 2014', detail: 'AGM, membership, records, and charges must be handled transparently.' },
+    { ref: 'MOFA 1963 § 10', detail: 'Promoter must facilitate society formation and hand over statutory records.' },
+  ],
+  builder: [
+    { ref: 'RERA 2016 § 18', detail: 'Allottee can seek refund/interest/compensation for delay and default.' },
+    { ref: 'MOFA 1963 § 3', detail: 'Promoter must make true disclosure and deliver promised specifications.' },
+    { ref: 'Consumer Protection Act 2019', detail: 'Homebuyers can claim deficiency, unfair practice, and compensation.' },
+  ],
+  rera: [
+    { ref: 'RERA 2016 § 3', detail: 'Projects and agents must be registered before sale/marketing.' },
+    { ref: 'RERA 2016 § 31', detail: 'Any aggrieved person can file complaint before MahaRERA.' },
+    { ref: 'RERA 2016 § 63', detail: 'Non-compliance with Authority directions attracts financial penalty.' },
+  ],
+  pmc: [
+    { ref: 'MRTP Act 1966', detail: 'Planning authority can enforce sanctioned plans and remove unauthorised work.' },
+    { ref: 'UDCPR 2020', detail: 'Development permissions, FSI/TDR, setbacks and occupancy norms are mandatory.' },
+    { ref: 'Maharashtra Municipal Corporation Act', detail: 'Corporation can assess tax, water supply and enforce notices.' },
+  ],
+  ownership: [
+    { ref: 'Transfer of Property Act 1882', detail: 'Owner rights in property transfer and possession must be protected.' },
+    { ref: 'Registration Act 1908', detail: 'Property transactions and records must be lawfully registered.' },
+    { ref: 'MCS Model Bye-Laws 2014', detail: 'Society cannot impose illegal transfer, tenancy or membership conditions.' },
+  ],
+  infra: [
+    { ref: 'RERA 2016 § 11(4)', detail: 'Promoter must deliver promised amenities and common infrastructure.' },
+    { ref: 'MOFA 1963 § 3', detail: 'Promoter is bound by disclosures made in brochures and agreements.' },
+    { ref: 'Environment Protection Act 1986', detail: 'Pollution and waste handling must comply with statutory standards.' },
+  ],
+};
+
+const GROUP_AUTHORITIES = {
+  society: [
+    { name: 'District Deputy Registrar (DDR)', role: 'Supervises co-operative society disputes, elections, records, and governance.', portal: 'https://mahasahakar.maharashtra.gov.in', address: 'Office of District Deputy Registrar, concerned district.' },
+    { name: 'Co-operative Court / Registrar', role: 'Adjudicates enforceable relief where committee or society violates statutory duties.', portal: null, address: 'Co-operative Court having territorial jurisdiction.' },
+  ],
+  builder: [
+    { name: 'MahaRERA', role: 'Primary forum for project delay, refund, possession and promoter default.', portal: 'https://maharerait.maharashtra.gov.in', address: 'MahaRERA, Mumbai with online filing statewide.' },
+    { name: 'District Consumer Commission', role: 'Compensation for deficiency in service and unfair trade practice.', portal: null, address: 'District Consumer Disputes Redressal Commission, concerned district.' },
+  ],
+  rera: [
+    { name: 'MahaRERA Authority', role: 'Registers projects/agents and hears complaints under RERA.', portal: 'https://maharerait.maharashtra.gov.in', address: 'MahaRERA HQ, Mumbai (online filing).' },
+    { name: 'RERA Adjudicating Officer / Recovery', role: 'Execution, compensation, and recovery of amounts under RERA orders.', portal: 'https://maharera.maharashtra.gov.in', address: 'As notified by MahaRERA.' },
+  ],
+  pmc: [
+    { name: 'PMC / PMRDA / Local Planning Authority', role: 'Acts on sanctioned plan deviations, water, tax and municipal violations.', portal: 'https://pmccare.in', address: 'Concerned ward office / planning authority office.' },
+    { name: 'Collector / District Administration', role: 'Escalation when municipal inaction affects public rights and safety.', portal: null, address: 'District Collector office, concerned district.' },
+  ],
+  ownership: [
+    { name: 'Sub-Registrar Office', role: 'Correct registration records, index and transaction entries.', portal: 'https://igrmaharashtra.gov.in', address: 'Jurisdictional Sub-Registrar office.' },
+    { name: 'Civil Court / Co-operative Forum', role: 'Injunction, declaration and possession protection orders.', portal: null, address: 'Court/forum having territorial jurisdiction.' },
+  ],
+  infra: [
+    { name: 'Municipal Engineering / Health Department', role: 'Acts on infrastructure lapses, sanitation, drainage and occupancy safety.', portal: 'https://pmccare.in', address: 'Concerned municipal ward office.' },
+    { name: 'Maharashtra Pollution Control Board', role: 'Handles sewage, dust, construction pollution and environmental breaches.', portal: 'https://mpcb.gov.in', address: 'Regional office of MPCB.' },
+  ],
+};
+
+const GROUP_DOCS = {
+  society: ['Share certificate / membership file copy', 'Society bye-laws and latest audit report', 'AGM/SGM notices and minutes', 'Payment receipts and formal correspondence'],
+  builder: ['Registered agreement for sale', 'Payment receipts and bank statements', 'Project brochure / promised specifications', 'Notices sent to builder and acknowledgements'],
+  rera: ['RERA registration details printout', 'Agreement and allotment documents', 'Prior order/complaint copies', 'Proof of non-compliance and communications'],
+  pmc: ['Sanctioned plan and revisions (if available)', 'Property tax / utility bills and notices', 'Photographs/videos of violation', 'RTI replies / ward office correspondence'],
+  ownership: ['Sale deed / agreement and Index II', 'Loan closure letters / NOC from bank', 'Identity and address proof', 'Correspondence with builder/society/bank'],
+  infra: ['Builder brochure / amenity promise material', 'Photos/videos of missing facilities', 'Engineer or technician report', 'Complaint log and response record'],
+};
+
+const GROUP_TIMELINE = [
+  { period: 'Week 1', action: 'Collect documents and send detailed legal notice with 15-day demand.' },
+  { period: 'Week 2-3', action: 'File complaint before primary statutory authority with annexures.' },
+  { period: 'Month 1-2', action: 'Attend hearings, submit rejoinder and seek interim protection.' },
+  { period: 'If stalled', action: 'Escalate to appellate forum / court with non-compliance record.' },
+];
+
+const groupColor = (groupId) => ISSUE_GROUPS.find(g => g.id === groupId)?.color || '#16a085';
+
+const makeIssue = ({ id, group, icon, color, title, titleMr, desc, subIssues }) => {
+  const laws = GROUP_LAWS[group] || GROUP_LAWS.ownership;
+  const authorities = GROUP_AUTHORITIES[group] || GROUP_AUTHORITIES.ownership;
+  const docs = [...(GROUP_DOCS[group] || GROUP_DOCS.ownership)];
+  const timeline = [...GROUP_TIMELINE];
+
+  return {
+    id, group, icon, color: color || groupColor(group), title, titleMr, desc, subIssues,
+    laws,
+    authorities,
+    docs,
+    timeline,
+    steps: [
+      { n: 1, action: 'Document and Issue Notice', law: laws[0].ref, detail: 'Compile chronology with agreements, payments, photos, and correspondence. Serve a written notice by RPAD/email seeking compliance in 15 days and preserve delivery proof.' },
+      { n: 2, action: 'File before Primary Authority', law: laws[1].ref, detail: 'File a focused complaint before the competent authority with indexed annexures, prayer clauses, and request for time-bound directions.' },
+      { n: 3, action: 'Seek Interim Protection', law: laws[2].ref, detail: 'Request interim restraint/protection to prevent further loss while final hearing proceeds. Record all ongoing violations with dated evidence.' },
+      { n: 4, action: 'Escalate for Enforcement', law: laws[0].ref, detail: 'If order is ignored, initiate execution/recovery or move appellate/court remedy with certified copy of order and compliance defaults.' },
+    ],
+    draftLetter: (details) => `To,
+The ${authorities[0].name},
+${details.city || '[City]'}
+
+Date: ${new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' })}
+
+Subject: Complaint regarding ${title} in ${details.society || '[Society/Project Name]'}
+
+Respected Sir/Madam,
+
+I/We, resident(s) of ${details.society || '[Society/Project Name]'}, submit this complaint regarding ${desc.toLowerCase()}. The specific issue is: ${details.description || '[Brief facts of violation]'} in ${details.city || '[City]'}.
+
+This grievance violates ${laws.map(l => l.ref).join(', ')}. Despite repeated follow-up, the responsible party has failed to comply.
+
+We request your office to:
+1. Register this complaint and issue notice to the respondent.
+2. Conduct hearing and pass a time-bound speaking order.
+3. Grant interim protection to prevent further prejudice.
+4. Initiate enforcement action for non-compliance.
+
+Enclosures: agreement/title papers, payment proofs, correspondence, photos, and identity proof.
+
+Yours faithfully,
+[Name]
+[Mobile]
+[Address]`
+  };
+};
+
+const EXISTING_ISSUE_GROUPS = {
+  conveyance: 'builder',
+  oc: 'builder',
+  maintenance: 'society',
+  parking: 'society',
+  rera: 'rera',
+  illegal_construction: 'pmc',
+  elections: 'society',
+  defects: 'infra',
+  chs: 'society',
+};
+
+const EXTRA_ISSUES = [
+  makeIssue({ id: 'mc_elections', group: 'society', icon: '🗳️', color: '#e74c3c', title: 'MC Elections Not Held', titleMr: 'निवडणूक न घेणे', desc: 'Elections overdue, same MC for years, voter list manipulation', subIssues: ['Elections not held in over 5 years', 'Voter list incomplete or manipulated', 'MC refusing to step down after term', 'Election results disputed'] }),
+  makeIssue({ id: 'agm_violation', group: 'society', icon: '📢', color: '#e67e22', title: 'AGM Not Conducted', titleMr: 'वार्षिक सभा न घेणे', desc: 'AGM not held annually, minutes not shared, agenda not circulated', subIssues: ['AGM not held in over a year', 'Notice not sent to all members', 'Minutes not shared after AGM', 'Major decisions taken without AGM approval'] }),
+  makeIssue({ id: 'share_certificate', group: 'society', icon: '📜', color: '#2980b9', title: 'Share Certificate Not Issued', titleMr: 'शेअर सर्टिफिकेट नाही', desc: 'Society not issuing share certificate to flat owner', subIssues: ['Share certificate not given after purchase', 'Certificate has wrong name or flat number', 'Society demanding extra payment for certificate', 'Lost certificate not being reissued'] }),
+  makeIssue({ id: 'noc_refused', group: 'society', icon: '🤝', color: '#16a085', title: 'NOC for Flat Transfer Refused', titleMr: 'हस्तांतरण NOC नाकारणे', desc: 'Society refusing NOC for resale, demanding illegal payment', subIssues: ['NOC refused without written reason', 'Society demanding cash payment for NOC', 'NOC delayed for months', 'Society putting illegal conditions on NOC'] }),
+  makeIssue({ id: 'sinking_fund', group: 'society', icon: '💰', color: '#c0392b', title: 'Sinking Fund Misuse', titleMr: 'सिंकिंग फंड गैरवापर', desc: 'Sinking fund not maintained, misused, or not accounted for', subIssues: ['Sinking fund not maintained separately', 'Sinking fund used for routine maintenance', 'No AGM approval for sinking fund withdrawal', 'Sinking fund balance not disclosed to members'] }),
+  makeIssue({ id: 'society_not_formed', group: 'society', icon: '🏚️', color: '#8e44ad', title: 'Society Not Formed by Builder', titleMr: 'सोसायटी स्थापना न करणे', desc: 'Builder not forming CHS despite possession given to many residents', subIssues: ['Builder has not formed society despite 10+ flat owners', 'Builder delaying society registration', 'Builder formed builder-controlled committee instead of proper CHS', 'Residents want to form independent society'] }),
+  makeIssue({ id: 'member_admission', group: 'society', icon: '🚪', color: '#f39c12', title: 'Society Refusing Membership', titleMr: 'सदस्यत्व नाकारणे', desc: 'Society refusing to admit new flat owner as member', subIssues: ['New buyer refused membership after flat purchase', 'Society putting illegal conditions on membership', 'Membership form not provided', 'MC discriminating against certain buyers'] }),
+  makeIssue({ id: 'mc_misconduct', group: 'society', icon: '⚠️', color: '#e74c3c', title: 'MC Misconduct & Corruption', titleMr: 'व्यवस्थापन समिती भ्रष्टाचार', desc: 'MC members misusing funds, taking bribes, violating bye-laws', subIssues: ['MC awarding contracts to relatives without tender', 'MC members taking commission from contractors', 'MC spending on personal expenses from society funds', 'MC member threatening other residents'] }),
+  makeIssue({ id: 'renovation_noc', group: 'society', icon: '🔨', color: '#27ae60', title: 'Renovation NOC Refused', titleMr: 'नूतनीकरण NOC नाकारणे', desc: 'Society refusing permission for flat renovation or structural changes', subIssues: ['Society refusing renovation NOC without reason', 'Society demanding excessive fees for NOC', 'Neighbour doing structural work without NOC', 'Society NOC conditions are unreasonable'] }),
+  makeIssue({ id: 'common_area_maintenance', group: 'society', icon: '🧹', color: '#2980b9', title: 'Common Area Neglect', titleMr: 'सामाईक क्षेत्र दुर्लक्ष', desc: 'Society not maintaining lifts, garden, lobby, security', subIssues: ['Lift frequently broken with no repair', 'Garden and compound not maintained', 'Security not provided despite collection', 'Terrace not waterproofed causing leakage'] }),
+  makeIssue({ id: 'possession_delay', group: 'builder', icon: '📅', color: '#e74c3c', title: 'Possession Delayed', titleMr: 'ताबा विलंब', desc: 'Builder not giving possession by agreed date, project stalled', subIssues: ['Possession not given beyond agreed date', 'Project construction stalled', 'Builder asking for more money before possession', 'Builder has absconded / company closed'] }),
+  makeIssue({ id: 'spec_change', group: 'builder', icon: '📐', color: '#e67e22', title: 'Specification Change Without Consent', titleMr: 'बदललेली वैशिष्ट्ये', desc: 'Builder changed materials, fittings, layout without informing buyer', subIssues: ['Flooring quality inferior to agreement', 'Flat area less than agreement', 'Layout changed — room removed or reduced', 'Promised amenities not built'] }),
+  makeIssue({ id: 'double_sale', group: 'builder', icon: '🚨', color: '#c0392b', title: 'Builder Sold Same Flat Twice', titleMr: 'एकच फ्लॅट दोनदा विकणे', desc: 'Builder sold same flat to two different buyers', subIssues: ['Discovered another buyer has same flat', 'Builder took full payment from both buyers', 'Builder now unreachable', 'Index II shows different name than agreement'] }),
+  makeIssue({ id: 'builder_fraud', group: 'builder', icon: '🕵️', color: '#922b21', title: 'Builder Fraud / Cheating', titleMr: 'बिल्डर फसवणूक', desc: 'Builder took money and disappeared, forged documents, misrepresentation', subIssues: ['Builder took booking amount and disappeared', 'Builder showed false documents / forged approvals', 'Project never started after full payment', 'Builder selling on land without clear title'] }),
+  makeIssue({ id: 'booking_refund', group: 'builder', icon: '💸', color: '#16a085', title: 'Booking Amount Not Returned', titleMr: 'बुकिंग रक्कम परत न मिळणे', desc: 'Builder refusing to refund booking amount after cancellation', subIssues: ['Cancelled booking but refund not given', 'Builder deducting illegal cancellation charges', 'Project cancelled by builder — refund refused', 'Builder offering flat credit instead of cash refund'] }),
+  makeIssue({ id: 'rera_not_registered', group: 'rera', icon: '❌', color: '#e74c3c', title: 'Project Not Registered on RERA', titleMr: 'RERA नोंदणी नाही', desc: 'Builder selling flats without RERA registration', subIssues: ['Project not on MahaRERA portal', 'Builder showing fake RERA number', 'RERA registration lapsed', 'Builder claiming exemption falsely'] }),
+  makeIssue({ id: 'rera_non_compliance', group: 'rera', icon: '📋', color: '#2980b9', title: 'RERA Order Not Complied With', titleMr: 'RERA आदेश न पाळणे', desc: 'Builder not following MahaRERA order, execution petition needed', subIssues: ['RERA order passed but builder not paying', 'Builder not handing over possession per RERA order', 'RERA penalty imposed but not paid', 'Need to file execution petition'] }),
+  makeIssue({ id: 'rera_agent', group: 'rera', icon: '🏢', color: '#8e44ad', title: 'Unregistered Real Estate Agent', titleMr: 'अनोंदणीकृत दलाल', desc: 'Agent not registered on RERA, misrepresentation by agent', subIssues: ['Agent not registered on MahaRERA', 'Agent gave false information about project', 'Agent took brokerage but did not disclose conflicts', 'Agent disappeared after transaction'] }),
+  makeIssue({ id: 'property_tax', group: 'pmc', icon: '🧾', color: '#8e44ad', title: 'Property Tax Issues', titleMr: 'मालमत्ता कर समस्या', desc: 'Property tax overcharged, wrong assessment, name correction needed', subIssues: ['Property tax assessed at wrong rate', 'Tax demand for period before possession', 'Name on property tax record is wrong', 'Tax paid but receipt not issued'] }),
+  makeIssue({ id: 'water_connection', group: 'pmc', icon: '💧', color: '#2980b9', title: 'Water / Drainage Issues', titleMr: 'पाणी / निचरा समस्या', desc: 'Water connection refused, disconnected, or drainage blocked', subIssues: ['Water connection not given after OC', 'Water supply disconnected without notice', 'Drainage blocked causing flooding', 'Water quality poor / contaminated'] }),
+  makeIssue({ id: 'stop_work_violation', group: 'pmc', icon: '🚧', color: '#e74c3c', title: 'Stop Work Order Violated', titleMr: 'थांबा आदेश उल्लंघन', desc: 'Builder continuing construction despite Stop Work Order', subIssues: ['Construction continuing after SWO issued', 'PMC not enforcing its own SWO', 'Builder got SWO vacated through illegal means', 'Contempt of court — SWO linked to court order'] }),
+  makeIssue({ id: 'fsi_fraud_pmc', group: 'pmc', icon: '📊', color: '#c0392b', title: 'FSI / TDR Fraud in Sanction', titleMr: 'FSI / TDR फसवणूक', desc: 'Building permission granted on wrong FSI calculation or fraudulent TDR', subIssues: ['FSI calculated on land not owned by builder', 'TDR loaded beyond permissible limit', 'Society land used in builder FSI calculation', 'Building plan approved with forged documents'] }),
+  makeIssue({ id: 'fire_noc', group: 'pmc', icon: '🔥', color: '#e74c3c', title: 'Fire NOC Not Obtained', titleMr: 'अग्निशमन NOC नाही', desc: 'Building occupied without mandatory Fire NOC', subIssues: ['Building above 15m occupied without Fire NOC', 'Fire safety systems not installed', 'Fire NOC expired and not renewed', 'Builder showing fake Fire NOC'] }),
+  makeIssue({ id: 'road_encroachment', group: 'pmc', icon: '🛣️', color: '#f39c12', title: 'Road / Public Space Encroachment', titleMr: 'रस्ता अतिक्रमण', desc: 'Builder or society encroaching on public road or open space', subIssues: ['Builder constructing on reserved road land', 'Society parking on public road permanently', 'Open space reservation built over', 'Footpath encroached by building extension'] }),
+  makeIssue({ id: 'plan_deviation', group: 'pmc', icon: '🗺️', color: '#8e44ad', title: 'Building Plan Deviation', titleMr: 'नकाशा बदल', desc: 'Construction deviating from PMC approved plan', subIssues: ['Additional floors built beyond approved plan', 'Setbacks not maintained', 'Balcony extended beyond approved area', 'Basement converted to habitable area'] }),
+  makeIssue({ id: 'document_not_returned', group: 'ownership', icon: '📁', color: '#27ae60', title: 'Original Documents Not Returned', titleMr: 'मूळ कागदपत्रे न मिळणे', desc: 'Builder / bank holding original property documents', subIssues: ['Builder not returning original documents after full payment', 'Bank not returning after home loan closure', 'Documents lost by builder / bank', 'Wrong documents given'] }),
+  makeIssue({ id: 'stamp_duty', group: 'ownership', icon: '🏷️', color: '#2980b9', title: 'Stamp Duty / Registration Issues', titleMr: 'मुद्रांक शुल्क समस्या', desc: 'Overcharged stamp duty, wrong registration, refund pending', subIssues: ['Stamp duty calculated at wrong rate', 'Registration refused by Sub-Registrar', 'Stamp duty refund pending from government', 'Builder asking buyer to pay builder's stamp duty'] }),
+  makeIssue({ id: 'encroachment_flat', group: 'ownership', icon: '🚷', color: '#e74c3c', title: 'Encroachment on Your Flat / Terrace', titleMr: 'फ्लॅटवर अतिक्रमण', desc: 'Neighbour or builder encroaching on your flat, terrace, or balcony', subIssues: ['Neighbour broke wall into your flat', 'Builder sold terrace rights you own', 'Balcony encroached by floor above', 'Builder locked your parking or storage'] }),
+  makeIssue({ id: 'tenant_dispute', group: 'ownership', icon: '🏠', color: '#16a085', title: 'Tenant / Society Conflict', titleMr: 'भाडेकरू वाद', desc: 'Society harassing tenants, refusing permission to rent', subIssues: ['Society refusing to allow tenants', 'Charging excessive non-occupancy charges', 'Society demanding illegal tenant deposit', 'Tenant locked out by society'] }),
+  makeIssue({ id: 'mortgage_without_consent', group: 'ownership', icon: '🔒', color: '#c0392b', title: 'Flat Mortgaged Without Knowledge', titleMr: 'संमतीशिवाय तारण', desc: 'Builder mortgaged your flat to bank without your knowledge', subIssues: ['Bank claiming mortgage on your flat', 'Builder took loan against project and defaulted', 'Flat attached by bank for builder's dues', 'Received bank notice for builder's loan'] }),
+  makeIssue({ id: 'amenities_not_built', group: 'infra', icon: '🏊', color: '#16a085', title: 'Promised Amenities Not Built', titleMr: 'सुविधा न मिळणे', desc: 'Builder did not construct gym, pool, garden, club house as promised', subIssues: ['Swimming pool / gym promised but not built', 'Children's play area missing', 'Clubhouse not constructed', 'Garden not developed'] }),
+  makeIssue({ id: 'stp_not_functional', group: 'infra', icon: '🌊', color: '#2980b9', title: 'STP / Rainwater Harvesting Missing', titleMr: 'STP / पाणी पुनर्वापर नाही', desc: 'Mandatory STP or rainwater harvesting not installed', subIssues: ['STP not installed in large project', 'STP installed but not functional', 'Rainwater harvesting not built', 'Sewage released untreated into drain'] }),
+  makeIssue({ id: 'noise_pollution', group: 'infra', icon: '📢', color: '#f39c12', title: 'Construction Noise / Dust Pollution', titleMr: 'बांधकाम प्रदूषण', desc: 'Ongoing construction causing noise and dust beyond permitted hours', subIssues: ['Construction happening at night (after 10pm)', 'Dust without covering causing health issues', 'Vibration from construction damaging your flat', 'Construction debris dumped near residents'] }),
+];
+
+const ISSUES = [
+  ...BASE_ISSUES.map((issue) => {
+    const group = EXISTING_ISSUE_GROUPS[issue.id] || 'ownership';
+    return { ...issue, group, color: issue.color || groupColor(group) };
+  }),
+  ...EXTRA_ISSUES,
+];
+
+
 const URGENCY_LEVELS = [
   { id: 'critical', label: '🚨 Critical', desc: 'Builder actively constructing / registering sales on society land, Stop Work Order being violated, court order being flouted', color: '#e74c3c', bg: '#fef2f2', border: '#fca5a5' },
   { id: 'high',     label: '⚠️ High',     desc: 'Ongoing violation, legal proceedings started or needed urgently, significant financial risk', color: '#e67e22', bg: '#fff7ed', border: '#fed7aa' },
@@ -867,6 +1058,7 @@ export default function WizardPage() {
   const { navigate } = useContext(AppContext);
   const [step, setStep]               = useState(1);
   const [issueId, setIssueId]         = useState(null);
+  const [issueSearch, setIssueSearch] = useState('');
   const [subIssue, setSubIssue]       = useState(null);
   const [urgency, setUrgency]         = useState(null);
   const [details, setDetails]         = useState({ society: '', city: '', description: '', hasAdvocate: '' });
@@ -879,6 +1071,18 @@ export default function WizardPage() {
 
   const issue = ISSUES.find(i => i.id === issueId);
   const urgencyObj = URGENCY_LEVELS.find(u => u.id === urgency);
+  const searchTerm = issueSearch.trim().toLowerCase();
+  const searchedIssues = searchTerm
+    ? ISSUES.filter((iss) => [
+      iss.title,
+      iss.titleMr,
+      iss.desc,
+      ...(iss.subIssues || [])
+    ].join(' ').toLowerCase().includes(searchTerm))
+    : ISSUES;
+  const filteredGroups = searchTerm
+    ? [{ id: 'search', label: '🔍 Search Results', color: 'var(--teal)' }]
+    : ISSUE_GROUPS;
 
   const canNext = () => {
     if (step === 1) return !!issueId;
@@ -930,7 +1134,7 @@ export default function WizardPage() {
   };
 
   const restart = () => {
-    setStep(1); setIssueId(null); setSubIssue(null); setUrgency(null);
+    setStep(1); setIssueId(null); setIssueSearch(''); setSubIssue(null); setUrgency(null);
     setDetails({ society: '', city: '', description: '', hasAdvocate: '' });
     setResult(null); setResultTab('plan');
     setAiLoading(false); setAiError(''); setAiResult(null);
@@ -980,18 +1184,54 @@ export default function WizardPage() {
               <StepDots current={1} total={TOTAL_STEPS} />
               <div className="wizard-step-title">What is your issue?</div>
               <div className="wizard-step-sub">Select the category that best describes your problem</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 8 }}>
-                {ISSUES.map(iss => (
-                  <button key={iss.id}
-                    className={`option-btn ${issueId === iss.id ? 'selected' : ''}`}
-                    onClick={() => { setIssueId(iss.id); setSubIssue(null); }}
-                    style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 4, padding: '14px 16px' }}>
-                    <span style={{ fontSize: 20 }}>{iss.icon}</span>
-                    <span style={{ fontWeight: 700, fontSize: 13 }}>{iss.title}</span>
-                    <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400 }}>{iss.desc}</span>
-                  </button>
-                ))}
-              </div>
+              <input
+                type="text"
+                placeholder="Search issue type (e.g., OC, parking, RERA, tax)"
+                value={issueSearch}
+                onChange={(e) => setIssueSearch(e.target.value)}
+                style={{
+                  width: '100%',
+                  marginBottom: 16,
+                  border: '1px solid var(--border)',
+                  borderRadius: 10,
+                  padding: '10px 12px',
+                  fontSize: 13,
+                  outline: 'none'
+                }}
+              />
+
+              {filteredGroups.map(group => {
+                const groupIssues = searchTerm
+                  ? searchedIssues
+                  : searchedIssues.filter(i => i.group === group.id);
+
+                if (!groupIssues.length) return null;
+
+                return (
+                  <div key={group.id} style={{ marginBottom: 24 }}>
+                    <div style={{
+                      fontSize: 12, fontWeight: 700, color: group.color,
+                      textTransform: 'uppercase', letterSpacing: 1.5,
+                      marginBottom: 10, paddingBottom: 6,
+                      borderBottom: `2px solid ${group.color}22`
+                    }}>
+                      {group.label} <span style={{ opacity: 0.7 }}>({groupIssues.length})</span>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {groupIssues.map(iss => (
+                        <button key={iss.id}
+                          className={`option-btn ${issueId === iss.id ? 'selected' : ''}`}
+                          onClick={() => { setIssueId(iss.id); setSubIssue(null); }}
+                          style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', gap: 3, padding: '12px 14px' }}>
+                          <span style={{ fontSize: 18 }}>{iss.icon}</span>
+                          <span style={{ fontWeight: 700, fontSize: 12, lineHeight: 1.3 }}>{iss.title}</span>
+                          <span style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 400, lineHeight: 1.3 }}>{iss.desc}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
               <div className="wizard-actions">
                 <div />
                 <button className="btn-next" onClick={goNext} disabled={!canNext()}>Next →</button>
