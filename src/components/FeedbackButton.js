@@ -17,7 +17,7 @@ export default function FeedbackButton() {
   const [sending, setSending] = useState(false);
   const [status, setStatus] = useState('');
 
-  const handleSend = async () => {
+  const handleSend = () => {
     const trimmed = message.trim();
     if (!trimmed || sending) return;
 
@@ -25,39 +25,23 @@ export default function FeedbackButton() {
     setStatus('');
 
     try {
-      const response = await fetch('/api/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, message: trimmed }),
-      });
+      const entry = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        topic,
+        message: trimmed,
+        createdAt: new Date().toISOString(),
+      };
 
-      const raw = await response.text();
-      let data = null;
-      if (raw) {
-        try {
-          data = JSON.parse(raw);
-        } catch (_) {
-          data = null;
-        }
-      }
-
-      if (!response.ok) {
-        throw new Error(
-          data?.error
-            || 'Could not save feedback. Please ensure the API server is running (npm run api).'
-        );
-      }
-
-      if (!data?.ok) {
-        throw new Error('Unexpected response from feedback API.');
-      }
+      const existing = JSON.parse(localStorage.getItem('gharhak_feedback') || '[]');
+      existing.push(entry);
+      localStorage.setItem('gharhak_feedback', JSON.stringify(existing));
 
       trackEvent('feedback_sent', { topic });
       setStatus('✅ Feedback saved. Thank you!');
       setMessage('');
       setTopic(TOPICS[0]);
     } catch (err) {
-      setStatus(`⚠️ ${err.message}`);
+      setStatus(`⚠️ Could not save feedback. Please try again.`);
     } finally {
       setSending(false);
     }
@@ -85,7 +69,7 @@ export default function FeedbackButton() {
             </div>
 
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 18, lineHeight: 1.6 }}>
-              Your feedback will be saved directly in our local feedback database.
+              Your feedback will be saved in your browser's local storage.
             </div>
 
             <div className="feedback-field">
@@ -131,7 +115,7 @@ export default function FeedbackButton() {
             </div>
 
             <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>
-              Stored in local JSON DB via /api/feedback.
+              Stored in browser local storage.
             </div>
           </div>
         </div>
