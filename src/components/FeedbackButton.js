@@ -14,29 +14,68 @@ export default function FeedbackButton() {
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState(TOPICS[0]);
   const [message, setMessage] = useState('');
+  const [sending, setSending] = useState(false);
+  const [status, setStatus] = useState('');
 
-  const handleSend = () => {
-    const subject = encodeURIComponent(`GharHak – ${topic}`);
-    const body = encodeURIComponent(message.trim());
-    trackEvent('feedback_sent', { topic });
-    window.location.href = `mailto:rahulzaware31@gmail.com?subject=${subject}&body=${body}`;
-    setOpen(false);
-    setMessage('');
-    setTopic(TOPICS[0]);
+  const handleSend = async () => {
+    const trimmed = message.trim();
+    if (!trimmed || sending) return;
+
+    setSending(true);
+    setStatus('');
+
+    try {
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, message: trimmed }),
+      });
+
+      const raw = await response.text();
+      let data = null;
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch (_) {
+          data = null;
+        }
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          data?.error
+            || 'Could not save feedback. Please ensure the API server is running (npm run api).'
+        );
+      }
+
+      if (!data?.ok) {
+        throw new Error('Unexpected response from feedback API.');
+      }
+
+      trackEvent('feedback_sent', { topic });
+      setStatus('✅ Feedback saved. Thank you!');
+      setMessage('');
+      setTopic(TOPICS[0]);
+    } catch (err) {
+      setStatus(`⚠️ ${err.message}`);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
     <>
-      {/* Floating button */}
       <button
         className="feedback-fab"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          setOpen(true);
+          setStatus('');
+        }}
         aria-label="Send feedback"
       >
         ✉️ Feedback
       </button>
 
-      {/* Modal overlay */}
       {open && (
         <div className="feedback-overlay" onClick={() => setOpen(false)}>
           <div className="feedback-modal" onClick={e => e.stopPropagation()}>
@@ -46,7 +85,7 @@ export default function FeedbackButton() {
             </div>
 
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 18, lineHeight: 1.6 }}>
-              Your message goes directly to the GharHak team. We read every email.
+              Your feedback will be saved directly in our local feedback database.
             </div>
 
             <div className="feedback-field">
@@ -71,6 +110,12 @@ export default function FeedbackButton() {
               />
             </div>
 
+            {status && (
+              <div style={{ fontSize: 12, marginBottom: 10, color: status.startsWith('✅') ? '#15803d' : '#b45309' }}>
+                {status}
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 6 }}>
               <button className="btn-outline" onClick={() => setOpen(false)} style={{ padding: '9px 20px', fontSize: 13 }}>
                 Cancel
@@ -79,14 +124,14 @@ export default function FeedbackButton() {
                 className="btn-primary"
                 onClick={handleSend}
                 style={{ padding: '9px 22px', fontSize: 13 }}
-                disabled={!message.trim()}
+                disabled={!message.trim() || sending}
               >
-                Open in Email →
+                {sending ? 'Saving...' : 'Save Feedback'}
               </button>
             </div>
 
             <div style={{ marginTop: 14, fontSize: 11, color: 'var(--text-muted)', textAlign: 'center' }}>
-              This will open your email app pre-filled and addressed to us.
+              Stored in local JSON DB via /api/feedback.
             </div>
           </div>
         </div>

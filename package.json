@@ -14,8 +14,10 @@
     "react-scripts": "5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build"
+    "start": "node scripts/dev-start.js",
+    "build": "react-scripts build",
+    "api": "node server-api.js",
+    "start:client": "react-scripts start"
   },
   "browserslist": {
     "production": [
@@ -28,5 +30,6 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "proxy": "http://localhost:3001"
 }
