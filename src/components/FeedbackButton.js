@@ -31,9 +31,25 @@ export default function FeedbackButton() {
         body: JSON.stringify({ topic, message: trimmed }),
       });
 
-      const data = await response.json();
+      const raw = await response.text();
+      let data = null;
+      if (raw) {
+        try {
+          data = JSON.parse(raw);
+        } catch (_) {
+          data = null;
+        }
+      }
+
       if (!response.ok) {
-        throw new Error(data?.error || 'Could not send feedback.');
+        throw new Error(
+          data?.error
+            || 'Could not save feedback. Please ensure the API server is running (npm run api).'
+        );
+      }
+
+      if (!data?.ok) {
+        throw new Error('Unexpected response from feedback API.');
       }
 
       trackEvent('feedback_sent', { topic });
