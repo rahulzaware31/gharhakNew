@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { postAI } from '../utils/aiClient';
 
 const CATEGORIES = [
   { id: 'all',          label: 'All',              icon: '📚', query: 'Maharashtra housing rights flat owner builder fraud court judgment RERA 2024' },
@@ -42,25 +43,15 @@ Each item must have ALL these fields:
 
 Focus on cases where flat owners or societies WON. Return ONLY the JSON array. No markdown, no explanation.`;
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      max_tokens: 2000,
-      temperature: 0.3,
-      messages: [
-        { role: 'system', content: SYSTEM },
-        { role: 'user', content: query },
-      ],
-    }),
+  const data = await postAI({
+    model: 'llama-3.3-70b-versatile',
+    max_tokens: 2000,
+    temperature: 0.3,
+    messages: [
+      { role: 'system', content: SYSTEM },
+      { role: 'user', content: query },
+    ],
   });
-
-  if (!res.ok) throw new Error(`API error ${res.status}`);
-  const data = await res.json();
   const text = data.choices?.[0]?.message?.content || '[]';
   const clean = text.replace(/```json|```/g, '').trim();
   const parsed = JSON.parse(clean);
@@ -177,7 +168,7 @@ export default function RealCasesPage() {
       setCases(results);
       setHasLoaded(true);
     } catch (err) {
-      setError('Could not fetch cases. Please check your API key is configured, or try again.');
+      setError('Could not fetch cases right now. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -286,7 +277,7 @@ export default function RealCasesPage() {
             <strong>Could not load cases.</strong> {error}
             <br />
             <span style={{ fontSize: 12 }}>
-              Make sure your Groq API key is set as <code>REACT_APP_GROQ_API_KEY</code> in GitHub Secrets.
+              AI service is currently unavailable. Please retry shortly.
             </span>
           </div>
         )}
