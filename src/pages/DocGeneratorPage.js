@@ -159,7 +159,7 @@ Generated on: ${today}
 
 ${Object.entries(formData).filter(([, v]) => v).map(([k, v]) => `${FIELD_LABELS[k] || k}: ${v}`).join('\n')}
 
-[Full document content will be AI-generated when API key is configured]`;
+[Full document content will be AI-generated when AI service is available]`;
 }
 
 export default function DocGeneratorPage() {
@@ -212,11 +212,10 @@ Requirements:
 - Be specific and actionable`;
 
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const res = await fetch('/api/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
