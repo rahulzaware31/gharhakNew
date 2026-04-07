@@ -197,11 +197,10 @@ Rules:
 - Maximum 4 violations`;
 
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const res = await fetch('/api/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
@@ -218,7 +217,7 @@ Rules:
       const parsed = JSON.parse(content);
       setResult(parsed);
     } catch {
-      setError('Could not connect to AI service. Please check your API key configuration or try again.');
+      setError('Could not connect to AI service. Please try again in a moment.');
     } finally {
       setLoading(false);
     }

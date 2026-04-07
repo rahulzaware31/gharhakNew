@@ -42,11 +42,10 @@ Each item must have ALL these fields:
 
 Focus on cases where flat owners or societies WON. Return ONLY the JSON array. No markdown, no explanation.`;
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const res = await fetch('/api/ai', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
     },
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
@@ -177,7 +176,7 @@ export default function RealCasesPage() {
       setCases(results);
       setHasLoaded(true);
     } catch (err) {
-      setError('Could not fetch cases. Please check your API key is configured, or try again.');
+      setError('Could not fetch cases right now. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -286,7 +285,7 @@ export default function RealCasesPage() {
             <strong>Could not load cases.</strong> {error}
             <br />
             <span style={{ fontSize: 12 }}>
-              Make sure your Groq API key is set as <code>REACT_APP_GROQ_API_KEY</code> in GitHub Secrets.
+              AI service is currently unavailable. Please retry shortly.
             </span>
           </div>
         )}
