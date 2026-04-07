@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../App';
+import { postAI } from '../utils/aiClient';
 
 // Key provisions from Maharashtra Model Bye-Laws 2014 for Co-operative Housing Societies
 const MODEL_BYE_LAWS = [
@@ -197,24 +198,18 @@ Rules:
 - Maximum 4 violations`;
 
     try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 1200,
-          temperature: 0.2,
-          messages: [
-            { role: 'system', content: 'You are a Maharashtra housing law expert. Always respond with valid JSON only — no markdown fences, no explanation outside the JSON object.' },
-            { role: 'user', content: prompt },
-          ],
-        }),
+      const data = await postAI({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1200,
+        temperature: 0.2,
+        messages: [
+          { role: 'system', content: 'You are a Maharashtra housing law expert. Always respond with valid JSON only — no markdown fences, no explanation outside the JSON object.' },
+          { role: 'user', content: prompt },
+        ],
       });
-      const data = await res.json();
       const content = data.choices?.[0]?.message?.content || '';
-      const parsed = JSON.parse(content);
+      const clean = content.replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(clean);
       setResult(parsed);
     } catch {
       setError('Could not connect to AI service. Please try again in a moment.');

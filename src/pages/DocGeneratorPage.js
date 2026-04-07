@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { DOCUMENT_TEMPLATES, ISSUE_CATEGORIES } from '../data/issues';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
+import { postAI } from '../utils/aiClient';
 
 const FIELD_LABELS = {
   societyName: 'Society Name',
@@ -212,21 +213,14 @@ Requirements:
 - Be specific and actionable`;
 
     try {
-      const res = await fetch('/api/ai', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 1000,
-          messages: [
-            { role: 'system', content: 'You are a Maharashtra housing law expert. Generate professional legal documents and complaints citing exact section numbers and applicable laws. Output only the document text, no preamble.' },
-            { role: 'user', content: prompt },
-          ],
-        }),
+      const data = await postAI({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1000,
+        messages: [
+          { role: 'system', content: 'You are a Maharashtra housing law expert. Generate professional legal documents and complaints citing exact section numbers and applicable laws. Output only the document text, no preamble.' },
+          { role: 'user', content: prompt },
+        ],
       });
-      const data = await res.json();
       setGenerated(data.choices?.[0]?.message?.content || generateDocument(selected, formData, null));
     } catch {
       setGenerated(generateDocument(selected, formData, null));
