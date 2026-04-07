@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { DOCUMENT_TEMPLATES, ISSUE_CATEGORIES } from '../data/issues';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
+import { postAI } from '../utils/aiClient';
 
 const FIELD_LABELS = {
   societyName: 'Society Name',
@@ -159,7 +160,7 @@ Generated on: ${today}
 
 ${Object.entries(formData).filter(([, v]) => v).map(([k, v]) => `${FIELD_LABELS[k] || k}: ${v}`).join('\n')}
 
-[Full document content will be AI-generated when API key is configured]`;
+[Full document content will be AI-generated when AI service is available]`;
 }
 
 export default function DocGeneratorPage() {
@@ -212,22 +213,14 @@ Requirements:
 - Be specific and actionable`;
 
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 1000,
-          messages: [
-            { role: 'system', content: 'You are a Maharashtra housing law expert. Generate professional legal documents and complaints citing exact section numbers and applicable laws. Output only the document text, no preamble.' },
-            { role: 'user', content: prompt },
-          ],
-        }),
+      const data = await postAI({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1000,
+        messages: [
+          { role: 'system', content: 'You are a Maharashtra housing law expert. Generate professional legal documents and complaints citing exact section numbers and applicable laws. Output only the document text, no preamble.' },
+          { role: 'user', content: prompt },
+        ],
       });
-      const data = await res.json();
       setGenerated(data.choices?.[0]?.message?.content || generateDocument(selected, formData, null));
     } catch {
       setGenerated(generateDocument(selected, formData, null));

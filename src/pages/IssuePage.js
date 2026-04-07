@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
 import { COMPLAINT_STEPS } from '../data/issues';
+import { postAI } from '../utils/aiClient';
 
 const OUTCOME_CONFIG = {
   win:     { label: 'Residents Won',    bg: '#d1fae5', color: '#065f46', icon: '✅' },
@@ -54,25 +55,17 @@ Return ONLY a JSON array with no markdown, no code blocks, no explanation:
   }
 ]`;
 
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 1400,
-          messages: [
-            {
-              role: 'system',
-              content: 'You are a Maharashtra housing law expert with deep knowledge of case law. Always return valid JSON arrays only — no markdown, no code fences, no explanation text.',
-            },
-            { role: 'user', content: prompt },
-          ],
-        }),
+      const data = await postAI({
+        model: 'llama-3.3-70b-versatile',
+        max_tokens: 1400,
+        messages: [
+          {
+            role: 'system',
+            content: 'You are a Maharashtra housing law expert with deep knowledge of case law. Always return valid JSON arrays only — no markdown, no code fences, no explanation text.',
+          },
+          { role: 'user', content: prompt },
+        ],
       });
-      const data = await res.json();
       const text = data.choices?.[0]?.message?.content || '[]';
       const clean = text.replace(/```json/g, '').replace(/```/g, '').trim();
       const cases = JSON.parse(clean);
@@ -221,7 +214,7 @@ Return ONLY a JSON array with no markdown, no code blocks, no explanation:
             <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: 14 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
               No cases loaded yet.{' '}
-              {!process.env.REACT_APP_GROQ_API_KEY && <span>Configure your API key to enable live AI cases.</span>}
+              <span>If this keeps happening, please retry in a few minutes.</span>
             </div>
           )}
 

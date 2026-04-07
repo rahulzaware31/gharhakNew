@@ -1,6 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 
 const PORT = process.env.PORT || 3001;
 const DB_DIR = path.join(__dirname, 'data');
@@ -42,6 +43,57 @@ function sendJson(res, statusCode, payload) {
   res.end(JSON.stringify(payload));
 }
 
+function readRequestBody(req, maxBytes = 1_000_000) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+
+    req.on('data', (chunk) => {
+      body += chunk;
+      if (body.length > maxBytes) {
+        req.socket.destroy();
+        reject(new Error('Request body too large.'));
+      }
+    });
+
+    req.on('end', () => resolve(body));
+    req.on('error', reject);
+  });
+}
+
+function proxyGroqChat(payload) {
+  return new Promise((resolve, reject) => {
+    const apiKey = process.env.GROQ_API_KEY;
+    if (!apiKey) {
+      reject(new Error('AI service is not configured.'));
+      return;
+    }
+
+    const req = https.request(
+      'https://api.groq.com/openai/v1/chat/completions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+      },
+      (resp) => {
+        let data = '';
+        resp.on('data', (chunk) => {
+          data += chunk;
+        });
+        resp.on('end', () => {
+          resolve({ statusCode: resp.statusCode || 502, body: data });
+        });
+      },
+    );
+
+    req.on('error', reject);
+    req.write(JSON.stringify(payload));
+    req.end();
+  });
+}
+
 const server = http.createServer((req, res) => {
   if (req.method === 'OPTIONS') {
     return sendJson(res, 204, {});
@@ -57,14 +109,8 @@ const server = http.createServer((req, res) => {
   }
 
   if (req.url === '/api/feedback' && req.method === 'POST') {
-    let body = '';
-    req.on('data', (chunk) => {
-      body += chunk;
-      if (body.length > 1_000_000) req.socket.destroy();
-    });
-
-    req.on('end', () => {
-      try {
+    readRequestBody(req)
+      .then((body) => {
         const parsed = JSON.parse(body || '{}');
         const topic = typeof parsed.topic === 'string' ? parsed.topic.trim() : '';
         const message = typeof parsed.message === 'string' ? parsed.message.trim() : '';
@@ -89,10 +135,32 @@ const server = http.createServer((req, res) => {
         writeDb(db);
 
         return sendJson(res, 201, { ok: true, entry });
-      } catch (err) {
-        return sendJson(res, 400, { error: 'Invalid JSON body.' });
-      }
-    });
+      })
+      .catch((err) => {
+        const status = err.message === 'Request body too large.' ? 413 : 400;
+        return sendJson(res, status, { error: status === 413 ? err.message : 'Invalid JSON body.' });
+      });
+
+    return;
+  }
+
+  if (req.url === '/api/ai' && req.method === 'POST') {
+    readRequestBody(req)
+      .then((body) => JSON.parse(body || '{}'))
+      .then((payload) => proxyGroqChat(payload))
+      .then(({ statusCode, body }) => {
+        let parsed;
+        try {
+          parsed = JSON.parse(body);
+        } catch {
+          parsed = { error: 'Invalid upstream response.' };
+        }
+        return sendJson(res, statusCode, parsed);
+      })
+      .catch((err) => {
+        const status = err.message === 'AI service is not configured.' ? 500 : 400;
+        return sendJson(res, status, { error: err.message || 'AI request failed.' });
+      });
 
     return;
   }
