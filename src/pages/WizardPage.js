@@ -97,11 +97,10 @@ Generate the complete action plan JSON now.`;
 };
 
 const generateAIPlan = async (issueData, details, urgency, subIssue) => {
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+  const response = await fetch('/api/ai', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
     },
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',

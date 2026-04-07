@@ -54,11 +54,10 @@ Return ONLY a JSON array with no markdown, no code blocks, no explanation:
   }
 ]`;
 
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const res = await fetch('/api/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
@@ -221,7 +220,7 @@ Return ONLY a JSON array with no markdown, no code blocks, no explanation:
             <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: 14 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
               No cases loaded yet.{' '}
-              {!process.env.REACT_APP_GROQ_API_KEY && <span>Configure your API key to enable live AI cases.</span>}
+              <span>If this keeps happening, please retry in a few minutes.</span>
             </div>
           )}
 
