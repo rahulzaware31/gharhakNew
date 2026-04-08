@@ -25,6 +25,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
+          REACT_APP_AI_PROXY_URL: ${{ secrets.REACT_APP_AI_PROXY_URL }}
           REACT_APP_GA_ID: ${{ secrets.REACT_APP_GA_ID }}
 
       - name: Deploy to GitHub Pages

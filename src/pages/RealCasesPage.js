@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getApiKey } from '../utils/apiKey';
+import { chatCompletion } from '../utils/groqClient';
 
 const CATEGORIES = [
   { id: 'all',          label: 'All',              icon: '📚', query: 'Maharashtra housing rights flat owner builder fraud court judgment RERA 2024' },
@@ -43,25 +43,14 @@ Each item must have ALL these fields:
 
 Focus on cases where flat owners or societies WON. Return ONLY the JSON array. No markdown, no explanation.`;
 
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getApiKey()}`,
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      max_tokens: 2000,
-      temperature: 0.3,
-      messages: [
-        { role: 'system', content: SYSTEM },
-        { role: 'user', content: query },
-      ],
-    }),
+  const data = await chatCompletion({
+    maxTokens: 2000,
+    temperature: 0.3,
+    messages: [
+      { role: 'system', content: SYSTEM },
+      { role: 'user', content: query },
+    ],
   });
-
-  if (!res.ok) throw new Error(`API error ${res.status}`);
-  const data = await res.json();
   const text = data.choices?.[0]?.message?.content || '[]';
   const clean = text.replace(/```json|```/g, '').trim();
   const parsed = JSON.parse(clean);
