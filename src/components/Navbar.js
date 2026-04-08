@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ISSUE_CATEGORIES, DOCUMENT_TEMPLATES } from '../data/issues';
+import BrandLogo from './BrandLogo';
 
 const TOOLS = [
   { id: 'wizard', label: 'Complaint Wizard', description: 'Step-by-step complaint filing guide', icon: '🧭' },
@@ -95,8 +96,7 @@ export default function Navbar({ currentPage, navigate }) {
     <>
       <nav className="nav">
         <a className="nav-logo" onClick={() => navigate('home')} style={{ cursor: 'pointer' }}>
-          <div className="nav-logo-icon">🏠</div>
-          <div className="nav-logo-text">Ghar<span>Hak</span></div>
+          <BrandLogo />
         </a>
 
         {/* Desktop nav — only 4 key links */}
@@ -168,7 +168,7 @@ export default function Navbar({ currentPage, navigate }) {
         <div className="nav-mobile-overlay" onClick={() => setOpen(false)} />
         <div className="nav-mobile-panel">
           <div className="nav-mobile-header">
-            <div className="nav-logo-text" style={{ fontSize: 20 }}>Ghar<span style={{ color: 'var(--teal)' }}>Hak</span></div>
+            <BrandLogo compact />
             <button className="nav-mobile-close" onClick={() => setOpen(false)}>✕</button>
           </div>
 
