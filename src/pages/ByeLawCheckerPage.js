@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../App';
-import { getApiKey } from '../utils/apiKey';
+import { chatCompletion } from '../utils/groqClient';
 
 // Key provisions from Maharashtra Model Bye-Laws 2014 for Co-operative Housing Societies
 const MODEL_BYE_LAWS = [
@@ -198,23 +198,14 @@ Rules:
 - Maximum 4 violations`;
 
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getApiKey()}`,
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 1200,
-          temperature: 0.2,
-          messages: [
-            { role: 'system', content: 'You are a Maharashtra housing law expert. Always respond with valid JSON only — no markdown fences, no explanation outside the JSON object.' },
-            { role: 'user', content: prompt },
-          ],
-        }),
+      const data = await chatCompletion({
+        maxTokens: 1200,
+        temperature: 0.2,
+        messages: [
+          { role: 'system', content: 'You are a Maharashtra housing law expert. Always respond with valid JSON only — no markdown fences, no explanation outside the JSON object.' },
+          { role: 'user', content: prompt },
+        ],
       });
-      const data = await res.json();
       const content = data.choices?.[0]?.message?.content || '';
       const parsed = JSON.parse(content);
       setResult(parsed);

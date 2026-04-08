@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
-import { getApiKey } from '../utils/apiKey';
+import { chatCompletion } from '../utils/groqClient';
 
 const SYSTEM_PROMPT = `You are GharHak AI, a housing rights advisor for Maharashtra, India. You help flat owners, CHS (Co-operative Housing Society) members, and condominium residents understand and assert their legal rights.
 
@@ -95,25 +95,7 @@ export default function ChatPage() {
         })),
       ];
 
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${getApiKey()}`,
-        },
-        body: JSON.stringify({
-          model: 'llama-3.3-70b-versatile',
-          max_tokens: 1000,
-          messages: apiMessages,
-        }),
-      });
-
-      if (!response.ok) {
-        const err = await response.json();
-        throw new Error(err.error?.message || 'API error');
-      }
-
-      const data = await response.json();
+      const data = await chatCompletion({ messages: apiMessages });
       const aiText = data.choices?.[0]?.message?.content || 'Sorry, I could not generate a response. Please try again.';
 
       setMessages(prev => [...prev, { role: 'ai', content: aiText, time: formatTime() }]);

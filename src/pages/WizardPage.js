@@ -1,7 +1,7 @@
 import React, { useState, useContext, useRef } from 'react';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
-import { getApiKey } from '../utils/apiKey';
+import { chatCompletion } from '../utils/groqClient';
 
 // ─── AI Config ────────────────────────────────────────────────────────────────
 const SYSTEM_PROMPT = `You are GharHak, a Maharashtra housing rights legal advisor.
@@ -98,23 +98,14 @@ Generate the complete action plan JSON now.`;
 };
 
 const generateAIPlan = async (issueData, details, urgency, subIssue) => {
-  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${getApiKey()}`,
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      max_tokens: 3000,
-      temperature: 0.3,
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: buildUserPrompt(issueData, details, urgency, subIssue) }
-      ]
-    })
+  const data = await chatCompletion({
+    maxTokens: 3000,
+    temperature: 0.3,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: buildUserPrompt(issueData, details, urgency, subIssue) },
+    ],
   });
-  const data = await response.json();
   return data.choices?.[0]?.message?.content || null;
 };
 
