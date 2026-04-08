@@ -109,6 +109,59 @@ const generateAIPlan = async (issueData, details, urgency, subIssue) => {
   return data.choices?.[0]?.message?.content || null;
 };
 
+const formatLegalDraft = ({
+  details,
+  toName,
+  toAddress,
+  subject,
+  references = [],
+  facts = [],
+  legalGrounds = [],
+  reliefs = [],
+  enclosures = [],
+}) => {
+  const date = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+  const complainant = details.complainantName || '[Your Full Name]';
+  const society = details.society || '[Society / Project Name]';
+  const city = details.city || '[City]';
+
+  return `From:
+${complainant}
+Flat No. [___], ${society}
+${city}
+Mobile: [__________]
+Email: [__________]
+
+To:
+${toName}
+${toAddress}
+
+Date: ${date}
+
+Subject: ${subject}
+
+${references.length ? `Reference:\n${references.map((ref, idx) => `${idx + 1}. ${ref}`).join('\n')}\n` : ''}Respected Sir/Madam,
+
+I/We respectfully submit this complaint/application for your urgent intervention.
+
+1) Facts of the Case:
+${facts.map((fact, idx) => `   ${idx + 1}. ${fact}`).join('\n')}
+
+2) Legal Grounds:
+${legalGrounds.map((ground, idx) => `   ${idx + 1}. ${ground}`).join('\n')}
+
+3) Reliefs / Prayer:
+${reliefs.map((relief, idx) => `   ${idx + 1}. ${relief}`).join('\n')}
+
+${enclosures.length ? `4) List of Enclosures:\n${enclosures.map((doc, idx) => `   ${idx + 1}. ${doc}`).join('\n')}\n` : ''}I/We state that the above facts are true to my/our knowledge and belief. Kindly register this complaint and issue appropriate directions at the earliest.
+
+Yours faithfully,
+
+${complainant}
+Flat No. [___], ${society}
+Place: ${city}`;
+};
+
 // ─── Deep issue data ──────────────────────────────────────────────────────────
 const BASE_ISSUES = [
   {
@@ -1178,7 +1231,41 @@ export default function WizardPage() {
   const getDocs     = () => aiResult?.documents  || result?.issue?.docs       || [];
   const getLaws     = () => aiResult?.laws       || result?.issue?.laws?.map(l => ({ ref: l.ref, detail: l.detail })) || [];
   const getAuths    = () => aiResult?.authorities || result?.issue?.authorities || [];
-  const getLetter   = () => aiResult?.draftLetter || (result?.issue?.draftLetter ? result.issue.draftLetter(result.details) : '');
+  const getFormattedFallbackLetter = () => {
+    const primaryAuthority = getAuths()[0];
+    const selectedLaws = getLaws().slice(0, 3).map((l) => `${l.ref} — ${l.detail}`);
+    const facts = [
+      `I/We are resident(s) of ${result?.details?.society || '[Society / Project Name]'}, ${result?.details?.city || '[City]'}.`,
+      `The grievance concerns "${result?.subIssue || result?.issue?.title || '[Issue]'}".`,
+      result?.details?.description
+        ? `Brief facts: ${result.details.description}`
+        : 'Despite repeated follow-up, the grievance remains unresolved.',
+      'I/We are filing this complaint after giving a reasonable opportunity to the respondent to comply.',
+    ];
+
+    const reliefs = [
+      'Register this complaint and issue notice to the respondent.',
+      'Pass a time-bound speaking order with clear compliance directions.',
+      'Grant all consequential reliefs including compensation/costs, where applicable.',
+      'Initiate penal action in case of wilful non-compliance of directions.',
+    ];
+
+    return formatLegalDraft({
+      details: result?.details || {},
+      toName: primaryAuthority?.name || '[Competent Authority]',
+      toAddress: primaryAuthority?.address || '[Authority Address]',
+      subject: `Complaint regarding ${result?.subIssue || result?.issue?.title || '[Issue]'} — ${result?.details?.society || '[Society / Project Name]'}`,
+      references: [
+        result?.issue?.title ? `Issue category selected in Complaint Wizard: ${result.issue.title}` : null,
+        result?.urgencyObj?.label ? `Urgency marked: ${result.urgencyObj.label}` : null,
+      ].filter(Boolean),
+      facts,
+      legalGrounds: selectedLaws.length ? selectedLaws : ['Applicable provisions under MCS Act / MOFA / RERA and allied regulations.'],
+      reliefs,
+      enclosures: getDocs().slice(0, 8),
+    });
+  };
+  const getLetter = () => aiResult?.draftLetter || getFormattedFallbackLetter();
 
   const whatsappText = result ? encodeURIComponent(
     `🏠 GharHak — My Housing Rights Action Plan\n\n` +
