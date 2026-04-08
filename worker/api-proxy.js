@@ -10,6 +10,8 @@ const GROQ_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Allow requests from Pages domain and GitHub Pages; update as needed.
 const ALLOWED_ORIGINS = [
+  'https://gharhak.in',
+  'https://www.gharhak.in',
   'https://gharhak.pages.dev',
   'https://rahulzaware31.github.io',
 ];

@@ -4,7 +4,21 @@
  * The API key lives only in the Worker environment — never in this bundle.
  */
 
-const PROXY_URL = process.env.REACT_APP_AI_PROXY_URL;
+const rawProxyUrl = process.env.REACT_APP_AI_PROXY_URL?.trim();
+
+function normalizeProxyUrl(url) {
+  if (!url) return '';
+
+  // If protocol is omitted in env config, default to HTTPS so fetch does not
+  // treat the value as a same-origin relative path.
+  if (!/^https?:\/\//i.test(url)) {
+    return `https://${url}`;
+  }
+
+  return url;
+}
+
+const PROXY_URL = normalizeProxyUrl(rawProxyUrl);
 
 /**
  * @param {{ messages: Array, model?: string, maxTokens?: number, temperature?: number }} opts
