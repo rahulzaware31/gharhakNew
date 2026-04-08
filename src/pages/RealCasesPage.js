@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getApiKey } from '../utils/apiKey';
 
 const CATEGORIES = [
   { id: 'all',          label: 'All',              icon: '📚', query: 'Maharashtra housing rights flat owner builder fraud court judgment RERA 2024' },
@@ -46,7 +47,7 @@ Focus on cases where flat owners or societies WON. Return ONLY the JSON array. N
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
+      'Authorization': `Bearer ${getApiKey()}`,
     },
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
@@ -286,7 +287,7 @@ export default function RealCasesPage() {
             <strong>Could not load cases.</strong> {error}
             <br />
             <span style={{ fontSize: 12 }}>
-              Make sure your Groq API key is set as <code>REACT_APP_GROQ_API_KEY</code> in GitHub Secrets.
+              Make sure you've entered a valid Groq API key using the banner at the top of the page.
             </span>
           </div>
         )}

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './index.css';
 import { trackPage } from './analytics';
+import { getApiKey, saveApiKey } from './utils/apiKey';
 import HomePage from './pages/HomePage';
 import ChatPage from './pages/ChatPage';
 import WizardPage from './pages/WizardPage';
@@ -22,9 +23,44 @@ import FeedbackButton from './components/FeedbackButton';
 
 export const AppContext = React.createContext();
 
+function ApiKeyBanner({ onSaved }) {
+  const [input, setInput] = useState('');
+  const [visible, setVisible] = useState(true);
+
+  const handleSave = () => {
+    if (input.trim()) {
+      saveApiKey(input.trim());
+      setVisible(false);
+      onSaved();
+    }
+  };
+
+  if (!visible) return null;
+
+  return (
+    <div className="apikey-banner">
+      <div className="apikey-banner-inner">
+        <span className="apikey-banner-text">
+          Enter your <a href="https://console.groq.com/keys" target="_blank" rel="noopener noreferrer">Groq API key</a> to enable AI features:
+        </span>
+        <input
+          className="apikey-banner-input"
+          type="password"
+          placeholder="gsk_..."
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && handleSave()}
+        />
+        <button className="apikey-banner-btn" onClick={handleSave}>Save</button>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [page, setPage] = useState('home');
   const [selectedIssue, setSelectedIssue] = useState(null);
+  const [hasApiKey, setHasApiKey] = useState(() => !!getApiKey());
 
   const PAGE_TITLES = {
     home: 'Home',
@@ -55,6 +91,7 @@ export default function App() {
 
   return (
     <AppContext.Provider value={{ navigate, selectedIssue, setSelectedIssue }}>
+      {!hasApiKey && <ApiKeyBanner onSaved={() => setHasApiKey(true)} />}
       <Ticker />
       <Navbar currentPage={page} navigate={navigate} />
       <main>
