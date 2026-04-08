@@ -51,7 +51,7 @@ export default function Footer({ navigate }) {
               href="mailto:rahulzaware31@gmail.com?subject=GharHak Feedback"
               style={{ display: 'inline-block', padding: '9px 18px', background: 'var(--teal)', color: '#fff', borderRadius: 10, fontSize: 13, fontWeight: 700, textDecoration: 'none' }}
             >
-              ✉️ Write to Us.
+              ✉️ Write to Us
             </a>
           </div>
         </div>
