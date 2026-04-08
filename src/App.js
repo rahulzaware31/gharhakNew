@@ -14,6 +14,7 @@ import ChecklistPage from './pages/ChecklistPage';
 import RealCasesPage from './pages/RealCasesPage';
 import SocietyHandoverChecklistPage from './pages/SocietyHandoverChecklistPage';
 import SocietyAwarenessPage from './pages/SocietyAwarenessPage';
+import MaintenanceCalculatorPage from './pages/MaintenanceCalculatorPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -39,6 +40,7 @@ export default function App() {
     cases: 'Real Cases',
     handover: 'Society Handover Checklist',
     awareness: 'Society Awareness & Rights',
+    maintenance: 'Maintenance Calculator',
   };
 
   const navigate = (p, data = null) => {
@@ -69,6 +71,7 @@ export default function App() {
         {page === 'cases'      && <RealCasesPage />}
         {page === 'handover'   && <SocietyHandoverChecklistPage />}
         {page === 'awareness'  && <SocietyAwarenessPage />}
+        {page === 'maintenance' && <MaintenanceCalculatorPage />}
       </main>
       <Footer navigate={navigate} />
       <FeedbackButton />
