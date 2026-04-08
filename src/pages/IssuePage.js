@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AppContext } from '../App';
 import { COMPLAINT_STEPS } from '../data/issues';
+import { getApiKey } from '../utils/apiKey';
 
 const OUTCOME_CONFIG = {
   win:     { label: 'Residents Won',    bg: '#d1fae5', color: '#065f46', icon: '✅' },
@@ -58,7 +59,7 @@ Return ONLY a JSON array with no markdown, no code blocks, no explanation:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
+          'Authorization': `Bearer ${getApiKey()}`,
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
@@ -221,7 +222,7 @@ Return ONLY a JSON array with no markdown, no code blocks, no explanation:
             <div style={{ textAlign: 'center', padding: '32px 0', color: 'var(--text-muted)', fontSize: 14 }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>📭</div>
               No cases loaded yet.{' '}
-              {!process.env.REACT_APP_GROQ_API_KEY && <span>Configure your API key to enable live AI cases.</span>}
+              {!getApiKey() && <span>Add your Groq API key at the top of the page to enable live AI cases.</span>}
             </div>
           )}
 

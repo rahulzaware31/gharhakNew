@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef } from 'react';
 import { DOCUMENT_TEMPLATES, ISSUE_CATEGORIES } from '../data/issues';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
+import { getApiKey } from '../utils/apiKey';
 
 const FIELD_LABELS = {
   societyName: 'Society Name',
@@ -216,7 +217,7 @@ Requirements:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
+          'Authorization': `Bearer ${getApiKey()}`,
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',

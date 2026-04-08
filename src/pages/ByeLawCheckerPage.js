@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../App';
+import { getApiKey } from '../utils/apiKey';
 
 // Key provisions from Maharashtra Model Bye-Laws 2014 for Co-operative Housing Societies
 const MODEL_BYE_LAWS = [
@@ -201,7 +202,7 @@ Rules:
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
+          'Authorization': `Bearer ${getApiKey()}`,
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',

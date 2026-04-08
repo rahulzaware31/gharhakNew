@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, useContext } from 'react';
 import { AppContext } from '../App';
 import { trackEvent } from '../analytics';
+import { getApiKey } from '../utils/apiKey';
 
 const SYSTEM_PROMPT = `You are GharHak AI, a housing rights advisor for Maharashtra, India. You help flat owners, CHS (Co-operative Housing Society) members, and condominium residents understand and assert their legal rights.
 
@@ -98,7 +99,7 @@ export default function ChatPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GROQ_API_KEY}`,
+          'Authorization': `Bearer ${getApiKey()}`,
         },
         body: JSON.stringify({
           model: 'llama-3.3-70b-versatile',
