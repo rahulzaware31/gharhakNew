@@ -19,6 +19,7 @@ const TOOLS = [
   { id: 'checklist',  icon: '✅', title: 'Buyer Checklist',       desc: '25 checks before signing any property deal' },
   { id: 'possession', icon: '🔑', title: 'Possession Checklist',  desc: '33 checks before accepting flat possession' },
   { id: 'cases',      icon: '🏆', title: 'Real Cases',            desc: 'Court judgments where residents won' },
+  { id: 'maintenance', icon: '🧮', title: 'Maintenance Calculator', desc: 'Calculate legal maintenance for CHS or Apartment' },
 ];
 
 const SOUND_FAMILIAR = [

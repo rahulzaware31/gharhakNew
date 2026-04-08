@@ -3646,3 +3646,215 @@ body {
   .hp2-stats-divider { height: 32px; }
   .hp2-cta-section { padding: 56px 16px; }
 }
+
+/* ── MaintenanceCalculatorPage ──────────────────────────────────────────────── */
+.page-wrap {
+  padding: 40px 24px 80px;
+}
+
+.maint-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.maint-header-icon {
+  font-size: 48px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.maint-title {
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 800;
+  color: var(--dark);
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+
+.maint-subtitle {
+  font-size: 18px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.maint-desc {
+  font-size: 15px;
+  color: var(--text-muted);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+/* Mode toggle */
+.maint-mode-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.maint-mode-btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: 2px solid var(--border);
+  background: var(--white);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.maint-mode-btn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.maint-mode-btn.active {
+  border-color: var(--teal);
+  background: var(--teal);
+  color: #fff;
+}
+
+/* Law pill */
+.maint-law-pill {
+  display: inline-block;
+  background: var(--teal-light);
+  border: 1px solid var(--teal);
+  color: var(--teal-dark);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 32px;
+}
+
+/* Two-col layout */
+.maint-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.maint-inputs { display: flex; flex-direction: column; gap: 20px; }
+.maint-results { display: flex; flex-direction: column; gap: 0; }
+
+/* Card section title */
+.maint-card-section-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+/* Breakdown rows */
+.maint-breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+
+.maint-breakdown-row:last-child { border-bottom: none; }
+
+.maint-breakdown-label { color: var(--text-muted); }
+.maint-breakdown-value { font-weight: 700; color: var(--dark); }
+
+.maint-breakdown-row--total .maint-breakdown-label {
+  font-weight: 800;
+  color: var(--dark);
+  font-size: 15px;
+}
+
+.maint-breakdown-row--total .maint-breakdown-value {
+  color: var(--teal-dark);
+  font-size: 18px;
+}
+
+/* Legal reference list */
+.maint-legal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.maint-legal-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.maint-legal-badge {
+  flex-shrink: 0;
+  background: var(--teal-light);
+  color: var(--teal-dark);
+  border: 1px solid var(--teal);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+/* Alert box */
+.maint-alert-box {
+  background: #fff8e6;
+  border: 1.5px solid #f59e0b;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 13px;
+  color: #92400e;
+  line-height: 1.6;
+}
+
+/* Disclaimer */
+.maint-disclaimer {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+/* Empty state */
+.maint-empty-state {
+  background: var(--white);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 60px 32px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.maint-empty-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .maint-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .page-wrap { padding: 24px 16px 60px; }
+  .maint-header { flex-direction: column; gap: 12px; }
+  .maint-mode-btn { font-size: 13px; padding: 10px 16px; }
+  .conv-two-col { grid-template-columns: 1fr; }
+}
+}
