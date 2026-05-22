@@ -99,7 +99,7 @@ export default function Navbar({ currentPage, navigate }) {
     <>
       <nav className="nav">
         <a className="nav-logo" onClick={() => navigate('home')} style={{ cursor: 'pointer' }}>
-          <BrandLogo />
+          <BrandLogo compact />
         </a>
 
         {/* Desktop nav — only 4 key links */}
