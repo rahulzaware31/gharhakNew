@@ -15,6 +15,7 @@ import RealCasesPage from './pages/RealCasesPage';
 import SocietyHandoverChecklistPage from './pages/SocietyHandoverChecklistPage';
 import SocietyAwarenessPage from './pages/SocietyAwarenessPage';
 import MaintenanceCalculatorPage from './pages/MaintenanceCalculatorPage';
+import SimpleHelpPage from './pages/SimpleHelpPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -25,6 +26,7 @@ export const AppContext = React.createContext();
 export default function App() {
   const [page, setPage] = useState('home');
   const [selectedIssue, setSelectedIssue] = useState(null);
+  const [simpleHelpQuery, setSimpleHelpQuery] = useState('');
 
   const PAGE_TITLES = {
     home: 'Home',
@@ -41,6 +43,7 @@ export default function App() {
     handover: 'Society Handover Checklist',
     awareness: 'Society Awareness & Rights',
     maintenance: 'Maintenance Calculator',
+    simplehelp: 'Simple Help',
   };
 
   const navigate = (p, data = null) => {
@@ -54,7 +57,7 @@ export default function App() {
   };
 
   return (
-    <AppContext.Provider value={{ navigate, selectedIssue, setSelectedIssue }}>
+    <AppContext.Provider value={{ navigate, selectedIssue, setSelectedIssue, simpleHelpQuery, setSimpleHelpQuery }}>
       <Ticker />
       <Navbar currentPage={page} navigate={navigate} />
       <main>
@@ -71,7 +74,8 @@ export default function App() {
         {page === 'cases'      && <RealCasesPage />}
         {page === 'handover'   && <SocietyHandoverChecklistPage />}
         {page === 'awareness'  && <SocietyAwarenessPage />}
-        {page === 'maintenance' && <MaintenanceCalculatorPage />}
+        {page === 'maintenance'  && <MaintenanceCalculatorPage />}
+        {page === 'simplehelp'   && <SimpleHelpPage />}
       </main>
       <Footer navigate={navigate} />
       <FeedbackButton />

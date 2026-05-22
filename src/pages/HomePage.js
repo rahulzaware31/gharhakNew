@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from '../App';
 import { ISSUE_CATEGORIES } from '../data/issues';
 
@@ -50,8 +50,16 @@ const REAL_CASES = [
 ];
 
 export default function HomePage({ navigate }) {
-  const { setSelectedIssue } = useContext(AppContext);
+  const { setSelectedIssue, setSimpleHelpQuery } = useContext(AppContext);
   const heroCardsRef = useRef(null);
+  const [heroQuery, setHeroQuery] = useState('');
+
+  const handleSimpleHelp = () => {
+    const q = heroQuery.trim();
+    if (!q) return;
+    setSimpleHelpQuery(q);
+    navigate('simplehelp');
+  };
 
   const handleIssueClick = (issue) => {
     setSelectedIssue(issue);
@@ -81,11 +89,30 @@ export default function HomePage({ navigate }) {
               GharHak gives you the exact steps, the exact laws, and the exact letters to send.
             </p>
 
+            <div className="hp2-hero-input-wrap">
+              <input
+                className="hp2-hero-input"
+                placeholder="e.g. Builder hasn't given flat papers in 5 years..."
+                value={heroQuery}
+                onChange={e => setHeroQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleSimpleHelp()}
+              />
+              <button
+                className="hp2-hero-input-btn"
+                onClick={handleSimpleHelp}
+                disabled={!heroQuery.trim()}
+              >
+                Get Help →
+              </button>
+            </div>
+
+            <p className="hp2-hero-or">or</p>
+
             <button
               className="hp2-cta-btn"
               onClick={() => navigate('wizard')}
             >
-              What is your problem? →
+              Use Complaint Wizard →
             </button>
 
             <div className="hp2-trust-pills">

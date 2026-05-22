@@ -3,6 +3,7 @@ import { ISSUE_CATEGORIES, DOCUMENT_TEMPLATES } from '../data/issues';
 import BrandLogo from './BrandLogo';
 
 const TOOLS = [
+  { id: 'simplehelp', label: 'Simple Help', description: 'Describe your problem in plain words — get simple answers', icon: '🤝' },
   { id: 'wizard', label: 'Complaint Wizard', description: 'Step-by-step complaint filing guide', icon: '🧭' },
   { id: 'chat', label: 'AI Legal Advisor', description: 'Get instant legal answers via AI chat', icon: '💬' },
   { id: 'docs', label: 'Document Generator', description: 'Draft legal notices and complaints', icon: '📄' },
@@ -17,14 +18,16 @@ const TOOLS = [
 ];
 
 const MAIN_LINKS = [
-  { id: 'home',   label: 'Home',             icon: '🏠' },
-  { id: 'wizard', label: 'Complaint Wizard', icon: '🧭' },
-  { id: 'chat',   label: 'AI Advisor',       icon: '💬' },
-  { id: 'docs',   label: 'Documents',        icon: '📄' },
+  { id: 'home',       label: 'Home',          icon: '🏠' },
+  { id: 'simplehelp', label: 'Simple Help',   icon: '🤝' },
+  { id: 'wizard',     label: 'Wizard',        icon: '🧭' },
+  { id: 'chat',       label: 'AI Advisor',    icon: '💬' },
+  { id: 'docs',       label: 'Documents',     icon: '📄' },
 ];
 
 const MORE_LINKS = [
-  { id: 'byelaw',     label: 'Bye-Law Checker',   icon: '📋' },
+  { id: 'simplehelp', label: 'Simple Help',        icon: '🤝' },
+  { id: 'byelaw',     label: 'Bye-Law Checker',    icon: '📋' },
   { id: 'rera',       label: 'RERA Checker',       icon: '⚖️' },
   { id: 'checklist',  label: 'Buy Checklist',      icon: '✅' },
   { id: 'conveyance', label: 'Conveyance Calc',    icon: '🏛️' },
