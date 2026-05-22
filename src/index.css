@@ -82,7 +82,7 @@ body {
 }
 .brand-logo-mark {
   width: 168px;
-  height: 58px;
+  height: auto;
   flex-shrink: 0;
   display: block;
 }
@@ -100,7 +100,7 @@ body {
 }
 .brand-logo.compact .brand-logo-mark {
   width: 134px;
-  height: 46px;
+  height: auto;
 }
 .nav-logo-icon {
   width: 36px;
