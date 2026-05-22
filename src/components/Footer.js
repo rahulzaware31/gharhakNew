@@ -1,4 +1,5 @@
 import React from 'react';
+import BrandLogo from './BrandLogo';
 
 export default function Footer({ navigate }) {
   return (
@@ -6,7 +7,7 @@ export default function Footer({ navigate }) {
       <div className="container">
         <div className="footer-grid" style={{ gridTemplateColumns: '2fr 1fr 1fr 1fr' }}>
           <div>
-            <div className="footer-brand-name">Ghar<span>Hak</span> — घरहक्क</div>
+            <div style={{ marginBottom: 14 }}><BrandLogo compact /></div>
             <p className="footer-desc">
               Free public platform for Maharashtra flat owners and housing society members.
               Know your rights. Take action. Protect your home.
