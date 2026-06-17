@@ -15,6 +15,7 @@ const TOOLS = [
   { id: 'handover',   label: 'Society Handover Checklist',   description: 'Society checklist before accepting developer handover', icon: '🏘️' },
   { id: 'cases',      label: 'Real Cases',                   description: 'Court judgments and RERA orders won by residents', icon: '🏆' },
   { id: 'awareness',  label: 'Society Awareness',            description: 'Plain-language guides for common society problems', icon: '📣' },
+  { id: 'litigation', label: 'Litigation Search',            description: 'Search developer or project name for past litigations', icon: '🔎' },
 ];
 
 const MAIN_LINKS = [
@@ -35,6 +36,7 @@ const MORE_LINKS = [
   { id: 'handover',   label: 'Society Handover',   icon: '🏘️' },
   { id: 'cases',      label: 'Real Cases',         icon: '🏆' },
   { id: 'awareness',  label: 'Society Awareness',  icon: '📣' },
+  { id: 'litigation', label: 'Litigation Search',  icon: '🔎' },
 ];
 
 export default function Navbar({ currentPage, navigate }) {
