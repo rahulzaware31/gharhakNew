@@ -340,6 +340,30 @@ export default function LitigationSearchPage() {
           </div>
         )}
 
+        {/* Verify on official records — free public sources (no API needed) */}
+        {submitted && query.trim() && !loading && (
+          <div style={{ marginBottom: 20, padding: '12px 18px', background: 'var(--teal-light)',
+            border: '1px solid rgba(0,200,150,0.25)', borderRadius: 12, display: 'flex',
+            alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-dark)' }}>
+              🔗 Verify on official records:
+            </span>
+            <a href={`https://indiankanoon.org/search/?formInput=${encodeURIComponent(query.trim() + ' housing society Maharashtra')}`}
+              target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-dark)', textDecoration: 'underline' }}>
+              IndianKanoon →
+            </a>
+            <a href="https://maharera.maharashtra.gov.in/order-list" target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-dark)', textDecoration: 'underline' }}>
+              MahaRERA Orders →
+            </a>
+            <a href="https://services.ecourts.gov.in/ecourtindia_v6/" target="_blank" rel="noopener noreferrer"
+              style={{ fontSize: 13, fontWeight: 700, color: 'var(--teal-dark)', textDecoration: 'underline' }}>
+              eCourts Case Status →
+            </a>
+          </div>
+        )}
+
         {/* Error banner */}
         {submitted && error && (
           <div style={{ background: '#fffbf0', border: '1px solid #fde68a', borderRadius: 12,
