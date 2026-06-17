@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { chatCompletion } from '../utils/groqClient';
 import {
   DEVELOPER_LITIGATIONS,
   searchLitigations,
@@ -13,6 +14,59 @@ const STATUS_STYLES = {
   Pending:  { bg: '#eff6ff', border: '#bfdbfe', color: '#1e40af', label: '◷ Pending' },
   default:  { bg: 'var(--bg)', border: 'var(--border)', color: 'var(--text-muted)', label: 'Case' },
 };
+
+// Fetch litigations for a developer/project name live via the AI proxy.
+async function fetchLitigations(query) {
+  const SYSTEM = `You are a Maharashtra housing-rights litigation researcher. Given a developer name or housing project name, return ONLY a valid JSON array of up to 6 real litigations, RERA orders, consumer forum verdicts, or court cases involving that developer/project (flat owners or societies vs the builder/developer).
+
+Each item must have ALL these fields:
+- id: string (short unique slug)
+- developerName: string
+- projectName: string
+- location: string (city/area in Maharashtra)
+- litigationType: string (e.g. "Project Delay & Possession", "Parking Rights", "Conveyance Deed")
+- caseNumber: string (real-looking case/order number, or "Not on record")
+- court: string (e.g. "MahaRERA" / "Bombay High Court" / "Consumer Forum (Pune)")
+- year: number
+- status: one of "Resolved" | "Ongoing" | "Pending"
+- description: string (2-3 sentences — what the dispute was about)
+- outcome: string (1-2 sentences — the result/order)
+- plaintiffCount: number (approx residents/buyers affected)
+- amount: string (amount involved, e.g. "₹2.5 Crore" or "Not disclosed")
+- sourceUrl: string (real source — indiankanoon.org for judgments, maharera.maharashtra.gov.in for RERA, livelaw.in/barandbench.com for news)
+
+If you are not aware of any genuine litigation for the given name, return an empty array []. Do NOT invent fake cases. Return ONLY the JSON array — no markdown, no explanation.`;
+
+  const data = await chatCompletion({
+    maxTokens: 2000,
+    temperature: 0.2,
+    messages: [
+      { role: 'system', content: SYSTEM },
+      { role: 'user', content: `Developer or project name: ${query}` },
+    ],
+  });
+  const text = data.choices?.[0]?.message?.content || '[]';
+  const clean = text.replace(/```json|```/g, '').trim();
+  const parsed = JSON.parse(clean);
+  if (!Array.isArray(parsed)) throw new Error('Invalid response format');
+  return parsed;
+}
+
+function SkeletonCard() {
+  return (
+    <div style={{ background: 'var(--white)', border: '1px solid var(--border)', borderRadius: 16, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--dark)', height: 80 }} />
+      <div style={{ padding: '16px 18px' }}>
+        {[60, 100, 90, 50].map((w, i) => (
+          <div key={i} style={{
+            height: i === 0 ? 14 : 12, width: `${w}%`, background: 'var(--border)',
+            borderRadius: 4, marginBottom: 10, animation: 'pulse 1.5s ease-in-out infinite',
+          }} />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function LitigationCard({ item }) {
   const status = STATUS_STYLES[item.status] || STATUS_STYLES.default;
@@ -103,6 +157,10 @@ function LitigationCard({ item }) {
 export default function LitigationSearchPage() {
   const [query, setQuery] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [displayed, setDisplayed] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [liveCount, setLiveCount] = useState(0);
 
   const stats = useMemo(() => getLitigationStats(), []);
   const suggestions = useMemo(() => {
@@ -112,26 +170,61 @@ export default function LitigationSearchPage() {
     return [...new Set(all.filter(n => n.toLowerCase().includes(term) && n.toLowerCase() !== term))].slice(0, 6);
   }, [query]);
 
-  const results = useMemo(() => {
-    if (!submitted) return [];
-    return searchLitigations(query);
-  }, [query, submitted]);
+  // Merge static + live records, de-duped by id then by developer+project+year.
+  const mergeRecords = (a, b) => {
+    const out = [];
+    const seen = new Set();
+    [...a, ...b].forEach((r, i) => {
+      if (!r) return;
+      const key = (r.id || `${r.developerName}|${r.projectName}|${r.year}`).toString().toLowerCase();
+      if (seen.has(key)) return;
+      seen.add(key);
+      out.push({ ...r, id: r.id || `rec_${i}` });
+    });
+    return out;
+  };
 
-  const handleSearch = (term) => {
+  const runSearch = async (term) => {
     const q = (term ?? query).trim();
     setQuery(q);
     setSubmitted(true);
+    setError('');
+
+    // Browse-all: just show the curated dataset, no fetch.
+    if (q === '') {
+      setLiveCount(0);
+      setDisplayed(DEVELOPER_LITIGATIONS);
+      return;
+    }
+
+    // Instant local matches, then augment with live results.
+    const local = searchLitigations(q);
+    setDisplayed(local);
+    setLoading(true);
+    try {
+      const live = await fetchLitigations(q);
+      setLiveCount(live.length);
+      setDisplayed(mergeRecords(local, live));
+    } catch (err) {
+      setLiveCount(0);
+      setError('Live search is unavailable right now — showing curated records only.');
+      setDisplayed(local);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const showAll = () => {
-    setQuery('');
-    setSubmitted(true);
-  };
-
-  const displayed = submitted && query.trim() === '' ? DEVELOPER_LITIGATIONS : results;
+  const handleSearch = (term) => { runSearch(term); };
+  const showAll = () => { runSearch(''); };
 
   return (
     <div className="section">
+      <style>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
+        }
+      `}</style>
       <div className="container">
 
         {/* Header */}
@@ -227,25 +320,49 @@ export default function LitigationSearchPage() {
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text)' }}>
               {displayed.length > 0
                 ? <>Found <span style={{ color: 'var(--teal-dark)' }}>{displayed.length}</span> {displayed.length === 1 ? 'litigation' : 'litigations'}{query.trim() && <> for "{query.trim()}"</>}</>
-                : <>No litigations found{query.trim() && <> for "{query.trim()}"</>}</>}
+                : (loading
+                    ? <>Searching live records{query.trim() && <> for "{query.trim()}"</>}…</>
+                    : <>No litigations found{query.trim() && <> for "{query.trim()}"</>}</>)}
             </div>
+            {loading && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 12, fontWeight: 700,
+                color: 'var(--teal-dark)', background: 'var(--teal-light)', padding: '5px 12px', borderRadius: 999,
+                animation: 'pulse 1.5s ease-in-out infinite' }}>
+                ● Fetching live results…
+              </span>
+            )}
+            {!loading && liveCount > 0 && (
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--teal-dark)',
+                background: 'var(--teal-light)', padding: '5px 12px', borderRadius: 999 }}>
+                ⚡ {liveCount} live result{liveCount === 1 ? '' : 's'}
+              </span>
+            )}
           </div>
         )}
 
-        {/* Results grid */}
-        {submitted && displayed.length > 0 && (
+        {/* Error banner */}
+        {submitted && error && (
+          <div style={{ background: '#fffbf0', border: '1px solid #fde68a', borderRadius: 12,
+            padding: '12px 18px', marginBottom: 20, fontSize: 13, color: '#92400e', lineHeight: 1.6 }}>
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* Results grid (with skeletons appended while live results load) */}
+        {submitted && (displayed.length > 0 || loading) && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: 20 }}>
             {displayed.map(item => <LitigationCard key={item.id} item={item} />)}
+            {loading && [1, 2, 3].map(i => <SkeletonCard key={`sk_${i}`} />)}
           </div>
         )}
 
         {/* Empty state */}
-        {submitted && displayed.length === 0 && (
+        {submitted && !loading && displayed.length === 0 && (
           <div style={{ textAlign: 'center', padding: '50px 20px' }}>
             <div style={{ fontSize: 40, marginBottom: 16 }}>🔍</div>
             <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 8 }}>No litigations on record</div>
             <div style={{ fontSize: 14, color: 'var(--text-muted)', maxWidth: 440, margin: '0 auto', lineHeight: 1.6 }}>
-              We don't have any litigation records for "{query.trim()}" yet. This does not mean the
+              We couldn't find any litigation records for "{query.trim()}". This does not mean the
               developer or project is litigation-free — always verify independently on MahaRERA and IndianKanoon.
             </div>
           </div>
