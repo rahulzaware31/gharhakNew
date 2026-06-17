@@ -20,6 +20,7 @@ const TOOLS = [
   { id: 'possession', icon: '🔑', title: 'Possession Checklist',  desc: '33 checks before accepting flat possession' },
   { id: 'cases',      icon: '🏆', title: 'Real Cases',            desc: 'Court judgments where residents won' },
   { id: 'maintenance', icon: '🧮', title: 'Maintenance Calculator', desc: 'Calculate legal maintenance for CHS or Apartment' },
+  { id: 'litigation', icon: '🔎', title: 'Litigation Search',     desc: 'Search a developer or project for past litigations' },
 ];
 
 const SOUND_FAMILIAR = [
