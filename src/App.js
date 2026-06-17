@@ -16,6 +16,7 @@ import SocietyHandoverChecklistPage from './pages/SocietyHandoverChecklistPage';
 import SocietyAwarenessPage from './pages/SocietyAwarenessPage';
 import MaintenanceCalculatorPage from './pages/MaintenanceCalculatorPage';
 import SimpleHelpPage from './pages/SimpleHelpPage';
+import LitigationSearchPage from './pages/LitigationSearchPage';
 import Navbar from './components/Navbar';
 import Ticker from './components/Ticker';
 import Footer from './components/Footer';
@@ -44,6 +45,7 @@ export default function App() {
     awareness: 'Society Awareness & Rights',
     maintenance: 'Maintenance Calculator',
     simplehelp: 'Simple Help',
+    litigation: 'Developer Litigation Search',
   };
 
   const navigate = (p, data = null) => {
@@ -76,6 +78,7 @@ export default function App() {
         {page === 'awareness'  && <SocietyAwarenessPage />}
         {page === 'maintenance'  && <MaintenanceCalculatorPage />}
         {page === 'simplehelp'   && <SimpleHelpPage />}
+        {page === 'litigation'   && <LitigationSearchPage />}
       </main>
       <Footer navigate={navigate} />
       <FeedbackButton />
